@@ -13,4 +13,4 @@ Points: leader board, tears/ranks
         - cosmetics
         - mute people
         - prizes
-        - rename peopel
+        - rename people
