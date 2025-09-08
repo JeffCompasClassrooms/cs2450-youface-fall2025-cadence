@@ -1,21 +1,22 @@
-Project Name
+Project Name:
   
 
-Business Context
+Business Context:
   
 
-Problem Statment
+Problem Statment:
   
 
-Scope
+Scope:
   
 
-Assumptions
+Assumptions:
   
 
-Features
+Features:
   The user is able to post videos, pictures, music, and text. each post can be liked/disliked
 
-Non-Functional Requirements
+Non-Functional Requirements:
   
+
 
