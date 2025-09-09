@@ -21,11 +21,12 @@ This will be an app run off of software built by engineers. The app will work on
 
 Features:
 The user is able to post videos, pictures, music, and text. Each post can be liked/disliked and get comments from other users.
-Users get points based on how many likes or dislikes their posts get. (1 like = 1 point, 1 dislike = -1 point)
+Users get points based on how many likes or dislikes their posts get. (1 like = 1 point, 1 dislike = -1 point). With these points they will be able to buy accessories, tools, items, and etc. There will also be a leaderboard showing people with the most points out of everyone.
 
 Non-Functional Requirements:
 The system will need to be available 24x7x365.
 The system will scale to supports millions of users/downloads.
+
 
 
 
