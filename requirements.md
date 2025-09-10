@@ -28,12 +28,16 @@ Main Banner:
 The banner will have the company logo. It will also contain a waffle on the side that will lead to a drop down menu.
 Main Page:
 Constantly refreshes new posts from people that you follow. Just above the posts stories from the people you follow will appear. Something similar to Instagram.
+**Leaderboard:**
+There will also be a leaderboard showing people with the most points out of everyone.
+
 
 
 
 Non-Functional Requirements:
 The system will need to be available 24x7x365.
 The system will scale to supports millions of users/downloads.
+
 
 
 
