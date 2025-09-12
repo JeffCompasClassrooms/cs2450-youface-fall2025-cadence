@@ -2,11 +2,21 @@ Project Name: Only Celebs
   
 
 Business Context:
-Celeberties and people of higher profile use social media for a wide variety of reasons. 
+The rise of social media has given celebrities a direct channel to connect with their fans, but existing platforms like Instagram, Twitter (X), and TikTok are designed for the general public. This creates challenges for celebrities, their management teams, and their audiences: overcrowded feeds, fake accounts, lack of exclusivity, and difficulty in managing brand image within an environment not tailored to high-profile figures.
+
+OnlyCelebs seeks to address this gap by providing a exclusive platform where celebrities can share content, interact with their fanbase, and collaborate with other public figures in a secure environment. By focusing solely on verified celebrities, the app ensures authenticity, eliminates impersonation risks, and creates a trusted space for both creators and fans.
   
 
 Problem Statment:
-Ccelebrities need a more unified way to talk to eachother and a better place to post media.  
+While mainstream social media platforms have become essential tools for celebrities to reach their audiences, they were not designed with the unique needs of high-profile users in mind. Current platforms present several challenges:
+
+Impersonation and Fake Accounts: Fans are frequently misled by unverified profiles, making it difficult for celebrities to maintain real connections.
+
+Overcrowded Environments: Celebrities compete for visibility in feeds filled with non-celebrity content.
+
+Limited Control: Traditional platforms prioritize algorithms and advertising.
+
+Security and Privacy Risks: High-profile accounts are frequent targets for hacking, harassment, and unwanted exposure. 
 
 Scope:
 This solution will be available on a desktop and mobile devices. The app will work on apple and andriod operating systems. 
@@ -36,6 +46,7 @@ There will also be a leaderboard showing people with the most points out of ever
 Non-Functional Requirements:
 The system will need to be available 24x7x365.
 The system will scale to supports millions of users/downloads.
+
 
 
 
