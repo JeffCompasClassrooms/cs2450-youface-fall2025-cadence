@@ -45,12 +45,13 @@ Constantly refreshes new posts from people that you follow. Just above the posts
 Leaderboard:
 There will also be a leaderboard showing people with the most points out of everyone. It will probably be in a separate tab.
 
-
+*There will be more features that will be added once we start to develop the application.
 
 
 **Non-Functional Requirements:**
 The system will need to be available 24x7x365.
 The system will scale to supports millions of users/downloads.
+
 
 
 
