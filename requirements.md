@@ -22,7 +22,7 @@ Security and Privacy Risks: High-profile accounts are frequent targets for hacki
 This solution will be available on a desktop and mobile devices. The app will work on apple and andriod operating systems. 
 
 Out of Scope:
-  We will not try to import any data from other apps or sources. We will not try to make a usable store simular to a app like TicTok.
+  We will not try to import any data from other apps or sources. We will not try to make a usable store simular to a app like TikTok.
 
 Assumptions:
 It is assumed that our solution will only be a software product. Users must have a stable internet connection to use features. Users will register with a email or phone number. A majority of content will be user generated content.
@@ -46,6 +46,7 @@ There will also be a leaderboard showing people with the most points out of ever
 **Non-Functional Requirements:**
 The system will need to be available 24x7x365.
 The system will scale to supports millions of users/downloads.
+
 
 
 
