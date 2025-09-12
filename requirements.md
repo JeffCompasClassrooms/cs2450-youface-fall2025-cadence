@@ -3,14 +3,14 @@
 
 **Business Context:**
 
-The rise of social media has given celebrities a direct channel to connect with their fans, but existing platforms like Instagram, Twitter (X), and TikTok are designed for the general public. This creates challenges for celebrities, their management teams, and their audiences: overcrowded feeds, fake accounts, lack of exclusivity, and difficulty in managing brand image within an environment not tailored to high-profile figures.
+The rise of social media has given celebrities a direct channel to "speak" with their fans, but existing platforms like Instagram, Twitter (X), and TikTok are designed for the average person. This creates challenges for celebrities: overcrowded feeds, fake accounts, and a lack of feeling exclusive.
 
-OnlyCelebs seeks to address this gap by providing a exclusive platform where celebrities can share content, interact with their fanbase, and collaborate with other public figures in a secure environment. By focusing solely on verified celebrities, the app ensures authenticity, eliminates impersonation risks, and creates a trusted space for both creators and fans.
+OnlyCelebs seeks to fix this gap by providing a exclusive platform where celebrities can share content, interact with their fanbase, and talk with other famous people in a secure environment. By putting a focus on verified celebrities, the app ensures authenticity, eliminates impersonation risks, and creates a trusted space for both creators and fans.
   
 
 **Problem Statment:**
 
-While mainstream social media platforms have become essential tools for celebrities to reach their audiences, they were not designed with the unique needs of high-profile users in mind. Current platforms present several challenges:
+While most social media platforms have become tools for celebrities to reach their audiences, they were not designed with the needs of high-profile users in mind. Current platforms present several challenges:
 
 Impersonation and Fake Accounts: Fans are frequently misled by unverified profiles, making it difficult for celebrities to maintain real connections.
 
@@ -18,7 +18,7 @@ Overcrowded Environments: Celebrities compete for visibility in feeds filled wit
 
 Limited Control: Traditional platforms prioritize algorithms and advertising.
 
-Security and Privacy Risks: High-profile accounts are frequent targets for hacking, harassment, and unwanted exposure. 
+Security and Privacy Risks: High-profile accounts are frequent targets for hacking.
 
 **Scope:**
 
@@ -56,6 +56,7 @@ There will also be a leaderboard showing people with the most points out of ever
 
 The system will need to be available 24x7x365.
 The system will scale to supports millions of users/downloads.
+
 
 
 
