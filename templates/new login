@@ -27,7 +27,7 @@
   }
 
   .logo {
-    width: 90px;
+    width: 100px;
     height: auto;
     margin-bottom: 1rem;
   }
@@ -84,16 +84,11 @@
     background: #4B2A82;
     border: none;
   }
-
-  .text-muted {
-    color: #6f6f6f;
-  }
 </style>
 
 <div class="login-card">
   <img src="{{ url_for('static', filename='Only_Celebs_LogoV1.png') }}" alt="OnlyCelebs Logo" class="logo">
   <h2 class="brand-title">OnlyCelebs</h2>
-  <p class="text-muted mb-4">Exclusive community for stars and fans ✨</p>
 
   <form method="post" action="/login">
     <div class="form-group">
@@ -114,3 +109,4 @@
   </form>
 </div>
 {% endblock %}
+
