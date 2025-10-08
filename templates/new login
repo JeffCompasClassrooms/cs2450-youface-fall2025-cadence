@@ -3,75 +3,114 @@
 {% block content %}
 <style>
   body {
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    background: linear-gradient(135deg, #2e1a47, #4b2a82);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: 'Poppins', sans-serif;
   }
 
   .login-card {
-    border: none;
-    border-radius: 1.5rem;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    background-color: #fff;
-    padding: 2rem;
+    background: #fff;
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.25);
     width: 100%;
     max-width: 420px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    padding: 2.5rem;
+    text-align: center;
+    transition: transform 0.25s ease;
   }
 
   .login-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+    transform: translateY(-4px);
   }
 
-  legend {
-    text-align: center;
+  .logo {
+    width: 90px;
+    height: auto;
+    margin-bottom: 1rem;
+  }
+
+  .brand-title {
+    font-size: 1.8rem;
     font-weight: 600;
-    color: #1e3c72;
+    background: linear-gradient(90deg, #3B2667, #9B7CF0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    font-weight: 500;
+    color: #3B2667;
+  }
+
+  .form-control {
+    border-radius: 0.75rem;
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-control:focus {
+    border-color: #9B7CF0;
+    box-shadow: 0 0 0 0.2rem rgba(155, 124, 240, 0.25);
   }
 
   .btn {
     width: 100%;
     margin-top: 0.75rem;
-    font-weight: 500;
-    transition: 0.2s;
-  }
-
-  .btn:hover {
-    transform: scale(1.03);
-  }
-
-  .form-control {
+    font-weight: 600;
     border-radius: 0.75rem;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .btn-primary {
+    background: linear-gradient(90deg, #3B2667, #9B7CF0);
+    border: none;
+  }
+
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+
+  .btn-success {
+    background: #9B7CF0;
+    border: none;
+  }
+
+  .btn-danger {
+    background: #4B2A82;
+    border: none;
+  }
+
+  .text-muted {
+    color: #6f6f6f;
   }
 </style>
 
-<div class="login-container">
-  <div class="login-card">
-    <form method="post" action="/login">
-      <fieldset>
-        <legend>Welcome Back</legend>
-        <p class="text-muted text-center mb-4">Login to continue or manage your account</p>
+<div class="login-card">
+  <img src="{{ url_for('static', filename='Only_Celebs_LogoV1.png') }}" alt="OnlyCelebs Logo" class="logo">
+  <h2 class="brand-title">OnlyCelebs</h2>
+  <p class="text-muted mb-4">Exclusive community for stars and fans ✨</p>
 
-        <div class="form-group mb-3">
-          <label for="username" class="form-label">Username</label>
-          <input type="text" class="form-control" name="username" placeholder="Enter your username" required>
-        </div>
+  <form method="post" action="/login">
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" class="form-control" name="username" placeholder="Enter your username" required>
+    </div>
 
-        <div class="form-group mb-4">
-          <label for="password" class="form-label">Password</label>
-          <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
-        </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
+    </div>
 
-        <div class="d-grid gap-2">
-          <input class="btn btn-primary" type="submit" name="type" value="Login">
-          <input class="btn btn-success" type="submit" name="type" value="Create">
-          <input class="btn btn-outline-danger" type="submit" name="type" value="Delete">
-        </div>
-      </fieldset>
-    </form>
-  </div>
+    <div class="d-grid gap-2">
+      <input class="btn btn-primary" type="submit" name="type" value="Login">
+      <input class="btn btn-success" type="submit" name="type" value="Create">
+      <input class="btn btn-danger" type="submit" name="type" value="Delete">
+    </div>
+  </form>
 </div>
 {% endblock %}
