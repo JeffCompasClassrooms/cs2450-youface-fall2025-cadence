@@ -1,0 +1,12 @@
+body.bg-gradient {
+  background: linear-gradient(135deg, #3b006b, #7b42f6);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  border-radius: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
