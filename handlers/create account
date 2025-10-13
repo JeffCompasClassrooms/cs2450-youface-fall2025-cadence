@@ -1,0 +1,30 @@
+from flask import Flask, render_template, request, redirect, url_for, flash
+
+app = Flask(__name__)
+app.secret_key = "supersecretkey"  # needed for flash messages
+
+# Existing login route
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        # handle login logic
+        return redirect(url_for("dashboard"))  # example
+    return render_template("login.html", title="Login")
+
+# ✅ New Create Account route
+@app.route("/create", methods=["GET", "POST"])
+def create():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        confirm = request.form["confirm"]
+
+        if password != confirm:
+            flash("Passwords do not match", "danger")
+            return redirect(url_for("create"))
+
+        # TODO: Add logic to save new user to your database
+        flash("Account created successfully! Please log in.", "success")
+        return redirect(url_for("login"))
+
+    return render_template("create.html", title="Create Account")
