@@ -1,28 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row">
-  <div class="col-sm-6 mx-auto">
-    <div class="card card-body bg-light">
-      <form method="post" action="/login">
-        <fieldset>
-          <legend>Login</legend>
-          <hr />
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" class="form-control" name="username">
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" name="password">
-          </div>
-          <div class="form-group">
-            <input class="btn btn-primary" type="submit" name="type" value="Login">
-            <a href="{{ url_for('create') }}" class="btn btn-success">Create Account</a>
-          </div>
-        </fieldset>
-      </form>
-    </div>
-  </div>
+<div class="card">
+  <img src="{{ url_for('static', filename='logo.png') }}" alt="OnlyCelebs Logo">
+  <h2>Welcome Back</h2>
+  <p class="subtitle">Sign in to connect with the stars 🌟</p>
+
+  <form method="post" action="/login">
+    <input type="text" class="form-control" name="username" placeholder="Username" required>
+    <input type="password" class="form-control" name="password" placeholder="Password" required>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+    <a href="{{ url_for('create') }}" class="btn btn-secondary">Create Account</a>
+  </form>
 </div>
 {% endblock %}
