@@ -1,0 +1,105 @@
+/* ==============================
+   OnlyCelebs Theme Styles
+   ============================== */
+
+/* Background gradient (deep violet + royal purple) */
+body.bg-gradient {
+  background: linear-gradient(135deg, #2b0057, #7b42f6);
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  color: #fff;
+}
+
+/* Center card container */
+.card {
+  background: #fff;
+  border-radius: 25px;
+  box-shadow: 0 8px 35px rgba(0, 0, 0, 0.25);
+  width: 380px;
+  padding: 40px 35px;
+  text-align: center;
+  color: #333;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Logo */
+.card img {
+  width: 60px;
+  margin-bottom: 10px;
+}
+
+/* Headings */
+.card h2 {
+  color: #6a1b9a;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.card p.subtitle {
+  color: #777;
+  font-size: 0.95rem;
+  margin-bottom: 25px;
+}
+
+/* Form fields */
+.form-control {
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  border-radius: 12px;
+  padding: 10px 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  width: 100%;
+  margin-bottom: 10px;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #7b42f6, #b682ff);
+  border: none;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #6a36d6, #9c67ff);
+}
+
+.btn-secondary {
+  background: linear-gradient(90deg, #b682ff, #7b42f6);
+  border: none;
+  color: white;
+}
+
+.btn-danger {
+  background: #6a1b9a;
+  border: none;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #4e1373;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
