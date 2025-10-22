@@ -11,6 +11,13 @@ from handlers import friends, login, posts
 
 app = flask.Flask(__name__)
 
+@app.route('/logout')
+def logout():
+    resp = flask.make_response(flask.redirect(flask.url_for('login.loginscreen')))
+    resp.set_cookie('username', '', expires=0)
+    resp.set_cookie('password', '', expires=0)
+    return resp
+
 @app.template_filter('convert_time')
 def convert_time(ts):
     """A jinja template helper to convert timestamps to timeago."""

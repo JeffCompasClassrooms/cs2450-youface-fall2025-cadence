@@ -1,94 +1,123 @@
 {% extends "base.html" %}
 
 {% block content %}
+<!-- Use a link to Poppins for a clean, modern look (assuming base.html doesn't already include it) -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body {
+/* Base Styles */
+body {
     background: linear-gradient(135deg, #2e1a47, #4b2a82);
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Poppins', sans-serif;
-  }
+    margin: 0;
+}
 
-  .login-card {
+.login-card {
     background: #fff;
     border-radius: 1.25rem;
-    box-shadow: 0 8px 35px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     width: 100%;
     max-width: 420px;
-    padding: 2.5rem;
+    padding: 2rem 1.5rem;
     text-align: center;
     transition: transform 0.25s ease;
-  }
+}
 
-  .login-card:hover {
-    transform: translateY(-4px);
-  }
-
-  .logo {
-    width: 90px;
+/* Logo and Title Spacing Fix */
+.logo {
+    display: block;
+    width: 220px;
     height: auto;
-    margin-bottom: 1rem;
-  }
+    /* FIX: Reduced margin to tighten gap between logo and title */
+    margin: 0 auto 0.5rem; 
+}
 
-  .brand-title {
+.brand-title {
     font-size: 1.8rem;
     font-weight: 600;
     background: linear-gradient(90deg, #3B2667, #9B7CF0);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+.text-muted {
+    color: #6f6f6f;
     margin-bottom: 1.5rem;
-  }
+}
 
-  label {
+/* Form Group Spacing Fixes (CRITICAL) */
+.form-group {
+    /* FIX: Eliminate default bottom margin from the form group container */
+    margin-bottom: 0; 
+}
+
+/* FIX: Introduce space *only* above the subsequent form group for a tight look */
+.form-group + .form-group {
+    margin-top: 0.75rem; 
+}
+
+.form-group label {
+    display: block; 
+    /* Small, controlled space between label and input */
+    margin-bottom: 0.25rem; 
     font-weight: 500;
-    color: #3B2667;
-  }
+    text-align: left;
+}
 
-  .form-control {
+/* Form Controls */
+.form-control {
     border-radius: 0.75rem;
     border: 1px solid #ccc;
     padding: 0.75rem;
-    margin-bottom: 1rem;
-  }
+    margin-bottom: 0; 
+    width: 100%;
+    box-sizing: border-box; /* Ensures padding doesn't widen the input */
+}
 
-  .form-control:focus {
+.form-control:focus {
     border-color: #9B7CF0;
     box-shadow: 0 0 0 0.2rem rgba(155, 124, 240, 0.25);
-  }
+    outline: none; /* Remove default focus outline */
+}
 
-  .btn {
+/* Buttons */
+.btn {
     width: 100%;
     margin-top: 0.75rem;
     font-weight: 600;
     border-radius: 0.75rem;
     transition: all 0.2s ease-in-out;
-  }
+    padding: 0.75rem; /* Standard button size */
+}
 
-  .btn-primary {
+.btn-primary {
     background: linear-gradient(90deg, #3B2667, #9B7CF0);
     border: none;
-  }
+    color: #fff;
+}
 
-  .btn-primary:hover {
+.btn-primary:hover {
     opacity: 0.9;
-  }
+}
 
-  .btn-success {
+.btn-success {
     background: #9B7CF0;
     border: none;
-  }
+    color: #fff;
+}
 
-  .btn-danger {
+.btn-danger {
     background: #4B2A82;
     border: none;
-  }
-
-  .text-muted {
-    color: #6f6f6f;
-  }
+    color: #fff;
+}
 </style>
+
 
 <div class="login-card">
   <img src="{{ url_for('static', filename='Only_Celebs_LogoV1.png') }}" alt="OnlyCelebs Logo" class="logo">
@@ -96,16 +125,19 @@
   <p class="text-muted mb-4">Exclusive community for stars and fans ✨</p>
 
   <form method="post" action="/login">
+    <!-- Username Form Group -->
     <div class="form-group">
       <label for="username">Username</label>
       <input type="text" class="form-control" name="username" placeholder="Enter your username" required>
     </div>
 
+    <!-- Password Form Group (Now spaced correctly relative to the one above it) -->
     <div class="form-group">
       <label for="password">Password</label>
       <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
     </div>
 
+    <!-- Button Container -->
     <div class="d-grid gap-2">
       <input class="btn btn-primary" type="submit" name="type" value="Login">
       <input class="btn btn-success" type="submit" name="type" value="Create">
@@ -113,4 +145,3 @@
   </form>
 </div>
 {% endblock %}
-
