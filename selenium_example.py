@@ -17,7 +17,7 @@ try:
 
     print("--= Beginning Tests =--")
     login_button = driver.find_element(By.CSS_SELECTOR, "input[type='submit'][value='Login']")
-    copy = driver.find_element(By.CSS_SELECTOR, "p[class='lead']").text
+    copy = driver.find_element(By.CSS_SELECTOR, "p.text-muted").text
 
     if copy == "A billion dollars and it's yours!":
         print("[FAILED] - Default Copy is still in place.")
