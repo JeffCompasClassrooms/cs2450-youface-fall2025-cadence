@@ -1,92 +1,268 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Celebrity Feed</title>
+    <!-- Load Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define custom scrollbar style for better aesthetics */
+        .stories-container::-webkit-scrollbar {
+            height: 4px;
+        }
+        .stories-container::-webkit-scrollbar-thumb {
+            background: #d1d5db; /* Softer gray */
+            border-radius: 2px;
+        }
+        /* Style for the main container to ensure fluid width and centering */
+        #app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        /* Ensure the sticky sidebar performs well */
+        .sticky-sidebar {
+            top: 6rem; /* Space below the fixed header */
+        }
+    </style>
+    <script>
+        // Tailwind configuration for the purple/gray theme
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#9333ea', /* Indigo/Purple */
+                        'primary-dark': '#7e22ce',
+                        'soft-gray': '#f9fafb',
+                    },
+                },
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-50 font-sans">
 
-{% block content %}
-<div class="container mt-4">
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 bg-white shadow-sm z-10 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
 
-  <!-- Header -->
-  <div class="row justify-content-center mb-4">
-    <h1 class="fw-bold">Welcome, {{ username }}!</h1>
-  </div>
+                <!-- Logo -->
+                <div class="flex-shrink-0">
+                    <img src="../static/Only_Celebs_LogoV1.png" alt="Only Celebs Logo" class="h-40 w-auto">
+                </div>
 
-  <div class="row justify-content-center">
+                <!-- Search Bar -->
+                <div class="hidden md:flex flex-1 max-w-lg mx-8">
+                    <div class="relative w-full">
+                        <input type="search" placeholder="Search for celebs, news & gossip" class="w-full py-2 pl-10 pr-4 border border-gray-300 bg-gray-50 rounded-full focus:ring-2 focus:ring-primary focus:border-primary transition">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Main Feed Column -->
-    <div class="col-lg-7">
+                <!-- User Actions -->
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
 
-      <!-- New Post Box -->
-      <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-body">
-          <form method="post" action="/post">
-            <div class="mb-3">
-              <textarea class="form-control border-0" name="post" rows="3" placeholder="Share something..." style="resize: none;"></textarea>
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <!-- User Initial Button -->
+                        <button id="userMenuButton" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
+                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="userDropdown"
+                            class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg 
+                                  opacity-0 scale-95 max-h-0 overflow-hidden 
+                                  transition-all duration-200 transform origin-top hidden">
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                                Log Out
+                            </a>
+                        </div>
+                    </div>
+                </div> 
+
+            </div> 
+        </div> 
+    </header> 
+
+    <!-- MAIN CONTENT LAYOUT (3 Columns) -->
+    <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <!-- Column 1: Friends/Features (Left Sidebar) -->
+        <div class="lg:col-span-3 space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:block hidden">Welcome, {{ username }}!</h2>
+
+            <!-- Friends/Stories Section (Avatar based on initials) -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">My Friends</h3>
+                <div class="flex space-x-5 overflow-x-auto stories-container pb-2">
+                    <!-- My Story/Profile Placeholder -->
+                    <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
+                        <div class="relative w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-400 text-lg font-bold text-gray-700 hover:border-primary transition duration-300">
+                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
+                        </div>
+                        <span class="text-xs mt-1 text-gray-500">My Story</span>
+                    </div>
+                    
+                    <!-- JINJA LOOP for Friends/Stories -->
+                    {% for friend in friends %}
+                    <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
+                        <!-- Friend Avatar (Initial in a purple ring) -->
+                        <a href="/friend/{{ friend.username }}" class="relative w-16 h-16 rounded-full bg-gray-200 ring-2 ring-primary ring-offset-2 ring-offset-white flex items-center justify-center text-lg font-bold text-primary hover:ring-primary-dark transition duration-300">
+                            {{ friend.username[0] }}
+                        </a>
+                        <span class="text-xs mt-1 text-gray-700 truncate w-16 text-center">{{ friend.username }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="d-flex justify-content-end">
-              <button type="submit" class="btn btn-primary btn-sm" name="post-submit">Post</button>
+
+            <!-- New Post Box (Form) -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">Share Your Insight</h3>
+                <form method="post" action="/post">
+                    <div class="mb-4">
+                        <textarea class="w-full p-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-700" name="post" rows="3" placeholder="What's the latest gossip?"></textarea>
+                    </div>
+                    <!-- Removed "Add Media" functionality -->
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark shadow-md transition" name="post-submit">Post</button>
+                    </div>
+                </form>
             </div>
-          </form>
+
+            <!-- Add Friend / Following Section (Form) -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h5 class="font-bold text-lg mb-3 text-gray-800">Find & Follow</h5>
+                <form method="post" action="/addfriend" class="flex flex-col space-y-3">
+                    <input type="text" class="px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg focus:ring-primary focus:border-primary text-sm text-gray-700" name="name" placeholder="Username to follow" />
+                    <button type="submit" class="w-full py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition" name="addfriend">Follow</button>
+                </form>
+            </div>
         </div>
-      </div>
 
-      <!-- Feed Section -->
-      {% for post in posts %}
-      <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-body">
-          <div class="d-flex align-items-center mb-2">
-            <div class="rounded-circle bg-secondary me-2" style="width: 40px; height: 40px;"></div>
-            <div>
-              <h6 class="mb-0 fw-bold">{{ post.user }}</h6>
-              <small class="text-muted">{{ post.time|convert_time }}</small>
+        <!-- Column 2: Main Feed (Center) -->
+        <div class="lg:col-span-6 space-y-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:hidden">Celebrity News</h2>
+
+            <!-- The Feed Section: Single post per row -->
+            <div id="main-feed-grid" class="space-y-6">
+                <!-- JINJA LOOP for Posts -->
+                {% for post in posts %}
+                <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
+                    
+                    <!-- Post Content: Simplified (Image section removed) -->
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <!-- User Avatar with soft background -->
+                                <div class="w-9 h-9 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-sm font-semibold text-gray-700">
+                                    {{ post.user[0] }}
+                                </div>
+                                <div>
+                                    <h6 class="font-bold text-base text-gray-900">{{ post.user }}</h6>
+                                    <!-- Use convert_time filter from your original code -->
+                                    <small class="text-xs text-gray-500">{{ post.time|convert_time }}</small>
+                                </div>
+                            </div>
+                            <!-- Options/More Button -->
+                            <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                            </button>
+                        </div>
+                        <p class="text-base text-gray-800 line-clamp-3 mb-4">{{ post.text }}</p>
+
+                        <!-- Actions (Like, Comment, Share, Save) -->
+                        <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
+                            <!-- Heart (Like) -->
+                            <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                <span class="text-sm">0</span>
+                            </button>
+                            <!-- Comment -->
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                <span class="text-sm">0</span>
+                            </button>
+                            <!-- Share -->
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.883 13.918 9 14.507 9 15a2.222 2.222 0 01-1.494 2.195 2.222 2.222 0 01-2.502-.144c-.73-.73-.73-1.935 0-2.665l.895-.895c.77-.772.898-1.85.398-2.734L6.9 10.741A2.222 2.222 0 0110.15 7.5c1.018 0 2.035.158 3.012.474l.995.324a3.333 3.333 0 003.784-.144l.895-.895c.73-.73.73-1.935 0-2.665a2.222 2.222 0 00-2.502-.144 2.222 2.222 0 00-1.494 2.195c0 .493.076.982.235 1.458l.794 2.06c.5.884.372 1.962-.398 2.734l-.895.895c-.73.73-.73 1.935 0 2.665l.895.895c.77.772.898 1.85.398 2.734L15 15l1.5-1.5"></path></svg>
+                            </button>
+                            <!-- Save -->
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-          </div>
-          <p class="card-text mt-2">{{ post.text }}</p>
         </div>
-      </div>
-      {% endfor %}
+
+        <!-- Column 3: Trending Tops (Right Sidebar) -->
+        <div class="lg:col-span-3 space-y-6">
+            <div class="bg-white p-5 rounded-xl shadow-md sticky sticky-sidebar border border-gray-100">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Trending Tops</h3>
+
+                <!-- Tab Navigation -->
+                <div class="flex border-b border-gray-200 mb-4 text-sm text-gray-600">
+                    <button class="py-2 px-3 border-b-2 border-primary text-primary font-semibold transition">Videos</button>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">Stories</button>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">News</button>
+                </div>
+
+                <!-- Trending List Items (Static Mock Content - text only) -->
+                <ul class="space-y-4">
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                        <!-- Placeholder box for Video (Green theme) -->
+                        <div class="w-16 h-16 bg-green-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">#ARTGala2024: Glamour, Glitter, and Unforgettable Moments</p>
+                            <small class="text-xs text-gray-500 block mt-0.5">Fashion_Insider</small>
+                            <div class="text-xs mt-1">
+                                <span class="text-primary font-medium">9.5K Views</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                        <!-- Placeholder box for Story (Orange theme) -->
+                        <div class="w-16 h-16 bg-orange-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">FOCUSIMAH303 reveals exclusive details about new project</p>
+                            <small class="text-xs text-gray-500 block mt-0.5">GlobalPopNews</small>
+                            <div class="text-xs mt-1">
+                                <span class="text-primary font-medium">2 days ago</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
     </div>
+  <script>
+document.getElementById('userMenuButton').addEventListener('click', function () {
+    const dropdown = document.getElementById('userDropdown');
 
-    <!-- Sidebar Column -->
-    <div class="col-lg-4">
-
-      <!-- Add Friend -->
-      <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-body">
-          <h5 class="fw-bold mb-3">Add Friend</h5>
-          <form method="post" action="/addfriend">
-            <div class="mb-2">
-              <input type="text" class="form-control" name="name" placeholder="Username" />
-            </div>
-            <button type="submit" class="btn btn-primary w-100 btn-sm" name="addfriend">Add</button>
-          </form>
-        </div>
-      </div>
-
-      <!-- Friends List -->
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <h5 class="fw-bold mb-3">My Friends</h5>
-          {% if friends %}
-            <ul class="list-unstyled">
-              {% for friend in friends %}
-              <li class="mb-2">
-                <a href="/friend/{{ friend.username }}" class="text-decoration-none text-dark">
-                  <div class="d-flex align-items-center">
-                    <div class="rounded-circle bg-secondary me-2" style="width: 30px; height: 30px;"></div>
-                    <span>{{ friend.username }}</span>
-                  </div>
-                </a>
-              </li>
-              {% endfor %}
-            </ul>
-          {% else %}
-            <p class="text-muted">You haven't added any friends yet.</p>
-          {% endif %}
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-</div>
-{% endblock %}
-
+    dropdown.classList.toggle('hidden');
+    dropdown.classList.toggle('opacity-0');
+    dropdown.classList.toggle('scale-95');
+    dropdown.classList.toggle('max-h-0');
+});
+</script>
+</body>
+</html>
