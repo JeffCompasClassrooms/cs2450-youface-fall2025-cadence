@@ -17,5 +17,36 @@
     {% block content %}
     {% endblock %}
   </body>
-</html>
+    <script>
+    const userBtn = document.getElementById('userMenuButton');
+    const dropdown = document.getElementById('userDropdown');
 
+    if (userBtn && dropdown) {
+      userBtn.addEventListener('click', () => {
+        const isHidden = dropdown.classList.contains('hidden');
+
+        if (isHidden) {
+          dropdown.classList.remove('hidden');
+          setTimeout(() => {
+            dropdown.classList.remove('opacity-0', 'scale-95', 'max-h-0');
+            dropdown.classList.add('opacity-100', 'scale-100', 'max-h-40');
+          }, 10);
+        } else {
+          dropdown.classList.remove('opacity-100', 'scale-100', 'max-h-40');
+          dropdown.classList.add('opacity-0', 'scale-95', 'max-h-0');
+          setTimeout(() => dropdown.classList.add('hidden'), 200);
+        }
+      });
+
+      // Click anywhere else to close
+      document.addEventListener('click', (e) => {
+        if (!userBtn.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.remove('opacity-100', 'scale-100', 'max-h-40');
+          dropdown.classList.add('opacity-0', 'scale-95', 'max-h-0');
+          setTimeout(() => dropdown.classList.add('hidden'), 200);
+        }
+      });
+    }
+  </script>
+
+</html>
