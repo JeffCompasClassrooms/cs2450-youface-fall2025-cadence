@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Assuming base.html includes styles, or add styles here -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Using similar styles from the login page for consistency */
+body {
+    background: linear-gradient(135deg, #2e1a47, #4b2a82);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+}
+
+.card {
+    background: #fff;
+    border-radius: 1.25rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 420px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+}
+
+.card img {
+    display: block;
+    width: 220px;
+    height: auto;
+    margin: 0 auto 0.5rem;
+}
+
+.card h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    background: linear-gradient(90deg, #3B2667, #9B7CF0);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem; /* Tighter spacing */
+}
+
+.subtitle {
+    color: #6f6f6f;
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border-radius: 0.75rem;
+    border: 1px solid #ccc;
+    padding: 0.75rem;
+    width: 100%;
+    box-sizing: border-box; 
+    margin-bottom: 0.75rem; /* Space between inputs */
+}
+
+.form-control:focus {
+    border-color: #9B7CF0;
+    box-shadow: 0 0 0 0.2rem rgba(155, 124, 240, 0.25);
+    outline: none;
+}
+
+.btn {
+    width: 100%;
+    margin-top: 0.5rem; /* Space above first button */
+    font-weight: 600;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease-in-out;
+    padding: 0.75rem;
+    box-sizing: border-box;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #3B2667, #9B7CF0);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background: #f0f0f0; /* Lighter background for secondary action */
+    color: #333;
+    border: 1px solid #ccc;
+}
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+</style>
+
+<div class="card">
+  <!-- Assuming logo path is correct from your other template -->
+  <img src="{{ url_for('static', filename='Only_Celebs_LogoV1.png') }}" alt="OnlyCelebs Logo">
+  <h2>Create Account</h2>
+  <p class="subtitle">Join the exclusive community ✨</p>
+
+  <!-- **** UPDATED ACTION **** -->
+  <form method="post" action="{{ url_for('login.createaccount_submit') }}">
+    <input type="text" class="form-control" name="username" placeholder="Choose a username" required>
+    <input type="password" class="form-control" name="password" placeholder="Enter a password" required>
+    <input type="password" class="form-control" name="confirm" placeholder="Confirm your password" required>
+
+    <button type="submit" class="btn btn-primary">Create Account</button>
+    
+    <!-- **** UPDATED HREF **** -->
+    <a href="{{ url_for('login.loginscreen') }}" class="btn btn-secondary">Back to Login</a>
+  </form>
+</div>
+{% endblock %}
