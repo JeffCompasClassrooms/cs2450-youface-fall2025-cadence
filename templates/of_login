@@ -93,6 +93,10 @@ body {
     border-radius: 0.75rem;
     transition: all 0.2s ease-in-out;
     padding: 0.75rem; /* Standard button size */
+    box-sizing: border-box; /* Include padding in width */
+    text-decoration: none; /* For <a> tags styled as buttons */
+    display: inline-block; /* For <a> tags */
+    text-align: center; /* For <a> tags */
 }
 
 .btn-primary {
@@ -103,11 +107,17 @@ body {
 
 .btn-primary:hover {
     opacity: 0.9;
+    color: #fff;
 }
 
 .btn-success {
     background: #9B7CF0;
     border: none;
+    color: #fff;
+}
+
+.btn-success:hover {
+    background: #8a6cd9; /* Slightly darker hover */
     color: #fff;
 }
 
@@ -124,7 +134,7 @@ body {
   <h2 class="brand-title">OnlyCelebs</h2>
   <p class="text-muted mb-4">Exclusive community for stars and fans ✨</p>
 
-  <form method="post" action="/login">
+  <form method="post" action="{{ url_for('login.login') }}">
     <!-- Username Form Group -->
     <div class="form-group">
       <label for="username">Username</label>
@@ -140,7 +150,11 @@ body {
     <!-- Button Container -->
     <div class="d-grid gap-2">
       <input class="btn btn-primary" type="submit" name="type" value="Login">
-      <input class="btn btn-success" type="submit" name="type" value="Create">
+      
+      <!-- **** CHANGED THIS **** -->
+      <!-- This is now a link (<a>) styled as a button, pointing to the create account page -->
+      <a href="{{ url_for('login.createaccount_page') }}" class="btn btn-success">Create Account</a>
+      <!-- **** END CHANGE **** -->
     </div>
   </form>
 </div>
