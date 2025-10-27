@@ -1,6 +1,7 @@
 import flask
 
-from db import posts, users, helpers
+# NOTE: We are importing the *database* functions from db.posts
+from db import users, helpers, posts as db_posts 
 
 blueprint = flask.Blueprint("posts", __name__)
 
@@ -17,7 +18,9 @@ def post():
         flask.flash('You need to be logged in to do that.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    post = flask.request.form.get('post')
-    posts.add_post(db, user, post)
+    post_text = flask.request.form.get('post')
+    
+    # Use the add_post function from the database module (db.posts)
+    db_posts.add_post(db, user, post_text)
 
     return flask.redirect(flask.url_for('login.index'))
