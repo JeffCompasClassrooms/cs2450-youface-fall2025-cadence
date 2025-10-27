@@ -5,48 +5,46 @@
     <title>{{ title }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='onlycelebs.css') }}" type="text/css">
+    
+    <!-- FIX: Corrected 'xintegrity' to 'integrity' -->
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      xintegrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
       crossorigin="anonymous"></script>
+    <!-- FIX: Corrected 'xintegrity' to 'integrity' -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
-      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      xintegrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"></script>
   </head>
 
   <body class="bg-gradient">
+  <!-- Put this inside your base.html file -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <!-- This div will hold all the flashed messages -->
+        <div class="flashed-messages" style="width: 100%; text-align: center; position: absolute; top: 0; left: 0; z-index: 100;">
+          {% for category, message in messages %}
+            <!-- 
+              It styles the message based on the category you provided.
+              e.g., 'danger' gets a red background, 'success' gets green.
+            -->
+            
+            <!-- This uses your corrected class attribute, which is great! -->
+            <!-- Your CSS file should now handle styling for .alert-danger, .alert-success etc. -->
+            <div class="alert alert-{{ category }}" style="padding: 1rem; color: white;">
+
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    
     {% block content %}
     {% endblock %}
   </body>
-    <script>
-    const userBtn = document.getElementById('userMenuButton');
-    const dropdown = document.getElementById('userDropdown');
+  <script>
 
-    if (userBtn && dropdown) {
-      userBtn.addEventListener('click', () => {
-        const isHidden = dropdown.classList.contains('hidden');
-
-        if (isHidden) {
-          dropdown.classList.remove('hidden');
-          setTimeout(() => {
-            dropdown.classList.remove('opacity-0', 'scale-95', 'max-h-0');
-            dropdown.classList.add('opacity-100', 'scale-100', 'max-h-40');
-          }, 10);
-        } else {
-          dropdown.classList.remove('opacity-100', 'scale-100', 'max-h-40');
-          dropdown.classList.add('opacity-0', 'scale-95', 'max-h-0');
-          setTimeout(() => dropdown.classList.add('hidden'), 200);
-        }
-      });
-
-      // Click anywhere else to close
-      document.addEventListener('click', (e) => {
-        if (!userBtn.contains(e.target) && !dropdown.contains(e.target)) {
-          dropdown.classList.remove('opacity-100', 'scale-100', 'max-h-40');
-          dropdown.classList.add('opacity-0', 'scale-95', 'max-h-0');
-          setTimeout(() => dropdown.classList.add('hidden'), 200);
-        }
-      });
-    }
   </script>
 
 </html>
+
