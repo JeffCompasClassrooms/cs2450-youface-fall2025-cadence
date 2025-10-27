@@ -63,64 +63,58 @@
                     </div>
                 </div>
 
-                <!-- User Actions -->
-                <div class="flex items-center space-x-4">
 
-                    <div class="relative">
-                        <button id="notificationButton" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                        </button>
+<!-- User Actions -->
+<div class="flex items-center space-x-4">
 
-                        <div id="notificationDropdown"
-                            class="absolute right-0 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4 text-center text-gray-500
-                                opacity-0 scale-95 max-h-0 overflow-hidden 
-                                transition-all duration-200 transform origin-top hidden z-10  mr-5">
-                            No new notifications
-                        </div>
-                    </div>
+    <!-- Notifications -->
+    <div class="relative">
+        <button data-dropdown="notificationDropdown" class="dropdownBtn p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9">
+                </path>
+            </svg>
+        </button>
+        <div id="notificationDropdown"
+             class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4 text-center text-gray-500
+                    opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
+            No new notifications
+        </div>
+    </div>
 
-                    <div class="relative">
-                        <button id="menuButton" class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                        </button>
+    <!-- Menu -->
+    <div class="relative">
+        <button data-dropdown="menuDropdown" class="dropdownBtn p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+        <div id="menuDropdown"
+             class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border rounded-lg shadow-lg
+                    opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
+            <a href="/leaderboard" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Leaderboard</a>
+            <a href="/friends" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Friends</a>
+            <a href="/messages" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Messages</a>
+        </div>
+    </div>
 
-                        <div id="menuDropdown"
-                            class="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg 
-                                opacity-0 scale-95 max-h-0 overflow-hidden 
-                                transition-all duration-200 transform origin-top hidden z-10 mr-5">
-                            <a href="/leaderboard" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                Leaderboard
-                            </a>
-                            <a href="/friends" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                Friends
-                            </a>
-                            <a href="/messages" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                Messages
-                            </a>
-                        </div>
-                    </div>
+    <!-- User Menu -->
+    <div class="relative">
+        <button data-dropdown="userDropdown" class="dropdownBtn w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
+            {% if username %}{{ username[0] }}{% else %}U{% endif %}
+        </button>
+        <div id="userDropdown"
+             class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-32 bg-white border rounded-lg shadow-lg
+                    opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
+            <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+            <a href="/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Log Out</a>
+        </div>
+    </div>
 
-                    <div class="relative">
-                        <button id="userMenuButton" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
-                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
-                        </button>
-
-                        <div id="userDropdown"
-                            class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg 
-                                opacity-0 scale-95 max-h-0 overflow-hidden 
-                                transition-all duration-200 transform origin-top hidden z-10 mr-5">
-                            <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                Profile
-                            </a>
-                            <a href="/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                Settings
-                            </a>
-                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                Log Out
-                            </a>
-                        </div>
-                    </div>
-                </div>
+</div>
 
             </div> 
         </div> 
@@ -285,82 +279,39 @@
         </div>
 
     </div>
-  <script>
-              // Generic function to toggle a dropdown visibility
-      function toggleDropdown(button, dropdown) {
-          const isHidden = dropdown.classList.contains('hidden');
-          
-          // Close all other dropdowns
-          document.querySelectorAll('[data-dropdown]').forEach(d => {
-              if (d !== dropdown) {
-                  d.classList.add('hidden');
-                  d.classList.remove('active-dropdown');
-                  d.classList.remove('opacity-100', 'scale-100');
-                  d.classList.add('opacity-0', 'scale-95');
-                  d.style.maxHeight = '0';
-              }
-          });
+<script>
+    const buttons = document.querySelectorAll('.dropdownBtn');
+    const menus = document.querySelectorAll('.dropdownMenu');
 
-          // Toggle the current dropdown
-          if (isHidden) {
-              // SHOW
-              dropdown.classList.remove('hidden');
-              dropdown.classList.add('active-dropdown');
-              // Force reflow/repaint to ensure transition works
-              void dropdown.offsetWidth; 
-              dropdown.classList.remove('opacity-0', 'scale-95');
-              dropdown.classList.add('opacity-100', 'scale-100');
-              // Set max-height for smooth height transition
-              dropdown.style.maxHeight = dropdown.scrollHeight + 'px'; 
+    function closeAll() {
+        menus.forEach(menu => {
+            menu.classList.remove('open');
+            menu.style.maxHeight = '0';
+            menu.style.opacity = '0';
+            menu.style.transform = 'scale(0.95)';
+        });
+    }
 
-          } else {
-              // HIDE
-              dropdown.classList.remove('opacity-100', 'scale-100');
-              dropdown.classList.add('opacity-0', 'scale-95');
-              dropdown.style.maxHeight = '0'; // Start closing transition
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const targetId = button.getAttribute('data-dropdown');
+            const targetMenu = document.getElementById(targetId);
 
-              // Wait for transition to finish before hiding completely
-              setTimeout(() => {
-                  dropdown.classList.add('hidden');
-                  dropdown.classList.remove('active-dropdown');
-              }, 200); // 200ms matches the 'duration-200' in Tailwind
-          }
-      }
+            const isOpen = targetMenu.classList.contains('open');
+            closeAll();
 
-      // --- Event Listeners ---
-      const dropdowns = [
-          { buttonId: 'notificationButton', dropdownId: 'notificationDropdown' },
-          { buttonId: 'menuButton', dropdownId: 'menuDropdown' },
-          { buttonId: 'userMenuButton', dropdownId: 'userDropdown' }
-      ];
+            if (!isOpen) {
+                targetMenu.classList.add('open');
+                targetMenu.style.maxHeight = '500px';
+                targetMenu.style.opacity = '1';
+                targetMenu.style.transform = 'scale(1)';
+            }
 
-      dropdowns.forEach(({ buttonId, dropdownId }) => {
-          const button = document.getElementById(buttonId);
-          const dropdown = document.getElementById(dropdownId);
-          
-          // Add a marker for the closing function
-          if(dropdown) {
-              dropdown.setAttribute('data-dropdown', 'true');
-          }
+            e.stopPropagation();
+        });
+    });
 
-          if (button && dropdown) {
-              button.addEventListener('click', (event) => {
-                  event.stopPropagation(); // Prevents the document click listener from firing immediately
-                  toggleDropdown(button, dropdown);
-              });
-          }
-      });
-
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', (event) => {
-          document.querySelectorAll('[data-dropdown]').forEach(dropdown => {
-              if (!event.target.closest('.relative') || !event.target.closest('#' + dropdown.id)) {
-                  if (dropdown.classList.contains('active-dropdown')) {
-                      toggleDropdown(null, dropdown); // Pass null for button as it's not needed for closing
-                  }
-              }
-          });
-      });
-    </script>
+    document.addEventListener('click', closeAll);
+</script>
 </body>
 </html>
