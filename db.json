@@ -1,0 +1,26 @@
+{
+    "posts": {
+        "1": {
+            "text": "Caden is tall",
+            "time": 1761322490.422299,
+            "user": "tyler"
+        },
+        "2": {
+            "text": "Cole is a cool guy\r\n",
+            "time": 1761583604.8150036,
+            "user": "tyler"
+        }
+    },
+    "users": {
+        "1": {
+            "friends": [],
+            "password": "UKWildcats1",
+            "username": "tylermullins14"
+        },
+        "2": {
+            "friends": [],
+            "password": "tyler",
+            "username": "tyler"
+        }
+    }
+}
