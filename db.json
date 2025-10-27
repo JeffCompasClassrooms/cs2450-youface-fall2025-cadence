@@ -30,6 +30,11 @@
             "time": 1761585544.554482,
             "user": "ringwood"
         },
+        "15": {
+            "text": "test if posts show up",
+            "time": 1761587769.7020953,
+            "user": "ringwood"
+        },
         "2": {
             "text": "Cole is a cool guy\r\n",
             "time": 1761583604.8150036,
@@ -86,6 +91,11 @@
             "friends": [],
             "password": "real1",
             "username": "ringwood"
+        },
+        "4": {
+            "friends": [],
+            "password": "bot",
+            "username": "test_BOT"
         }
     }
 }

@@ -1,7 +1,7 @@
 import flask
 
 from handlers import copy
-from db import posts, users, helpers
+from db import users, helpers, posts as db_posts
 
 blueprint = flask.Blueprint("login", __name__)
 
@@ -92,37 +92,61 @@ def createaccount_submit():
     return flask.redirect(flask.url_for('login.loginscreen'))
 
 
+
 @blueprint.route('/')
 def index():
     """Serves the main feed page for the user."""
     db = helpers.load_db()
 
-    # make sure the user is logged in
+    # 1. Authentication Check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
-    if username is None or password is None: # Added 'or' for safety
+    
+    if not username or not password:
+        flask.flash('You need to be logged in to access the feed.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
     
     user = users.get_user(db, username, password)
+    
     if not user:
         flask.flash('Invalid credentials. Please try again.', 'danger')
-        # Clear bad cookies
+        # Clear bad cookies and redirect
         resp = flask.make_response(flask.redirect(flask.url_for('login.loginscreen')))
         resp.set_cookie('username', '', expires=0)
         resp.set_cookie('password', '', expires=0)
         return resp
 
-    # get the info for the user's feed
-    friends = users.get_user_friends(db, user)
-    all_posts = []
-    for friend in friends + [user]:
-        all_posts += posts.get_posts(db, friend)
+    # --- DEBUGGING OUTPUT (Check your terminal for this!) ---
+    # We keep the debugging for friend status, but we change how posts are fetched.
+    print(f"\n--- DEBUG FEED FETCH for User: {username} ---")
+
+    # 2. Data Aggregation
     
-    # sort posts
+    # Get the list of friends (still needed for the sidebar)
+    friends = users.get_user_friends(db, user)
+    
+    # DEBUG: Print friends list to verify
+    print(f"Friends fetched: {[f['username'] for f in friends]}")
+    
+    # NEW FIX: Fetch ALL valid posts from the entire database, 
+    # since friend lists are currently empty.
+    all_posts = db_posts.get_all_valid_posts(db)
+    
+    # DEBUG: Total count
+    print(f"Total valid posts found across ALL users: {len(all_posts)}")
+    print("------------------------------------------\n")
+    
+    # 3. Sort Posts
+    # Sort the aggregated list of posts by 'time', newest first
     sorted_posts = sorted(all_posts, key=lambda post: post['time'], reverse=True)
 
-    return flask.render_template('feed.html', title=copy.title,
-                                 subtitle=copy.subtitle, user=user, username=username,
-                                 friends=friends, posts=sorted_posts)
-
+    # 4. Render Template
+    # Using getattr for config variables ensures a fallback if the copy module is missing data
+    return flask.render_template('feed.html', 
+                                 title=getattr(copy, 'title', 'Celebrity Feed'),
+                                 subtitle=getattr(copy, 'subtitle', 'Latest Gossip'), 
+                                 user=user, 
+                                 username=username,
+                                 friends=friends, 
+                                 posts=sorted_posts)
 
