@@ -1,7 +1,7 @@
 import flask
 
 from handlers import copy
-from db import posts, users, helpers
+from db import users, helpers, posts as db_posts
 
 blueprint = flask.Blueprint("login", __name__)
 
@@ -21,73 +21,132 @@ def loginscreen():
             return flask.redirect(flask.url_for('login.index'))
 
     return flask.render_template('of_login', title=copy.title,
-            subtitle=copy.subtitle)
+                                 subtitle=copy.subtitle)
 
 @blueprint.route('/login', methods=['POST'])
 def login():
     """Log in the user.
 
-    Using the username and password fields on the form, create, delete, or
-    log in a user, based on what button they click.
+    Using the username and password fields on the form, log in a user.
     """
     db = helpers.load_db()
 
     username = flask.request.form.get('username')
     password = flask.request.form.get('password')
 
-    resp = flask.make_response(flask.redirect(flask.url_for('login.index')))
-    resp.set_cookie('username', username)
-    resp.set_cookie('password', password)
+    # --- UPDATED LOGIN LOGIC ---
 
-    submit = flask.request.form.get('type')
-    if submit == 'Create':
-        if users.new_user(db, username, password) is None:
-            resp.set_cookie('username', '', expires=0)
-            resp.set_cookie('password', '', expires=0)
-            flask.flash('Username {} already taken!'.format(username), 'danger')
-            return flask.redirect(flask.url_for('login.loginscreen'))
-        flask.flash('User {} created successfully!'.format(username), 'success')
-    elif submit == 'Delete':
-        if users.delete_user(db, username, password):
-            resp.set_cookie('username', '', expires=0)
-            resp.set_cookie('password', '', expires=0)
-            flask.flash('User {} deleted successfully!'.format(username), 'success')
+    # 1. First, check if the user *exists* at all
+    user = users.get_user_by_name(db, username)
 
-    return resp
+    if not user:
+        # Case 1: Username not found
+        flask.flash(f'User "{username}" does not exist.', 'danger')
+        return flask.redirect(flask.url_for('login.loginscreen'))
 
-@blueprint.route('/logout', methods=['POST'])
-def logout():
-    """Log out the user."""
+    # 2. User exists, *now* check the password
+    if user['password'] == password:
+        # Case 2a: Password is correct (Successful login)
+        resp = flask.make_response(flask.redirect(flask.url_for('login.index')))
+        resp.set_cookie('username', username)
+        resp.set_cookie('password', password)
+
+        return resp
+    else:
+        # Case 2b: Password is incorrect
+        flask.flash('Incorrect password. Please try again.', 'danger')
+        return flask.redirect(flask.url_for('login.loginscreen'))
+
+
+@blueprint.route('/createaccount')
+def createaccount_page():
+    """Serves the page for creating a new account."""
+    return flask.render_template('create_account', title=copy.title,
+                                 subtitle=copy.subtitle)
+
+@blueprint.route('/createaccount', methods=['POST'])
+def createaccount_submit():
+    """Handles the submission of the new account form."""
     db = helpers.load_db()
 
-    resp = flask.make_response(flask.redirect(flask.url_for('login.loginscreen')))
-    resp.set_cookie('username', '', expires=0)
-    resp.set_cookie('password', '', expires=0)
-    return resp
+    username = flask.request.form.get('username')
+    password = flask.request.form.get('password')
+    confirm = flask.request.form.get('confirm')
+
+    # --- Validation ---
+    if not username or not password or not confirm:
+        flask.flash('All fields are required.', 'danger')
+        return flask.redirect(flask.url_for('login.createaccount_page'))
+
+    if password != confirm:
+        flask.flash('Passwords do not match. Please try again.', 'danger')
+        return flask.redirect(flask.url_for('login.createaccount_page'))
+    
+    # Try to create the new user
+    if users.new_user(db, username, password) is None:
+        flask.flash(f'Username {username} already taken!', 'danger')
+        return flask.redirect(flask.url_for('login.createaccount_page'))
+
+    # Redirect back to the login screen so they can log in
+    flask.flash(f'User {username} created successfully! Please log in.', 'success') # Test Message
+    return flask.redirect(flask.url_for('login.loginscreen'))
+
+
 
 @blueprint.route('/')
 def index():
     """Serves the main feed page for the user."""
     db = helpers.load_db()
 
-    # make sure the user is logged in
+    # 1. Authentication Check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
-    if username is None and password is None:
+    
+    if not username or not password:
+        flask.flash('You need to be logged in to access the feed.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
+    
     user = users.get_user(db, username, password)
+    
     if not user:
         flask.flash('Invalid credentials. Please try again.', 'danger')
-        return flask.redirect(flask.url_for('login.loginscreen'))
+        # Clear bad cookies and redirect
+        resp = flask.make_response(flask.redirect(flask.url_for('login.loginscreen')))
+        resp.set_cookie('username', '', expires=0)
+        resp.set_cookie('password', '', expires=0)
+        return resp
 
-    # get the info for the user's feed
+    # --- DEBUGGING OUTPUT (Check your terminal for this!) ---
+    # We keep the debugging for friend status, but we change how posts are fetched.
+    print(f"\n--- DEBUG FEED FETCH for User: {username} ---")
+
+    # 2. Data Aggregation
+    
+    # Get the list of friends (still needed for the sidebar)
     friends = users.get_user_friends(db, user)
-    all_posts = []
-    for friend in friends + [user]:
-        all_posts += posts.get_posts(db, friend)
-    # sort posts
+    
+    # DEBUG: Print friends list to verify
+    print(f"Friends fetched: {[f['username'] for f in friends]}")
+    
+    # NEW FIX: Fetch ALL valid posts from the entire database, 
+    # since friend lists are currently empty.
+    all_posts = db_posts.get_all_valid_posts(db)
+    
+    # DEBUG: Total count
+    print(f"Total valid posts found across ALL users: {len(all_posts)}")
+    print("------------------------------------------\n")
+    
+    # 3. Sort Posts
+    # Sort the aggregated list of posts by 'time', newest first
     sorted_posts = sorted(all_posts, key=lambda post: post['time'], reverse=True)
 
-    return flask.render_template('feed.html', title=copy.title,
-            subtitle=copy.subtitle, user=user, username=username,
-            friends=friends, posts=sorted_posts)
+    # 4. Render Template
+    # Using getattr for config variables ensures a fallback if the copy module is missing data
+    return flask.render_template('feed.html', 
+                                 title=getattr(copy, 'title', 'Celebrity Feed'),
+                                 subtitle=getattr(copy, 'subtitle', 'Latest Gossip'), 
+                                 user=user, 
+                                 username=username,
+                                 friends=friends, 
+                                 posts=sorted_posts)
+
