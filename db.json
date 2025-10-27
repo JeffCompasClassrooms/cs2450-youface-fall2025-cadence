@@ -5,32 +5,6 @@
             "time": 1761322490.422299,
             "user": "tyler"
         },
-        "2": {
-            "text": "Cole is a cool guy\r\n",
-            "time": 1761583604.8150036,
-            "user": "tyler"
-        }
-    },
-    "users": {
-        "1": {
-            "friends": [],
-            "password": "UKWildcats1",
-            "username": "tylermullins14"
-        },
-        "2": {
-            "friends": [],
-            "password": "tyler",
-            "username": "tyler"
-        }
-    }
-}
-{
-    "posts": {
-        "1": {
-            "text": "hi",
-            "time": 1760546414.090271,
-            "user": "caden"
-        },
         "10": {
             "text": "dd",
             "time": 1760981724.1103776,
@@ -41,10 +15,25 @@
             "time": 1760982130.7588425,
             "user": "c"
         },
-        "2": {
+        "12": {
+            "text": "hi",
+            "time": 1760546414.090271,
+            "user": "caden"
+        },
+        "13": {
             "text": "",
             "time": 1760546448.827538,
             "user": "caden"
+        },
+        "14": {
+            "text": "hey guys",
+            "time": 1761585544.554482,
+            "user": "ringwood"
+        },
+        "2": {
+            "text": "Cole is a cool guy\r\n",
+            "time": 1761583604.8150036,
+            "user": "tyler"
         },
         "3": {
             "text": "",
@@ -85,73 +74,18 @@
     "users": {
         "1": {
             "friends": [],
-            "password": "yay",
-            "username": "caden"
-        },
-        "10": {
-            "friends": [],
-            "password": "t",
-            "username": "t"
-        },
-        "11": {
-            "friends": [],
-            "password": "billi",
-            "username": "billi"
-        },
-        "12": {
-            "friends": [],
-            "password": "bigman",
-            "username": "jackson"
-        },
-        "13": {
-            "friends": [],
-            "password": "12345",
-            "username": "brian"
-        },
-        "14": {
-            "friends": [],
-            "password": "iam",
-            "username": "sam"
+            "password": "UKWildcats1",
+            "username": "tylermullins14"
         },
         "2": {
             "friends": [],
-            "password": "12345",
-            "username": "cade"
+            "password": "tyler",
+            "username": "tyler"
         },
         "3": {
             "friends": [],
-            "password": "bob123",
-            "username": "bob"
-        },
-        "4": {
-            "friends": [],
-            "password": "123",
-            "username": "boby"
-        },
-        "5": {
-            "friends": [],
-            "password": "d",
-            "username": "d"
-        },
-        "6": {
-            "friends": [],
-            "password": "c",
-            "username": "c"
-        },
-        "7": {
-            "friends": [],
-            "password": "a",
-            "username": "a"
-        },
-        "8": {
-            "friends": [],
-            "password": "z",
-            "username": "z"
-        },
-        "9": {
-            "friends": [],
-            "password": "q",
-            "username": "q"
+            "password": "real1",
+            "username": "ringwood"
         }
     }
 }
