@@ -1,0 +1,131 @@
+{
+    "posts": {
+        "1": {
+            "text": "hi",
+            "time": 1760546414.090271,
+            "user": "caden"
+        },
+        "10": {
+            "text": "dd",
+            "time": 1760981724.1103776,
+            "user": "boby"
+        },
+        "11": {
+            "text": "hi",
+            "time": 1760982130.7588425,
+            "user": "c"
+        },
+        "2": {
+            "text": "",
+            "time": 1760546448.827538,
+            "user": "caden"
+        },
+        "3": {
+            "text": "",
+            "time": 1760719528.3265345,
+            "user": "cade"
+        },
+        "4": {
+            "text": "",
+            "time": 1760719529.3067074,
+            "user": "cade"
+        },
+        "5": {
+            "text": "",
+            "time": 1760719529.960297,
+            "user": "cade"
+        },
+        "6": {
+            "text": "",
+            "time": 1760719531.2558742,
+            "user": "cade"
+        },
+        "7": {
+            "text": "",
+            "time": 1760719532.350642,
+            "user": "cade"
+        },
+        "8": {
+            "text": "",
+            "time": 1760719533.335568,
+            "user": "cade"
+        },
+        "9": {
+            "text": "gaga",
+            "time": 1760981722.1744232,
+            "user": "boby"
+        }
+    },
+    "users": {
+        "1": {
+            "friends": [],
+            "password": "yay",
+            "username": "caden"
+        },
+        "10": {
+            "friends": [],
+            "password": "t",
+            "username": "t"
+        },
+        "11": {
+            "friends": [],
+            "password": "billi",
+            "username": "billi"
+        },
+        "12": {
+            "friends": [],
+            "password": "bigman",
+            "username": "jackson"
+        },
+        "13": {
+            "friends": [],
+            "password": "12345",
+            "username": "brian"
+        },
+        "14": {
+            "friends": [],
+            "password": "iam",
+            "username": "sam"
+        },
+        "2": {
+            "friends": [],
+            "password": "12345",
+            "username": "cade"
+        },
+        "3": {
+            "friends": [],
+            "password": "bob123",
+            "username": "bob"
+        },
+        "4": {
+            "friends": [],
+            "password": "123",
+            "username": "boby"
+        },
+        "5": {
+            "friends": [],
+            "password": "d",
+            "username": "d"
+        },
+        "6": {
+            "friends": [],
+            "password": "c",
+            "username": "c"
+        },
+        "7": {
+            "friends": [],
+            "password": "a",
+            "username": "a"
+        },
+        "8": {
+            "friends": [],
+            "password": "z",
+            "username": "z"
+        },
+        "9": {
+            "friends": [],
+            "password": "q",
+            "username": "q"
+        }
+    }
+}
