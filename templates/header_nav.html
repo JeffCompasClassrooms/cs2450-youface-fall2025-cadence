@@ -1,0 +1,106 @@
+<header class="sticky top-0 bg-white shadow-sm z-10 border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+
+            <!-- Logo (Link to Feed/Home) -->
+            <div class="flex-shrink-0">
+                <a href="/" class="flex items-center">
+                    <img src="../static/Only_Celebs_LogoV1.png" alt="Only Celebs Logo" class="h-40 w-auto">
+                </a>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="hidden md:flex flex-1 max-w-lg mx-8">
+                <div class="relative w-full">
+                    <input type="search" placeholder="Search for users" class="w-full py-2 pl-10 pr-4 border border-gray-300 bg-gray-50 rounded-full focus:ring-2 focus:ring-primary focus:border-primary transition">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Actions -->
+            <div class="flex items-center space-x-4">
+                <!-- Notifications Placeholder -->
+                <div class="relative">
+                     <button data-dropdown="notificationDropdown" class="dropdownBtn p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                    </button>
+                    <div id="notificationDropdown"
+                         class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4 text-center text-gray-500
+                                opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
+                        No new notifications
+                    </div>
+                </div>
+
+                <!-- Menu -->
+                <div class="relative">
+                    <button data-dropdown="menuDropdown" class="dropdownBtn p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                    <div id="menuDropdown"
+                         class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border rounded-lg shadow-lg
+                                opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
+                        <a href="/leaderboard" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Leaderboard</a>
+                        <a href="{{ url_for('friends.friends_list') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Friends</a>
+                        <a href="/messages" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Messages</a>
+                    </div>
+                </div>
+
+                <!-- User Menu -->
+                <div class="relative">
+                    <button data-dropdown="userDropdown" class="dropdownBtn w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
+                        {% if username %}{{ username[0] }}{% else %}U{% endif %}
+                    </button>
+                    <div id="userDropdown"
+                         class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-32 bg-white border rounded-lg shadow-lg
+                                opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
+                        <a href="/profile" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+                        <a href="/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+                        <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Log Out</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</header>
+<script>
+    // Dropdown script: placed here so it loads alongside the header HTML
+    const buttons = document.querySelectorAll('.dropdownBtn');
+    const menus = document.querySelectorAll('.dropdownMenu');
+
+    function closeAll() {
+        menus.forEach(menu => {
+            menu.classList.remove('open');
+            menu.style.maxHeight = '0';
+            menu.style.opacity = '0';
+            menu.style.transform = 'scale(0.95)';
+        });
+    }
+
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            const targetId = button.getAttribute('data-dropdown');
+            const targetMenu = document.getElementById(targetId);
+
+            const isOpen = targetMenu.classList.contains('open');
+            closeAll();
+
+            if (!isOpen) {
+                targetMenu.classList.add('open');
+                targetMenu.style.maxHeight = '500px';
+                targetMenu.style.opacity = '1';
+                targetMenu.style.transform = 'scale(1)';
+            }
+
+            e.stopPropagation();
+        });
+    });
+
+    document.addEventListener('click', closeAll);
+</script>
