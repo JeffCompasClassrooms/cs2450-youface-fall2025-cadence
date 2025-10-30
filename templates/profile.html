@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow">
+    <!-- Header -->
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Your Profile</h1>
+
+    <!-- Profile Information -->
+    <div class="space-y-3 text-gray-700">
+        <div class="flex justify-between border-b pb-2">
+            <span class="font-semibold">Username:</span>
+            <span>{{ user.username }}</span>
+        </div>
+
+        <div class="flex justify-between border-b pb-2">
+            <span class="font-semibold">Email:</span>
+            <span>{{ user.email or 'Not provided' }}</span>
+        </div>
+
+        <div class="flex justify-between border-b pb-2">
+            <span class="font-semibold">Member Since:</span>
+            <span>{{ user.joined or 'Unknown' }}</span>
+        </div>
+
+        {% if user.bio %}
+        <div class="pt-2">
+            <span class="font-semibold block mb-1">Bio:</span>
+            <p class="text-gray-600">{{ user.bio }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Buttons -->
+    <div class="mt-8 flex space-x-4">
+        <a href="{{ url_for('settings') }}"
+           class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+            Edit Profile
+        </a>
+
+        <a href="{{ url_for('logout') }}"
+           class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded">
+            Log Out
+        </a>
+    </div>
+</div>
+{% endblock %}
+
