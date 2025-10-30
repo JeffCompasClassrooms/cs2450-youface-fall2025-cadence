@@ -47,22 +47,15 @@ def logout():
 
 @app.route('/profile')
 def profile():
-    """Display user profile page."""
     username = flask.request.cookies.get('username')
-
     if not username:
-        # No user cookie → redirect to login
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # --- Fetch user info from TinyDB ---
     user_record = db.search(User.username == username)
-
     if not user_record:
-        # If the user isn’t found, redirect to login
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    user_info = user_record[0]  # TinyDB returns a list
-
+    user_info = user_record[0]
     return flask.render_template('profile.html', user=user_info)
 
 
