@@ -84,26 +84,27 @@
     }
 
     buttons.forEach(button => {
-        button.addEventListener('click', (e) => {
-            // Only toggle dropdown if the button itself was clicked, not a link inside
-            if (button.tagName.toLowerCase() !== 'button') return;
+    button.addEventListener('click', (e) => {
+        if (button.tagName.toLowerCase() !== 'button') return;
 
-            const targetId = button.getAttribute('data-dropdown');
-            const targetMenu = document.getElementById(targetId);
+        const targetId = button.getAttribute('data-dropdown');
+        const targetMenu = document.getElementById(targetId);
 
-            const isOpen = targetMenu.classList.contains('open');
-            closeAll();
+        const isOpen = targetMenu.classList.contains('open');
+        closeAll();
 
-            if (!isOpen) {
-                targetMenu.classList.add('open');
-                targetMenu.style.maxHeight = '500px';
-                targetMenu.style.opacity = '1';
-                targetMenu.style.transform = 'scale(1)';
-            }
+        if (!isOpen) {
+            targetMenu.classList.add('open');
+            targetMenu.style.maxHeight = '500px';
+            targetMenu.style.opacity = '1';
+            targetMenu.style.transform = 'scale(1)';
+        }
 
-            e.stopPropagation(); // prevent clicks on the button from closing immediately
-        });
+        // ✅ Don't block normal link clicks
+        if (e.target.tagName.toLowerCase() === 'a') return;
+        e.stopPropagation();
     });
+});
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
