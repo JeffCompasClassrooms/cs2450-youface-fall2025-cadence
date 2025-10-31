@@ -9,7 +9,7 @@ import time
 # --- Installed Imports ---
 import flask
 import timeago
-import tinydb
+from tinydb import TinyDB, Query  # ✅ import TinyDB and Query properly
 
 # --- Handlers ---
 from handlers import friends, login, posts
@@ -27,6 +27,13 @@ app = flask.Flask(
 app.secret_key = 'mygroup'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+
+# --- Database Setup ---
+# ✅ Initialize your TinyDB database and User query object
+db_path = os.path.join(PROJECT_ROOT, 'db.json')
+db = TinyDB(db_path)
+User = Query()
 
 
 # ==============================
@@ -48,6 +55,7 @@ def profile():
     if not username:
         return flask.redirect(flask.url_for('login.loginscreen'))
 
+    # ✅ Now `db` and `User` are defined
     user_record = db.search(User.username == username)
     if not user_record:
         return flask.redirect(flask.url_for('login.loginscreen'))
