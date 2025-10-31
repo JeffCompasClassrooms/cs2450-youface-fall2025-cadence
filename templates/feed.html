@@ -135,11 +135,23 @@
 
                         <!-- Actions (Like, Comment, Share, Save) -->
                         <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
-                            <!-- Heart (Like) -->
-                            <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                <span class="text-sm">0</span>
+                            
+                            <!-- Heart (Like) - MODIFIED FOR JS FUNCTIONALITY -->
+                            <button 
+                                class="like-button flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg 
+                                {% if post.is_liked_by_user %}text-red-500{% endif %}"
+                                onclick="toggleLike(this, '{{ post.doc_id }}')" 
+                                data-liked="{{ 'true' if post.is_liked_by_user else 'false' }}"
+                            >
+                                <svg class="w-5 h-5 like-icon" 
+                                    fill="{% if post.is_liked_by_user %}currentColor{% else %}none{% endif %}" 
+                                    stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span class="text-sm like-count">{{ post.likes or 0 }}</span>
                             </button>
+                            <!-- END MODIFIED LIKE BUTTON -->
+
                             <!-- Comment -->
                             <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
@@ -152,7 +164,7 @@
                             <!-- Save -->
                             <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
-			    </button>
+			                </button>
                         </div>
                     </div>
                 </div>
@@ -205,6 +217,73 @@
         </div>
 
     </div>
-<!-- The dropdown JavaScript logic is now handled in header_nav.html and is no longer needed here. -->
+    <!-- The dropdown JavaScript logic is now handled in header_nav.html and is no longer needed here. -->
+
+    <!-- NEW JAVASCRIPT BLOCK FOR LIKE FUNCTIONALITY -->
+    <script>
+    /**
+     * Toggles the like state of a post using an AJAX call to the server.
+     * @param {HTMLElement} button - The clicked button element.
+     * @param {string} postId - The unique document ID of the post.
+     */
+    function toggleLike(button, postId) {
+        // Find the UI elements
+        const countSpan = button.querySelector('.like-count');
+        const icon = button.querySelector('.like-icon');
+
+        // --- 1. Send Request to Flask Backend ---
+        fetch(`/like_post/${postId}`, { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            // Throw error if server returns non-200 status (e.g., 401 or 404)
+            if (!response.ok) {
+                // If the error is 401 (unauthorized), redirect to login
+                if (response.status === 401) {
+                    // Using console.error instead of alert as alert can be blocked/annoying
+                    console.error('Authentication required to like posts.');
+                    // If you want to redirect, uncomment the line below:
+                    // window.location.href = '/login'; 
+                    return; // Stop processing if not authorized
+                }
+                throw new Error('Server error: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // --- 2. Update UI based on Server Confirmation ---
+            
+            const newStatus = data.status; // 'liked' or 'unliked'
+            const newCount = data.new_likes; 
+
+            if (newStatus === 'liked') {
+                // Successful LIKE: turn red and fill icon
+                button.setAttribute('data-liked', 'true');
+                button.classList.add('text-red-500'); 
+                icon.setAttribute('fill', 'currentColor'); 
+            } else {
+                // Successful UNLIKE: turn gray and outline icon
+                button.setAttribute('data-liked', 'false');
+                button.classList.remove('text-red-500'); 
+                icon.setAttribute('fill', 'none'); 
+            }
+            
+            // Update the counter text with the server's confirmed count
+            countSpan.textContent = newCount;
+        })
+        .catch(error => {
+            console.error('Like action failed:', error);
+            // Show a message box to the user instead of a disruptive alert()
+            const messageElement = document.createElement('div');
+            messageElement.className = 'fixed top-5 right-5 bg-red-600 text-white p-4 rounded-lg shadow-xl z-50';
+            messageElement.textContent = 'Could not process like request. Check console for details.';
+            document.body.appendChild(messageElement);
+            setTimeout(() => messageElement.remove(), 4000);
+        });
+    }
+    </script>
 </body>
 </html>
