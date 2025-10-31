@@ -25,38 +25,29 @@ def loginscreen():
 
 @blueprint.route('/login', methods=['POST'])
 def login():
-    """Log in the user.
-
-    Using the username and password fields on the form, log in a user.
-    """
     db = helpers.load_db()
 
     username = flask.request.form.get('username')
     password = flask.request.form.get('password')
 
-    # --- UPDATED LOGIN LOGIC ---
-
-    # 1. First, check if the user *exists* at all
+    # 1. Check if the user exists
     user = users.get_user_by_name(db, username)
-
     if not user:
-        # Case 1: Username not found
         flask.flash(f'User "{username}" does not exist.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # 2. User exists, *now* check the password
+    # 2. Validate password
     if user['password'] == password:
-        # Case 2a: Password is correct (Successful login)
+        # ✅ Successful login
         resp = flask.make_response(flask.redirect(flask.url_for('login.index')))
-        resp.set_cookie('username', username)
-        resp.set_cookie('password', password)
-
+        resp.set_cookie('username', username, path='/')  # <-- cookie available site-wide
+        resp.set_cookie('password', password, path='/')
         return resp
+
     else:
-        # Case 2b: Password is incorrect
+        # ❌ Wrong password
         flask.flash('Incorrect password. Please try again.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
-
 
 @blueprint.route('/createaccount')
 def createaccount_page():
