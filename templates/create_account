@@ -52,7 +52,7 @@ body {
     border: 1px solid #ccc;
     padding: 0.75rem;
     width: 100%;
-    box-sizing: border-box; 
+    box-sizing: border-box;
     margin-bottom: 0.75rem; /* Space between inputs */
 }
 
@@ -91,6 +91,7 @@ body {
     color: #333;
     border: 1px solid #ccc;
 }
+
 .btn-secondary:hover {
     background: #e0e0e0;
 }
@@ -103,16 +104,22 @@ body {
   <h2>Create Account</h2>
   <p class="subtitle">Join the exclusive community ✨</p>
 
-  <!-- **** UPDATED ACTION **** -->
   <form method="post" action="{{ url_for('login.createaccount_submit') }}">
+    <!-- New Fields Added -->
+    <input type="text" class="form-control" name="first_name" placeholder="First Name" required>
+    <input type="text" class="form-control" name="last_name" placeholder="Last Name" required>
+    <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+    <input type="tel" class="form-control" name="phone" placeholder="Phone Number" required>
+    <input type="text" class="form-control" name="hometown" placeholder="Hometown" required>
+
+    <!-- Original Fields -->
     <input type="text" class="form-control" name="username" placeholder="Choose a username" required>
     <input type="password" class="form-control" name="password" placeholder="Enter a password" required>
     <input type="password" class="form-control" name="confirm" placeholder="Confirm your password" required>
 
     <button type="submit" class="btn btn-primary">Create Account</button>
-    
-    <!-- **** UPDATED HREF **** -->
     <a href="{{ url_for('login.loginscreen') }}" class="btn btn-secondary">Back to Login</a>
   </form>
 </div>
 {% endblock %}
+
