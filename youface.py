@@ -41,6 +41,10 @@ User = Query()
 # ROUTES
 # ==============================
 
+@app.route('/settings')
+def settings():
+    return "Settings page coming soon!"
+
 @app.route('/logout')
 def logout():
     """Logs the user out by clearing cookies."""
