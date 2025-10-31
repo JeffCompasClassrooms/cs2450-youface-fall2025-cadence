@@ -85,6 +85,9 @@
 
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
+            // Only toggle dropdown if the button itself was clicked, not a link inside
+            if (button.tagName.toLowerCase() !== 'button') return;
+
             const targetId = button.getAttribute('data-dropdown');
             const targetMenu = document.getElementById(targetId);
 
@@ -98,9 +101,16 @@
                 targetMenu.style.transform = 'scale(1)';
             }
 
-            e.stopPropagation();
+            e.stopPropagation(); // prevent clicks on the button from closing immediately
         });
     });
 
-    document.addEventListener('click', closeAll);
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        // Only close if the click isn’t inside a dropdown or button
+        if (!e.target.closest('.dropdownBtn') && !e.target.closest('.dropdownMenu')) {
+            closeAll();
+        }
+    });
 </script>
+
