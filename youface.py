@@ -13,6 +13,7 @@ from tinydb import TinyDB, Query  # ✅ import TinyDB and Query properly
 
 # --- Handlers ---
 from handlers import friends, login, posts
+from db import helpers, users
 
 # --- Project Root ---
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -51,17 +52,22 @@ def logout():
 
 @app.route('/profile')
 def profile():
+    # --- Get cookies ---
     username = flask.request.cookies.get('username')
-    if not username:
+    password = flask.request.cookies.get('password')
+
+    # --- Require login ---
+    if not username or not password:
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # ✅ Now `db` and `User` are defined
-    user_record = db.search(User.username == username)
-    if not user_record:
+    # --- Load DB and verify user ---
+    db = helpers.load_db()
+    user = users.get_user(db, username, password)
+    if not user:
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    user_info = user_record[0]
-    return flask.render_template('profile.html', user=user_info)
+    # --- Render profile ---
+    return flask.render_template('profile.html', user=user)
 
 
 # ==============================
