@@ -28,9 +28,6 @@ app.secret_key = 'mygroup'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
-# --- Database (TinyDB) Setup ---
-db = tinydb.TinyDB(os.path.join(PROJECT_ROOT, 'database.json'))
-User = tinydb.Query()
 
 # ==============================
 # ROUTES
