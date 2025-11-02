@@ -47,73 +47,8 @@
 </head>
 <body class="bg-gray-50 font-sans">
 
-    <!-- START EMBEDDED NAVIGATION HEADER (Replacing header_nav.html) -->
-    <nav class="bg-white shadow-lg fixed w-full z-10 top-0 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <!-- Logo/Site Name -->
-                <div class="flex-shrink-0 flex items-center">
-                    <a href="#" class="text-2xl font-extrabold text-primary tracking-tight">
-                        SocialFeed
-                    </a>
-                </div>
-
-                <!-- Search Bar (Center) -->
-                <div class="flex items-center justify-center flex-grow mx-10 max-w-lg hidden sm:block">
-                    <div class="relative w-full">
-                        <input type="text" placeholder="Search users or trending topics..." class="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 bg-gray-50" />
-                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                </div>
-
-                <!-- User Menu (Right) -->
-                <div class="flex items-center space-x-4">
-                    <!-- Notifications Bell -->
-                    <button class="text-gray-500 hover:text-primary p-2 rounded-full hover:bg-gray-100 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    </button>
-                    
-                    <!-- Profile Dropdown -->
-                    <div class="relative">
-                        <button id="user-menu-button" onclick="toggleDropdown()" class="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 transition focus:outline-none" aria-expanded="false" aria-haspopup="true">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-                                <!-- Placeholder for first letter of username -->
-                                {% if username %}{{ username[0] }}{% else %}U{% endif %}
-                            </div>
-                            <span class="text-sm font-medium text-gray-700 hidden sm:block">
-                                <!-- Placeholder for Username -->
-                                {{ username or 'Guest' }}
-                            </span>
-                            <!-- Down Arrow Icon -->
-                            <svg class="w-4 h-4 text-gray-500 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                        </button>
-
-                        <!-- Dropdown Menu -->
-                        <div id="user-menu-dropdown" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button">
-                            <div class="py-1" role="none">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                    Profile
-                                </a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                    Settings
-                                </a>
-                            </div>
-                            <div class="py-1" role="none">
-                                <!-- Logout action -->
-                                <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50" role="menuitem">
-                                    Logout
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
-    <!-- Padding/Spacer for the fixed header -->
-    <div class="h-16"></div>
-    <!-- END EMBEDDED NAVIGATION HEADER -->
+    <!-- TOP NAVIGATION BAR: NOW INCLUDED AS A REUSABLE COMPONENT -->
+    {% include 'header_nav.html' %}
 
     <!-- MAIN CONTENT LAYOUT (3 Columns) -->
     <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -150,8 +85,7 @@
             <!-- New Post Box (Form) -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800">Share Your Insight</h3>
-                <!-- FIX: Added onsubmit handler to prevent 404 from server-side submission -->
-                <form onsubmit="handlePostSubmit(event)">
+                <form method="post" action="/post">
                     <div class="mb-4">
                         <textarea class="w-full p-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-700" name="post" rows="3" placeholder="What's the latest gossip?"></textarea>
                     </div>
@@ -255,7 +189,7 @@
 
                         <!-- Existing Comments List (Placeholder for now) -->
                         <div id="comments-list-{{ post.doc_id }}" class="space-y-3">
-                            <p class="text-gray-500 text-sm italic">Loading comments...</p>
+                            <p class="text-gray-500 text-sm italic">No comments yet. Be the first!</p>
                         </div>
                     </div>
                     <!-- END NEW COMMENT BLOCK -->
@@ -310,69 +244,10 @@
         </div>
 
     </div>
+    <!-- The dropdown JavaScript logic is now handled in header_nav.html and is no longer needed here. -->
 
     <!-- JAVASCRIPT BLOCK FOR INTERACTIVITY -->
-    <script type="module">
-    
-    // --- FIREBASE IMPORTS AND INITIALIZATION ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, serverTimestamp, onSnapshot, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-    // Global Firebase/App variables
-    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-    let db;
-    let auth;
-    let userId = 'anon_user'; 
-    
-    // CRITICAL FIX: Promise to track when DB and Auth are fully initialized
-    let resolveDbReady;
-    const dbReadyPromise = new Promise(resolve => {
-        resolveDbReady = resolve;
-    });
-
-    /**
-     * Initializes Firebase and authenticates the user.
-     */
-    async function initializeFirebase() {
-        try {
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-
-            if (typeof __initial_auth_token !== 'undefined') {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-            
-            // Set the authenticated user ID
-            userId = auth.currentUser?.uid || `anon_${crypto.randomUUID()}`;
-            console.log(`Firebase initialized. User ID: ${userId}`);
-            
-            // Resolve the promise, signaling readiness
-            resolveDbReady(true); 
-
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            showMessageBox("Failed to connect to the database. Check console for details.", 'bg-red-600');
-        }
-    }
-
-    /**
-     * Gets the Firestore collection reference for a post's comments.
-     * @param {string} postId - The unique document ID of the post.
-     * @returns {object} A Firestore CollectionReference.
-     */
-    function getCommentsCollectionRef(postId) {
-        // Path: /artifacts/{appId}/public/data/comments/{postId}/comments
-        return collection(db, `artifacts/${appId}/public/data/comments/${postId}/comments`);
-    }
-
-    // Call initialization on load
-    initializeFirebase();
-    // --- END FIREBASE SETUP ---
+    <script>
     
     /**
      * Utility function to display a transient, non-blocking message box.
@@ -401,9 +276,6 @@
      * @param {string} postId - The unique document ID of the post.
      */
     function toggleLike(button, postId) {
-        // This function relies on a Flask backend and does not directly interact with Firestore for this scope.
-        // I am leaving it as is, assuming the connection issue was specific to the Firestore usage.
-        
         // Find the UI elements
         const countSpan = button.querySelector('.like-count');
         const icon = button.querySelector('.like-icon');
@@ -457,74 +329,8 @@
     }
 
     /**
-     * Helper to render a single comment element.
-     * @param {object} commentData - The comment data retrieved from Firestore.
-     * @returns {HTMLElement} The created comment element.
-     */
-    function renderComment(commentData) {
-        const commentElement = document.createElement('div');
-        commentElement.className = 'flex space-x-2 text-sm';
-        const username = commentData.username || 'Anonymous';
-        const text = commentData.text || '';
-
-        commentElement.innerHTML = `
-            <span class="font-semibold text-gray-800">${username}:</span>
-            <span class="text-gray-700 break-words">${text}</span>
-        `;
-        return commentElement;
-    }
-
-    /**
-     * Sets up a real-time listener to load and display comments for a post from Firestore.
-     * @param {string} postId - The unique document ID of the post.
-     */
-    async function loadComments(postId) {
-        // FIX: Wait for DB readiness before attempting Firestore operations
-        await dbReadyPromise; 
-
-        const commentsList = document.getElementById(`comments-list-${postId}`);
-        const countSpan = document.querySelector(`.comment-count-${postId}`);
-
-        if (!db) {
-            console.error("Database not initialized for loading comments (after promise wait).");
-            commentsList.innerHTML = '<p class="text-gray-500 text-sm italic">Failed to connect to the database. Please reload.</p>';
-            return;
-        }
-        
-        // Query the comments collection, ordered by timestamp descending (newest first)
-        const commentsRef = getCommentsCollectionRef(postId);
-        const q = query(commentsRef, orderBy('timestamp', 'desc'), limit(100));
-
-        // Set up the real-time listener (onSnapshot)
-        onSnapshot(q, (snapshot) => {
-            // Clear existing comments (to redraw the whole list based on the new snapshot)
-            commentsList.innerHTML = '';
-            let commentCount = 0;
-            
-            if (snapshot.empty) {
-                commentsList.innerHTML = '<p class="text-gray-500 text-sm italic">No comments yet. Be the first!</p>';
-            } else {
-                snapshot.forEach((doc) => {
-                    const commentData = doc.data();
-                    commentsList.appendChild(renderComment(commentData));
-                    commentCount++;
-                });
-            }
-            
-            // Update the comment counter in the post action bar
-            if (countSpan) {
-                 countSpan.textContent = commentCount;
-            }
-
-        }, (error) => {
-            console.error("Error loading comments:", error);
-            showMessageBox('Failed to load comments in real-time.', 'bg-red-600');
-        });
-    }
-
-    /**
      * Toggles the visibility of the comment section for a specific post.
-     * Also triggers the loading of comments via a real-time listener.
+     * Includes an element check to prevent runtime errors.
      * @param {string} postId - The unique document ID of the post.
      */
     function toggleCommentSection(postId) {
@@ -539,114 +345,68 @@
 
         commentSection.classList.toggle('hidden');
         
-        // When the section opens, load persistent comments and focus the input
+        // When the section opens, immediately focus on the textarea for quick commenting
         if (!commentSection.classList.contains('hidden')) {
             const input = document.getElementById(`comment-input-${postId}`);
             if (input) {
                 input.focus();
             }
-            
-            // Load existing comments in real-time
-            loadComments(postId);
         }
     }
 
     /**
-     * Submits a comment by saving it to Firestore. The UI update is handled by loadComments' onSnapshot listener.
+     * Placeholder for submitting a comment.
+     * In a real app, this would make an AJAX call to the /comment endpoint and update the list.
      * @param {string} postId - The unique document ID of the post.
      */
-    async function submitComment(postId) {
-        // FIX: Wait for DB readiness before attempting Firestore operations
-        await dbReadyPromise;
-
+    function submitComment(postId) {
         const input = document.getElementById(`comment-input-${postId}`);
+        const countSpan = document.querySelector(`.comment-count-${postId}`);
+        const commentsList = document.getElementById(`comments-list-${postId}`);
         const commentText = input.value.trim();
-        
-        if (!db) {
-            showMessageBox("Database connection is not ready. Please try again.", 'bg-red-600');
-            return;
-        }
 
         if (commentText === "") {
             console.warn("Comment text is empty.");
-            // Visually indicate the error
+            // Visually indicate the error to the user without alert()
             input.classList.add('border-red-500', 'ring-red-500');
             setTimeout(() => input.classList.remove('border-red-500', 'ring-red-500'), 1500);
             return;
         }
 
-        // Disable input and button while submitting
-        const postButton = input.nextElementSibling; 
-        input.disabled = true;
-        postButton.disabled = true;
-
-        try {
-            const commentsRef = getCommentsCollectionRef(postId);
-            
-            // Get the username from the Jinja context (available as a global variable)
-            const username = '{{ username or "Guest" }}'; 
-            
-            await addDoc(commentsRef, {
-                text: commentText,
-                username: username,
-                userId: userId, 
-                timestamp: serverTimestamp() // Use server timestamp for accurate ordering
-            });
-
-            // Success: Clear input, reset height
-            input.value = '';
-            input.style.height = 'auto'; 
-            showMessageBox('Comment posted successfully!', 'bg-green-600');
-
-        } catch (error) {
-            console.error('Error submitting comment:', error);
-            showMessageBox('Failed to post comment. Please check your connection.', 'bg-red-600');
-        } finally {
-            // Re-enable input and button
-            input.disabled = false;
-            postButton.disabled = false;
+        console.log(`Submitting comment for post ${postId}: "${commentText}"`);
+        
+        // --- START: Client-side simulation of successful post ---
+        
+        // 1. Remove the "No comments yet" message if it exists
+        const placeholder = commentsList.querySelector('.italic');
+        if (placeholder) {
+            placeholder.remove();
         }
-    }
 
-    /**
-     * Handles the form submission for creating a new post.
-     * Prevents the default action (which causes a 404) and informs the user.
-     * @param {Event} event - The form submission event.
-     */
-    function handlePostSubmit(event) {
-        event.preventDefault(); // Stop the browser from navigating to /post
+        // 2. Create a mock comment element (Using the current username, assumed globally available)
+        const username = '{{ username or "Guest" }}'; 
+        const newComment = document.createElement('div');
+        newComment.className = 'flex space-x-2 text-sm';
+        newComment.innerHTML = `
+            <span class="font-semibold text-gray-800">${username}:</span>
+            <span class="text-gray-700 break-words">${commentText}</span>
+        `;
 
-        const postTextarea = event.target.elements.post;
+        // Add the new comment to the top of the list
+        commentsList.prepend(newComment);
+        
+        // 3. Update the comment counter
+        const currentCount = parseInt(countSpan.textContent) || 0;
+        countSpan.textContent = currentCount + 1;
+        
+        // 4. Clear the input and reset the height
+        input.value = '';
+        input.style.height = 'auto'; // Reset textarea height
 
-        if (postTextarea && postTextarea.value.trim() !== '') {
-            // In a real application, this is where you would save the post to the database.
-            postTextarea.value = '';
-            showMessageBox('New post created locally! (Requires a backend server to add to the main feed)', 'bg-primary-dark');
-        } else {
-             showMessageBox('Please enter some text before posting.', 'bg-orange-500');
-        }
-    }
-
-    // Dropdown logic, moved from assumed header_nav.html
-    function toggleDropdown() {
-        const dropdown = document.getElementById('user-menu-dropdown');
-        const button = document.getElementById('user-menu-button');
-        const isExpanded = button.getAttribute('aria-expanded') === 'true';
-
-        // Toggle the 'hidden' class and the ARIA attribute
-        dropdown.classList.toggle('hidden');
-        button.setAttribute('aria-expanded', String(!isExpanded));
-    }
-
-    // Close the dropdown if the user clicks outside of it
-    window.onclick = function(event) {
-        if (!event.target.matches('#user-menu-button, #user-menu-button *')) {
-            const dropdown = document.getElementById('user-menu-dropdown');
-            if (dropdown && !dropdown.classList.contains('hidden')) {
-                dropdown.classList.add('hidden');
-                document.getElementById('user-menu-button').setAttribute('aria-expanded', 'false');
-            }
-        }
+        // Show success message
+        showMessageBox('Comment posted successfully!', 'bg-green-600');
+        
+        // --- END: Client-side simulation ---
     }
 
     </script>
