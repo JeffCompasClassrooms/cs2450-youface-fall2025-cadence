@@ -250,6 +250,27 @@
     <script>
     
     /**
+     * Utility function to display a transient, non-blocking message box.
+     * @param {string} message - The message content.
+     * @param {string} colorClass - Tailwind classes for background color (e.g., 'bg-red-600').
+     */
+    function showMessageBox(message, colorClass = 'bg-green-600') {
+        const messageElement = document.createElement('div');
+        // Initial classes for positioning and style
+        messageElement.className = `fixed top-5 right-5 ${colorClass} text-white p-4 rounded-lg shadow-xl z-50 transition duration-300 transform translate-x-0 opacity-100`;
+        messageElement.textContent = message;
+        document.body.appendChild(messageElement);
+        
+        // Hide after 3.5 seconds with a smooth transition
+        setTimeout(() => {
+            messageElement.classList.replace('translate-x-0', 'translate-x-full');
+            messageElement.classList.replace('opacity-100', 'opacity-0');
+            // Remove element completely after transition ends
+            setTimeout(() => messageElement.remove(), 500); 
+        }, 3500);
+    }
+    
+    /**
      * Toggles the like state of a post using an AJAX call to the server.
      * @param {HTMLElement} button - The clicked button element.
      * @param {string} postId - The unique document ID of the post.
@@ -272,6 +293,7 @@
                 // If the error is 401 (unauthorized), stop processing
                 if (response.status === 401) {
                     console.error('Authentication required to like posts.');
+                    showMessageBox('You must be logged in to like posts.', 'bg-red-600');
                     return; 
                 }
                 throw new Error('Server error: ' + response.statusText);
@@ -301,26 +323,34 @@
         })
         .catch(error => {
             console.error('Like action failed:', error);
-            // Show a message box to the user instead of a disruptive alert()
-            const messageElement = document.createElement('div');
-            messageElement.className = 'fixed top-5 right-5 bg-red-600 text-white p-4 rounded-lg shadow-xl z-50';
-            messageElement.textContent = 'Could not process like request. Check console for details.';
-            document.body.appendChild(messageElement);
-            setTimeout(() => messageElement.remove(), 4000);
+            // Use the new utility function for error display
+            showMessageBox('Could not process like request. Check console for details.', 'bg-red-600');
         });
     }
 
     /**
      * Toggles the visibility of the comment section for a specific post.
+     * Includes an element check to prevent runtime errors.
      * @param {string} postId - The unique document ID of the post.
      */
     function toggleCommentSection(postId) {
         const commentSection = document.getElementById(`comments-${postId}`);
+        
+        // Safety check: if the element isn't found, log an error and stop.
+        if (!commentSection) {
+            console.error(`Comment section element not found for ID: comments-${postId}`);
+            showMessageBox('Error: Comment feature failed to load. Please refresh.', 'bg-red-600');
+            return;
+        }
+
         commentSection.classList.toggle('hidden');
         
         // When the section opens, immediately focus on the textarea for quick commenting
         if (!commentSection.classList.contains('hidden')) {
-            document.getElementById(`comment-input-${postId}`).focus();
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (input) {
+                input.focus();
+            }
         }
     }
 
@@ -332,6 +362,7 @@
     function submitComment(postId) {
         const input = document.getElementById(`comment-input-${postId}`);
         const countSpan = document.querySelector(`.comment-count-${postId}`);
+        const commentsList = document.getElementById(`comments-list-${postId}`);
         const commentText = input.value.trim();
 
         if (commentText === "") {
@@ -346,8 +377,6 @@
         
         // --- START: Client-side simulation of successful post ---
         
-        const commentsList = document.getElementById(`comments-list-${postId}`);
-        
         // 1. Remove the "No comments yet" message if it exists
         const placeholder = commentsList.querySelector('.italic');
         if (placeholder) {
@@ -360,7 +389,7 @@
         newComment.className = 'flex space-x-2 text-sm';
         newComment.innerHTML = `
             <span class="font-semibold text-gray-800">${username}:</span>
-            <span class="text-gray-700">${commentText}</span>
+            <span class="text-gray-700 break-words">${commentText}</span>
         `;
 
         // Add the new comment to the top of the list
@@ -374,19 +403,10 @@
         input.value = '';
         input.style.height = 'auto'; // Reset textarea height
 
-        // --- END: Client-side simulation ---
+        // Show success message
+        showMessageBox('Comment posted successfully!', 'bg-green-600');
         
-        // In a real application, you would send this to the server like:
-        /*
-        fetch(`/comment_post/${postId}`, { 
-            method: 'POST', 
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ comment: commentText })
-        }).then(response => response.json())
-          .then(data => {
-            // Handle server response and update counter/list
-          }).catch(error => console.error('Comment submission failed:', error));
-        */
+        // --- END: Client-side simulation ---
     }
 
     </script>
