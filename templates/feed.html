@@ -247,7 +247,58 @@
     <!-- The dropdown JavaScript logic is now handled in header_nav.html and is no longer needed here. -->
 
     <!-- JAVASCRIPT BLOCK FOR INTERACTIVITY -->
-    <script>
+    <script type="module">
+    
+    // --- FIREBASE IMPORTS AND INITIALIZATION ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, serverTimestamp, onSnapshot, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Global Firebase/App variables
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    let db;
+    let auth;
+    let userId = 'anon_user'; 
+
+    /**
+     * Initializes Firebase and authenticates the user.
+     */
+    async function initializeFirebase() {
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            if (typeof __initial_auth_token !== 'undefined') {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+            
+            // Set the authenticated user ID
+            userId = auth.currentUser?.uid || `anon_${crypto.randomUUID()}`;
+            console.log(`Firebase initialized. User ID: ${userId}`);
+
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+            showMessageBox("Failed to connect to the database.", 'bg-red-600');
+        }
+    }
+
+    /**
+     * Gets the Firestore collection reference for a post's comments.
+     * @param {string} postId - The unique document ID of the post.
+     * @returns {object} A Firestore CollectionReference.
+     */
+    function getCommentsCollectionRef(postId) {
+        // Path: /artifacts/{appId}/public/data/comments/{postId}/comments
+        return collection(db, `artifacts/${appId}/public/data/comments/${postId}/comments`);
+    }
+
+    // Call initialization on load
+    initializeFirebase();
+    // --- END FIREBASE SETUP ---
     
     /**
      * Utility function to display a transient, non-blocking message box.
@@ -329,8 +380,70 @@
     }
 
     /**
+     * Helper to render a single comment element.
+     * @param {object} commentData - The comment data retrieved from Firestore.
+     * @returns {HTMLElement} The created comment element.
+     */
+    function renderComment(commentData) {
+        const commentElement = document.createElement('div');
+        commentElement.className = 'flex space-x-2 text-sm';
+        const username = commentData.username || 'Anonymous';
+        const text = commentData.text || '';
+
+        commentElement.innerHTML = `
+            <span class="font-semibold text-gray-800">${username}:</span>
+            <span class="text-gray-700 break-words">${text}</span>
+        `;
+        return commentElement;
+    }
+
+    /**
+     * Sets up a real-time listener to load and display comments for a post from Firestore.
+     * @param {string} postId - The unique document ID of the post.
+     */
+    function loadComments(postId) {
+        const commentsList = document.getElementById(`comments-list-${postId}`);
+        const countSpan = document.querySelector(`.comment-count-${postId}`);
+
+        if (!db) {
+            console.error("Database not initialized for loading comments.");
+            return;
+        }
+        
+        // Query the comments collection, ordered by timestamp descending (newest first)
+        const commentsRef = getCommentsCollectionRef(postId);
+        const q = query(commentsRef, orderBy('timestamp', 'desc'), limit(100));
+
+        // Set up the real-time listener (onSnapshot)
+        onSnapshot(q, (snapshot) => {
+            // Clear existing comments (to redraw the whole list based on the new snapshot)
+            commentsList.innerHTML = '';
+            let commentCount = 0;
+            
+            if (snapshot.empty) {
+                commentsList.innerHTML = '<p class="text-gray-500 text-sm italic">No comments yet. Be the first!</p>';
+            } else {
+                snapshot.forEach((doc) => {
+                    const commentData = doc.data();
+                    commentsList.appendChild(renderComment(commentData));
+                    commentCount++;
+                });
+            }
+            
+            // Update the comment counter in the post action bar
+            if (countSpan) {
+                 countSpan.textContent = commentCount;
+            }
+
+        }, (error) => {
+            console.error("Error loading comments:", error);
+            showMessageBox('Failed to load comments in real-time.', 'bg-red-600');
+        });
+    }
+
+    /**
      * Toggles the visibility of the comment section for a specific post.
-     * Includes an element check to prevent runtime errors.
+     * Also triggers the loading of comments via a real-time listener.
      * @param {string} postId - The unique document ID of the post.
      */
     function toggleCommentSection(postId) {
@@ -345,68 +458,70 @@
 
         commentSection.classList.toggle('hidden');
         
-        // When the section opens, immediately focus on the textarea for quick commenting
+        // When the section opens, load persistent comments and focus the input
         if (!commentSection.classList.contains('hidden')) {
             const input = document.getElementById(`comment-input-${postId}`);
             if (input) {
                 input.focus();
             }
+            
+            // Load existing comments in real-time
+            loadComments(postId);
         }
     }
 
     /**
-     * Placeholder for submitting a comment.
-     * In a real app, this would make an AJAX call to the /comment endpoint and update the list.
+     * Submits a comment by saving it to Firestore. The UI update is handled by loadComments' onSnapshot listener.
      * @param {string} postId - The unique document ID of the post.
      */
-    function submitComment(postId) {
+    async function submitComment(postId) {
         const input = document.getElementById(`comment-input-${postId}`);
-        const countSpan = document.querySelector(`.comment-count-${postId}`);
-        const commentsList = document.getElementById(`comments-list-${postId}`);
         const commentText = input.value.trim();
+        
+        if (!db) {
+            showMessageBox("Database connection is not ready. Please try again.", 'bg-red-600');
+            return;
+        }
 
         if (commentText === "") {
             console.warn("Comment text is empty.");
-            // Visually indicate the error to the user without alert()
+            // Visually indicate the error
             input.classList.add('border-red-500', 'ring-red-500');
             setTimeout(() => input.classList.remove('border-red-500', 'ring-red-500'), 1500);
             return;
         }
 
-        console.log(`Submitting comment for post ${postId}: "${commentText}"`);
-        
-        // --- START: Client-side simulation of successful post ---
-        
-        // 1. Remove the "No comments yet" message if it exists
-        const placeholder = commentsList.querySelector('.italic');
-        if (placeholder) {
-            placeholder.remove();
+        // Disable input and button while submitting
+        const postButton = input.nextElementSibling; 
+        input.disabled = true;
+        postButton.disabled = true;
+
+        try {
+            const commentsRef = getCommentsCollectionRef(postId);
+            
+            // Get the username from the Jinja context (available as a global variable)
+            const username = '{{ username or "Guest" }}'; 
+            
+            await addDoc(commentsRef, {
+                text: commentText,
+                username: username,
+                userId: userId, 
+                timestamp: serverTimestamp() // Use server timestamp for accurate ordering
+            });
+
+            // Success: Clear input, reset height
+            input.value = '';
+            input.style.height = 'auto'; 
+            showMessageBox('Comment posted successfully!', 'bg-green-600');
+
+        } catch (error) {
+            console.error('Error submitting comment:', error);
+            showMessageBox('Failed to post comment. Please check your connection.', 'bg-red-600');
+        } finally {
+            // Re-enable input and button
+            input.disabled = false;
+            postButton.disabled = false;
         }
-
-        // 2. Create a mock comment element (Using the current username, assumed globally available)
-        const username = '{{ username or "Guest" }}'; 
-        const newComment = document.createElement('div');
-        newComment.className = 'flex space-x-2 text-sm';
-        newComment.innerHTML = `
-            <span class="font-semibold text-gray-800">${username}:</span>
-            <span class="text-gray-700 break-words">${commentText}</span>
-        `;
-
-        // Add the new comment to the top of the list
-        commentsList.prepend(newComment);
-        
-        // 3. Update the comment counter
-        const currentCount = parseInt(countSpan.textContent) || 0;
-        countSpan.textContent = currentCount + 1;
-        
-        // 4. Clear the input and reset the height
-        input.value = '';
-        input.style.height = 'auto'; // Reset textarea height
-
-        // Show success message
-        showMessageBox('Comment posted successfully!', 'bg-green-600');
-        
-        // --- END: Client-side simulation ---
     }
 
     </script>
