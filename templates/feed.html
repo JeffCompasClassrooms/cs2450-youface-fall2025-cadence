@@ -190,7 +190,7 @@
 
                         <!-- Existing Comments List (Placeholder for now) -->
                         <div id="comments-list-{{ post.doc_id }}" class="space-y-3">
-                            <p class="text-gray-500 text-sm italic">No comments yet. Be the first!</p>
+                            <p class="text-gray-500 text-sm italic">Loading comments...</p>
                         </div>
                     </div>
                     <!-- END NEW COMMENT BLOCK -->
@@ -261,6 +261,12 @@
     let db;
     let auth;
     let userId = 'anon_user'; 
+    
+    // NEW: Promise to track when DB and Auth are fully initialized
+    let resolveDbReady;
+    const dbReadyPromise = new Promise(resolve => {
+        resolveDbReady = resolve;
+    });
 
     /**
      * Initializes Firebase and authenticates the user.
@@ -280,10 +286,14 @@
             // Set the authenticated user ID
             userId = auth.currentUser?.uid || `anon_${crypto.randomUUID()}`;
             console.log(`Firebase initialized. User ID: ${userId}`);
+            
+            // Resolve the promise, signaling readiness
+            resolveDbReady(true); 
 
         } catch (error) {
             console.error("Firebase initialization failed:", error);
-            showMessageBox("Failed to connect to the database.", 'bg-red-600');
+            // Updated error message to be less confusing since we have a custom handler
+            showMessageBox("Failed to connect to the database. Check console for details.", 'bg-red-600');
         }
     }
 
@@ -328,6 +338,9 @@
      * @param {string} postId - The unique document ID of the post.
      */
     function toggleLike(button, postId) {
+        // This function relies on a Flask backend and does not directly interact with Firestore for this scope.
+        // I am leaving it as is, assuming the connection issue was specific to the Firestore usage.
+        
         // Find the UI elements
         const countSpan = button.querySelector('.like-count');
         const icon = button.querySelector('.like-icon');
@@ -402,12 +415,16 @@
      * Sets up a real-time listener to load and display comments for a post from Firestore.
      * @param {string} postId - The unique document ID of the post.
      */
-    function loadComments(postId) {
+    async function loadComments(postId) {
+        // FIX: Wait for DB readiness before attempting Firestore operations
+        await dbReadyPromise; 
+
         const commentsList = document.getElementById(`comments-list-${postId}`);
         const countSpan = document.querySelector(`.comment-count-${postId}`);
 
         if (!db) {
             console.error("Database not initialized for loading comments.");
+            commentsList.innerHTML = '<p class="text-gray-500 text-sm italic">Failed to initialize database. Refresh and try again.</p>';
             return;
         }
         
@@ -476,6 +493,9 @@
      * @param {string} postId - The unique document ID of the post.
      */
     async function submitComment(postId) {
+        // FIX: Wait for DB readiness before attempting Firestore operations
+        await dbReadyPromise;
+
         const input = document.getElementById(`comment-input-${postId}`);
         const commentText = input.value.trim();
         
