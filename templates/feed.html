@@ -15,15 +15,19 @@
             background: #d1d5db; /* Softer gray */
             border-radius: 2px;
         }
+        /* Ensure the sticky sidebar performs well */
+        .sticky-sidebar {
+            top: 6rem; /* Space below the fixed header */
+        }
         /* Style for the main container to ensure fluid width and centering */
         #app-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 1rem;
         }
-        /* Ensure the sticky sidebar performs well */
-        .sticky-sidebar {
-            top: 6rem; /* Space below the fixed header */
+        /* Override default textarea focus ring for smoother transitions */
+        textarea:focus {
+            outline: none;
         }
     </style>
     <script>
@@ -110,9 +114,9 @@
             <div id="main-feed-grid" class="space-y-6">
                 <!-- JINJA LOOP for Posts -->
                 {% for post in posts %}
-                <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
+                <div id="post-container-{{ post.doc_id }}" class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
                     
-                    <!-- Post Content: Simplified (Image section removed) -->
+                    <!-- Post Header and Content -->
                     <div class="p-5">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center">
@@ -136,7 +140,7 @@
                         <!-- Actions (Like, Comment, Share, Save) -->
                         <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
                             
-                            <!-- Heart (Like) - MODIFIED FOR JS FUNCTIONALITY -->
+                            <!-- Heart (Like) -->
                             <button 
                                 class="like-button flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg 
                                 {% if post.is_liked_by_user %}text-red-500{% endif %}"
@@ -150,13 +154,14 @@
                                 </svg>
                                 <span class="text-sm like-count">{{ post.likes or 0 }}</span>
                             </button>
-                            <!-- END MODIFIED LIKE BUTTON -->
-
-                            <!-- Comment -->
-                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
+                            
+                            <!-- Comment Button - MODIFIED -->
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg" onclick="toggleCommentSection('{{ post.doc_id }}')">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                                <span class="text-sm">0</span>
+                                <!-- Assuming post.comment_count exists; defaults to 0 -->
+                                <span class="text-sm comment-count-{{ post.doc_id }}">{{ post.comment_count or 0 }}</span>
                             </button>
+                            
                             <!-- iOS Style Share Icon Button -->
                             <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
@@ -167,6 +172,28 @@
 			                </button>
                         </div>
                     </div>
+                    
+                    <!-- Hidden Comment Section - NEW BLOCK -->
+                    <div id="comments-{{ post.doc_id }}" class="hidden px-5 pb-5 pt-3 border-t border-gray-100">
+                        <!-- Comment Form -->
+                        <div class="mb-4 flex items-end space-x-2">
+                            <textarea 
+                                id="comment-input-{{ post.doc_id }}" 
+                                class="w-full p-2 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-primary focus:border-primary transition" 
+                                rows="1" 
+                                placeholder="Add a comment..."
+                                oninput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
+                            ></textarea>
+                            <button onclick="submitComment('{{ post.doc_id }}')" class="flex-shrink-0 px-4 py-1 h-fit bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark shadow-md transition">Post</button>
+                        </div>
+
+                        <!-- Existing Comments List (Placeholder for now) -->
+                        <div id="comments-list-{{ post.doc_id }}" class="space-y-3">
+                            <p class="text-gray-500 text-sm italic">No comments yet. Be the first!</p>
+                        </div>
+                    </div>
+                    <!-- END NEW COMMENT BLOCK -->
+
                 </div>
                 {% endfor %}
             </div>
@@ -219,8 +246,9 @@
     </div>
     <!-- The dropdown JavaScript logic is now handled in header_nav.html and is no longer needed here. -->
 
-    <!-- NEW JAVASCRIPT BLOCK FOR LIKE FUNCTIONALITY -->
+    <!-- JAVASCRIPT BLOCK FOR INTERACTIVITY -->
     <script>
+    
     /**
      * Toggles the like state of a post using an AJAX call to the server.
      * @param {HTMLElement} button - The clicked button element.
@@ -241,13 +269,10 @@
         .then(response => {
             // Throw error if server returns non-200 status (e.g., 401 or 404)
             if (!response.ok) {
-                // If the error is 401 (unauthorized), redirect to login
+                // If the error is 401 (unauthorized), stop processing
                 if (response.status === 401) {
-                    // Using console.error instead of alert as alert can be blocked/annoying
                     console.error('Authentication required to like posts.');
-                    // If you want to redirect, uncomment the line below:
-                    // window.location.href = '/login'; 
-                    return; // Stop processing if not authorized
+                    return; 
                 }
                 throw new Error('Server error: ' + response.statusText);
             }
@@ -284,6 +309,86 @@
             setTimeout(() => messageElement.remove(), 4000);
         });
     }
+
+    /**
+     * Toggles the visibility of the comment section for a specific post.
+     * @param {string} postId - The unique document ID of the post.
+     */
+    function toggleCommentSection(postId) {
+        const commentSection = document.getElementById(`comments-${postId}`);
+        commentSection.classList.toggle('hidden');
+        
+        // When the section opens, immediately focus on the textarea for quick commenting
+        if (!commentSection.classList.contains('hidden')) {
+            document.getElementById(`comment-input-${postId}`).focus();
+        }
+    }
+
+    /**
+     * Placeholder for submitting a comment.
+     * In a real app, this would make an AJAX call to the /comment endpoint and update the list.
+     * @param {string} postId - The unique document ID of the post.
+     */
+    function submitComment(postId) {
+        const input = document.getElementById(`comment-input-${postId}`);
+        const countSpan = document.querySelector(`.comment-count-${postId}`);
+        const commentText = input.value.trim();
+
+        if (commentText === "") {
+            console.warn("Comment text is empty.");
+            // Visually indicate the error to the user without alert()
+            input.classList.add('border-red-500', 'ring-red-500');
+            setTimeout(() => input.classList.remove('border-red-500', 'ring-red-500'), 1500);
+            return;
+        }
+
+        console.log(`Submitting comment for post ${postId}: "${commentText}"`);
+        
+        // --- START: Client-side simulation of successful post ---
+        
+        const commentsList = document.getElementById(`comments-list-${postId}`);
+        
+        // 1. Remove the "No comments yet" message if it exists
+        const placeholder = commentsList.querySelector('.italic');
+        if (placeholder) {
+            placeholder.remove();
+        }
+
+        // 2. Create a mock comment element (Using the current username, assumed globally available)
+        const username = '{{ username or "Guest" }}'; 
+        const newComment = document.createElement('div');
+        newComment.className = 'flex space-x-2 text-sm';
+        newComment.innerHTML = `
+            <span class="font-semibold text-gray-800">${username}:</span>
+            <span class="text-gray-700">${commentText}</span>
+        `;
+
+        // Add the new comment to the top of the list
+        commentsList.prepend(newComment);
+        
+        // 3. Update the comment counter
+        const currentCount = parseInt(countSpan.textContent) || 0;
+        countSpan.textContent = currentCount + 1;
+        
+        // 4. Clear the input and reset the height
+        input.value = '';
+        input.style.height = 'auto'; // Reset textarea height
+
+        // --- END: Client-side simulation ---
+        
+        // In a real application, you would send this to the server like:
+        /*
+        fetch(`/comment_post/${postId}`, { 
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ comment: commentText })
+        }).then(response => response.json())
+          .then(data => {
+            // Handle server response and update counter/list
+          }).catch(error => console.error('Comment submission failed:', error));
+        */
+    }
+
     </script>
 </body>
 </html>
