@@ -47,8 +47,73 @@
 </head>
 <body class="bg-gray-50 font-sans">
 
-    <!-- TOP NAVIGATION BAR: NOW INCLUDED AS A REUSABLE COMPONENT -->
-    {% include 'header_nav.html' %}
+    <!-- START EMBEDDED NAVIGATION HEADER (Replacing header_nav.html) -->
+    <nav class="bg-white shadow-lg fixed w-full z-10 top-0 border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Logo/Site Name -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="#" class="text-2xl font-extrabold text-primary tracking-tight">
+                        SocialFeed
+                    </a>
+                </div>
+
+                <!-- Search Bar (Center) -->
+                <div class="flex items-center justify-center flex-grow mx-10 max-w-lg hidden sm:block">
+                    <div class="relative w-full">
+                        <input type="text" placeholder="Search users or trending topics..." class="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition duration-150 bg-gray-50" />
+                        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+
+                <!-- User Menu (Right) -->
+                <div class="flex items-center space-x-4">
+                    <!-- Notifications Bell -->
+                    <button class="text-gray-500 hover:text-primary p-2 rounded-full hover:bg-gray-100 transition">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    </button>
+                    
+                    <!-- Profile Dropdown -->
+                    <div class="relative">
+                        <button id="user-menu-button" onclick="toggleDropdown()" class="flex items-center space-x-2 p-2 rounded-full hover:bg-gray-100 transition focus:outline-none" aria-expanded="false" aria-haspopup="true">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                                <!-- Placeholder for first letter of username -->
+                                {% if username %}{{ username[0] }}{% else %}U{% endif %}
+                            </div>
+                            <span class="text-sm font-medium text-gray-700 hidden sm:block">
+                                <!-- Placeholder for Username -->
+                                {{ username or 'Guest' }}
+                            </span>
+                            <!-- Down Arrow Icon -->
+                            <svg class="w-4 h-4 text-gray-500 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="user-menu-dropdown" class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-xl bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button">
+                            <div class="py-1" role="none">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                    Profile
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                    Settings
+                                </a>
+                            </div>
+                            <div class="py-1" role="none">
+                                <!-- Logout action -->
+                                <a href="/logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50" role="menuitem">
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Padding/Spacer for the fixed header -->
+    <div class="h-16"></div>
+    <!-- END EMBEDDED NAVIGATION HEADER -->
 
     <!-- MAIN CONTENT LAYOUT (3 Columns) -->
     <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -245,7 +310,6 @@
         </div>
 
     </div>
-    <!-- The dropdown JavaScript logic is now handled in header_nav.html and is no longer needed here. -->
 
     <!-- JAVASCRIPT BLOCK FOR INTERACTIVITY -->
     <script type="module">
@@ -262,7 +326,7 @@
     let auth;
     let userId = 'anon_user'; 
     
-    // NEW: Promise to track when DB and Auth are fully initialized
+    // CRITICAL FIX: Promise to track when DB and Auth are fully initialized
     let resolveDbReady;
     const dbReadyPromise = new Promise(resolve => {
         resolveDbReady = resolve;
@@ -292,7 +356,6 @@
 
         } catch (error) {
             console.error("Firebase initialization failed:", error);
-            // Updated error message to be less confusing since we have a custom handler
             showMessageBox("Failed to connect to the database. Check console for details.", 'bg-red-600');
         }
     }
@@ -423,8 +486,8 @@
         const countSpan = document.querySelector(`.comment-count-${postId}`);
 
         if (!db) {
-            console.error("Database not initialized for loading comments.");
-            commentsList.innerHTML = '<p class="text-gray-500 text-sm italic">Failed to initialize database. Refresh and try again.</p>';
+            console.error("Database not initialized for loading comments (after promise wait).");
+            commentsList.innerHTML = '<p class="text-gray-500 text-sm italic">Failed to connect to the database. Please reload.</p>';
             return;
         }
         
@@ -561,6 +624,28 @@
             showMessageBox('New post created locally! (Requires a backend server to add to the main feed)', 'bg-primary-dark');
         } else {
              showMessageBox('Please enter some text before posting.', 'bg-orange-500');
+        }
+    }
+
+    // Dropdown logic, moved from assumed header_nav.html
+    function toggleDropdown() {
+        const dropdown = document.getElementById('user-menu-dropdown');
+        const button = document.getElementById('user-menu-button');
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+
+        // Toggle the 'hidden' class and the ARIA attribute
+        dropdown.classList.toggle('hidden');
+        button.setAttribute('aria-expanded', String(!isExpanded));
+    }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('#user-menu-button, #user-menu-button *')) {
+            const dropdown = document.getElementById('user-menu-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+                document.getElementById('user-menu-button').setAttribute('aria-expanded', 'false');
+            }
         }
     }
 
