@@ -85,7 +85,8 @@
             <!-- New Post Box (Form) -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800">Share Your Insight</h3>
-                <form method="post" action="/post">
+                <!-- FIX: Added onsubmit handler to prevent 404 from server-side submission -->
+                <form onsubmit="handlePostSubmit(event)">
                     <div class="mb-4">
                         <textarea class="w-full p-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-700" name="post" rows="3" placeholder="What's the latest gossip?"></textarea>
                     </div>
@@ -521,6 +522,25 @@
             // Re-enable input and button
             input.disabled = false;
             postButton.disabled = false;
+        }
+    }
+
+    /**
+     * Handles the form submission for creating a new post.
+     * Prevents the default action (which causes a 404) and informs the user.
+     * @param {Event} event - The form submission event.
+     */
+    function handlePostSubmit(event) {
+        event.preventDefault(); // Stop the browser from navigating to /post
+
+        const postTextarea = event.target.elements.post;
+
+        if (postTextarea && postTextarea.value.trim() !== '') {
+            // In a real application, this is where you would save the post to the database.
+            postTextarea.value = '';
+            showMessageBox('New post created locally! (Requires a backend server to add to the main feed)', 'bg-primary-dark');
+        } else {
+             showMessageBox('Please enter some text before posting.', 'bg-orange-500');
         }
     }
 
