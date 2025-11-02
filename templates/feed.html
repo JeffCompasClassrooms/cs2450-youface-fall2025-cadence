@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Celebrity Feed</title>
+    <!-- Load Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Define custom scrollbar style for better aesthetics */
@@ -14,15 +15,19 @@
             background: #d1d5db; /* Softer gray */
             border-radius: 2px;
         }
+        /* Ensure the sticky sidebar performs well */
+        .sticky-sidebar {
+            top: 6rem; /* Space below the fixed header */
+        }
         /* Style for the main container to ensure fluid width and centering */
         #app-container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 1rem;
         }
-        /* Ensure the sticky sidebar performs well */
-        .sticky-sidebar {
-            top: 6rem; /* Space below the fixed header */
+        /* Override default textarea focus ring for smoother transitions */
+        textarea:focus {
+            outline: none;
         }
     </style>
     <script>
@@ -42,16 +47,21 @@
 </head>
 <body class="bg-gray-50 font-sans">
 
+    <!-- TOP NAVIGATION BAR: NOW INCLUDED AS A REUSABLE COMPONENT -->
     {% include 'header_nav.html' %}
 
+    <!-- MAIN CONTENT LAYOUT (3 Columns) -->
     <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
+        <!-- Column 1: Friends/Features (Left Sidebar) -->
         <div class="lg:col-span-3 space-y-6">
             <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:block hidden">Welcome, {{ username }}!</h2>
 
+            <!-- Friends/Stories Section (Avatar based on initials) -->
             <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800">My Friends</h3>
                 <div class="flex space-x-5 overflow-x-auto stories-container pb-2">
+                    <!-- My Story/Profile Placeholder -->
                     <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
                         <div class="relative w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-400 text-lg font-bold text-gray-700 hover:border-primary transition duration-300">
                             {% if username %}{{ username[0] }}{% else %}U{% endif %}
@@ -59,8 +69,10 @@
                         <span class="text-xs mt-1 text-gray-500">My Story</span>
                     </div>
                     
+                    <!-- JINJA LOOP for Friends/Stories -->
                     {% for friend in friends %}
                     <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
+                        <!-- Friend Avatar (Initial in a purple ring) -->
                         <a href="/friend/{{ friend.username }}" class="relative w-16 h-16 rounded-full bg-gray-200 ring-2 ring-primary ring-offset-2 ring-offset-white flex items-center justify-center text-lg font-bold text-primary hover:ring-primary-dark transition duration-300">
                             {{ friend.username[0] }}
                         </a>
@@ -70,18 +82,21 @@
                 </div>
             </div>
 
+            <!-- New Post Box (Form) -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h3 class="text-lg font-semibold mb-4 text-gray-800">Share Your Insight</h3>
                 <form method="post" action="/post">
                     <div class="mb-4">
                         <textarea class="w-full p-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-700" name="post" rows="3" placeholder="What's the latest gossip?"></textarea>
                     </div>
+                    <!-- Removed "Add Media" functionality -->
                     <div class="flex justify-end">
                         <button type="submit" class="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark shadow-md transition" name="post-submit">Post</button>
                     </div>
                 </form>
             </div>
 
+            <!-- Add Friend / Following Section (Form) -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h5 class="font-bold text-lg mb-3 text-gray-800">Find & Follow</h5>
                 <form method="post" action="/addfriend" class="flex flex-col space-y-3">
@@ -91,36 +106,45 @@
             </div>
         </div>
 
+        <!-- Column 2: Main Feed (Center) -->
         <div class="lg:col-span-6 space-y-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:hidden">Celebrity News</h2>
 
+            <!-- The Feed Section: Single post per row -->
             <div id="main-feed-grid" class="space-y-6">
+                <!-- JINJA LOOP for Posts -->
                 {% for post in posts %}
-                <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
+                <div id="post-container-{{ post.doc_id }}" class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
                     
+                    <!-- Post Header and Content -->
                     <div class="p-5">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center">
+                                <!-- User Avatar with soft background -->
                                 <div class="w-9 h-9 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-sm font-semibold text-gray-700">
                                     {{ post.user[0] }}
                                 </div>
                                 <div>
                                     <h6 class="font-bold text-base text-gray-900">{{ post.user }}</h6>
+                                    <!-- Use convert_time filter from your original code -->
                                     <small class="text-xs text-gray-500">{{ post.time|convert_time }}</small>
                                 </div>
                             </div>
+                            <!-- Options/More Button -->
                             <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                             </button>
                         </div>
                         <p class="text-base text-gray-800 line-clamp-3 mb-4">{{ post.text }}</p>
 
+                        <!-- Actions (Like, Comment, Share, Save) -->
                         <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
+                            
+                            <!-- Heart (Like) -->
                             <button 
                                 class="like-button flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg 
                                 {% if post.is_liked_by_user %}text-red-500{% endif %}"
-                                onclick="toggleLike(this, '{{ post.id }}')" 
-                                data-post-id="{{ post.id }}" 
+                                onclick="toggleLike(this, '{{ post.doc_id }}')" 
                                 data-liked="{{ 'true' if post.is_liked_by_user else 'false' }}"
                             >
                                 <svg class="w-5 h-5 like-icon" 
@@ -130,5 +154,261 @@
                                 </svg>
                                 <span class="text-sm like-count">{{ post.likes or 0 }}</span>
                             </button>
+                            
+                            <!-- Comment Button - MODIFIED -->
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg" onclick="toggleCommentSection('{{ post.doc_id }}')">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                <!-- Assuming post.comment_count exists; defaults to 0 -->
+                                <span class="text-sm comment-count-{{ post.doc_id }}">{{ post.comment_count or 0 }}</span>
+                            </button>
+                            
+                            <!-- iOS Style Share Icon Button -->
+                            <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                            <!-- Save -->
                             <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.0
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+			                </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden Comment Section - NEW BLOCK -->
+                    <div id="comments-{{ post.doc_id }}" class="hidden px-5 pb-5 pt-3 border-t border-gray-100">
+                        <!-- Comment Form -->
+                        <div class="mb-4 flex items-end space-x-2">
+                            <textarea 
+                                id="comment-input-{{ post.doc_id }}" 
+                                class="w-full p-2 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-primary focus:border-primary transition" 
+                                rows="1" 
+                                placeholder="Add a comment..."
+                                oninput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
+                            ></textarea>
+                            <button onclick="submitComment('{{ post.doc_id }}')" class="flex-shrink-0 px-4 py-1 h-fit bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark shadow-md transition">Post</button>
+                        </div>
+
+                        <!-- Existing Comments List (Placeholder for now) -->
+                        <div id="comments-list-{{ post.doc_id }}" class="space-y-3">
+                            <p class="text-gray-500 text-sm italic">No comments yet. Be the first!</p>
+                        </div>
+                    </div>
+                    <!-- END NEW COMMENT BLOCK -->
+
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Column 3: Trending Tops (Right Sidebar) -->
+        <div class="lg:col-span-3 space-y-6">
+            <div class="bg-white p-5 rounded-xl shadow-md sticky sticky-sidebar border border-gray-100">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Trending Tops</h3>
+
+                <!-- Tab Navigation -->
+                <div class="flex border-b border-gray-200 mb-4 text-sm text-gray-600">
+                    <button class="py-2 px-3 border-b-2 border-primary text-primary font-semibold transition">Videos</button>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">Stories</button>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">News</button>
+                </div>
+
+                <!-- Trending List Items (Static Mock Content - text only) -->
+                <ul class="space-y-4">
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                        <!-- Placeholder box for Video (Green theme) -->
+                        <div class="w-16 h-16 bg-green-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">#ARTGala2024: Glamour, Glitter, and Unforgettable Moments</p>
+                            <small class="text-xs text-gray-500 block mt-0.5">Fashion_Insider</small>
+                            <div class="text-xs mt-1">
+                                <span class="text-primary font-medium">9.5K Views</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                        <!-- Placeholder box for Story (Orange theme) -->
+                        <div class="w-16 h-16 bg-orange-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">FOCUSIMAH303 reveals exclusive details about new project</p>
+                            <small class="text-xs text-gray-500 block mt-0.5">GlobalPopNews</small>
+                            <div class="text-xs mt-1">
+                                <span class="text-primary font-medium">2 days ago</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <!-- The dropdown JavaScript logic is now handled in header_nav.html and is no longer needed here. -->
+
+    <!-- JAVASCRIPT BLOCK FOR INTERACTIVITY -->
+    <script>
+    
+    /**
+     * Utility function to display a transient, non-blocking message box.
+     * @param {string} message - The message content.
+     * @param {string} colorClass - Tailwind classes for background color (e.g., 'bg-red-600').
+     */
+    function showMessageBox(message, colorClass = 'bg-green-600') {
+        const messageElement = document.createElement('div');
+        // Initial classes for positioning and style
+        messageElement.className = `fixed top-5 right-5 ${colorClass} text-white p-4 rounded-lg shadow-xl z-50 transition duration-300 transform translate-x-0 opacity-100`;
+        messageElement.textContent = message;
+        document.body.appendChild(messageElement);
+        
+        // Hide after 3.5 seconds with a smooth transition
+        setTimeout(() => {
+            messageElement.classList.replace('translate-x-0', 'translate-x-full');
+            messageElement.classList.replace('opacity-100', 'opacity-0');
+            // Remove element completely after transition ends
+            setTimeout(() => messageElement.remove(), 500); 
+        }, 3500);
+    }
+    
+    /**
+     * Toggles the like state of a post using an AJAX call to the server.
+     * @param {HTMLElement} button - The clicked button element.
+     * @param {string} postId - The unique document ID of the post.
+     */
+    function toggleLike(button, postId) {
+        // Find the UI elements
+        const countSpan = button.querySelector('.like-count');
+        const icon = button.querySelector('.like-icon');
+
+        // --- 1. Send Request to Flask Backend ---
+        fetch(`/like_post/${postId}`, { 
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            // Throw error if server returns non-200 status (e.g., 401 or 404)
+            if (!response.ok) {
+                // If the error is 401 (unauthorized), stop processing
+                if (response.status === 401) {
+                    console.error('Authentication required to like posts.');
+                    showMessageBox('You must be logged in to like posts.', 'bg-red-600');
+                    return; 
+                }
+                throw new Error('Server error: ' + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // --- 2. Update UI based on Server Confirmation ---
+            
+            const newStatus = data.status; // 'liked' or 'unliked'
+            const newCount = data.new_likes; 
+
+            if (newStatus === 'liked') {
+                // Successful LIKE: turn red and fill icon
+                button.setAttribute('data-liked', 'true');
+                button.classList.add('text-red-500'); 
+                icon.setAttribute('fill', 'currentColor'); 
+            } else {
+                // Successful UNLIKE: turn gray and outline icon
+                button.setAttribute('data-liked', 'false');
+                button.classList.remove('text-red-500'); 
+                icon.setAttribute('fill', 'none'); 
+            }
+            
+            // Update the counter text with the server's confirmed count
+            countSpan.textContent = newCount;
+        })
+        .catch(error => {
+            console.error('Like action failed:', error);
+            // Use the new utility function for error display
+            showMessageBox('Could not process like request. Check console for details.', 'bg-red-600');
+        });
+    }
+
+    /**
+     * Toggles the visibility of the comment section for a specific post.
+     * Includes an element check to prevent runtime errors.
+     * @param {string} postId - The unique document ID of the post.
+     */
+    function toggleCommentSection(postId) {
+        const commentSection = document.getElementById(`comments-${postId}`);
+        
+        // Safety check: if the element isn't found, log an error and stop.
+        if (!commentSection) {
+            console.error(`Comment section element not found for ID: comments-${postId}`);
+            showMessageBox('Error: Comment feature failed to load. Please refresh.', 'bg-red-600');
+            return;
+        }
+
+        commentSection.classList.toggle('hidden');
+        
+        // When the section opens, immediately focus on the textarea for quick commenting
+        if (!commentSection.classList.contains('hidden')) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            if (input) {
+                input.focus();
+            }
+        }
+    }
+
+    /**
+     * Placeholder for submitting a comment.
+     * In a real app, this would make an AJAX call to the /comment endpoint and update the list.
+     * @param {string} postId - The unique document ID of the post.
+     */
+    function submitComment(postId) {
+        const input = document.getElementById(`comment-input-${postId}`);
+        const countSpan = document.querySelector(`.comment-count-${postId}`);
+        const commentsList = document.getElementById(`comments-list-${postId}`);
+        const commentText = input.value.trim();
+
+        if (commentText === "") {
+            console.warn("Comment text is empty.");
+            // Visually indicate the error to the user without alert()
+            input.classList.add('border-red-500', 'ring-red-500');
+            setTimeout(() => input.classList.remove('border-red-500', 'ring-red-500'), 1500);
+            return;
+        }
+
+        console.log(`Submitting comment for post ${postId}: "${commentText}"`);
+        
+        // --- START: Client-side simulation of successful post ---
+        
+        // 1. Remove the "No comments yet" message if it exists
+        const placeholder = commentsList.querySelector('.italic');
+        if (placeholder) {
+            placeholder.remove();
+        }
+
+        // 2. Create a mock comment element (Using the current username, assumed globally available)
+        const username = '{{ username or "Guest" }}'; 
+        const newComment = document.createElement('div');
+        newComment.className = 'flex space-x-2 text-sm';
+        newComment.innerHTML = `
+            <span class="font-semibold text-gray-800">${username}:</span>
+            <span class="text-gray-700 break-words">${commentText}</span>
+        `;
+
+        // Add the new comment to the top of the list
+        commentsList.prepend(newComment);
+        
+        // 3. Update the comment counter
+        const currentCount = parseInt(countSpan.textContent) || 0;
+        countSpan.textContent = currentCount + 1;
+        
+        // 4. Clear the input and reset the height
+        input.value = '';
+        input.style.height = 'auto'; // Reset textarea height
+
+        // Show success message
+        showMessageBox('Comment posted successfully!', 'bg-green-600');
+        
+        // --- END: Client-side simulation ---
+    }
+
+    </script>
+</body>
+</html>
