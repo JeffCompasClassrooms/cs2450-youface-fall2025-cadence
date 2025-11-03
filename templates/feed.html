@@ -4,97 +4,97 @@
 
 <head>
 
-    <meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Celebrity Feed</title>
+    <title>Celebrity Feed</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <style>
+    <style>
 
-        /* Define custom scrollbar style for better aesthetics */
+        /* Define custom scrollbar style for better aesthetics */
 
-        .stories-container::-webkit-scrollbar {
+        .stories-container::-webkit-scrollbar {
 
-            height: 4px;
+            height: 4px;
 
-        }
+        }
 
-        .stories-container::-webkit-scrollbar-thumb {
+        .stories-container::-webkit-scrollbar-thumb {
 
-            background: #d1d5db; /* Softer gray */
+            background: #d1d5db; /* Softer gray */
 
-            border-radius: 2px;
+            border-radius: 2px;
 
-        }
+        }
 
-        /* Style for the main container to ensure fluid width and centering */
+        /* Style for the main container to ensure fluid width and centering */
 
-        #app-container {
+        #app-container {
 
-            max-width: 1400px;
+            max-width: 1400px;
 
-            margin: 0 auto;
+            margin: 0 auto;
 
-            padding: 1rem;
+            padding: 1rem;
 
-        }
+        }
 
-        /* Ensure the sticky sidebar performs well */
+        /* Ensure the sticky sidebar performs well */
 
-        .sticky-sidebar {
+        .sticky-sidebar {
 
-            top: 6rem; /* Space below the fixed header */
+            top: 6rem; /* Space below the fixed header */
 
-        }
+        }
 
-        /* Style for the comments overflow */
+        /* Style for the comments overflow */
 
-        .comment-list-container::-webkit-scrollbar {
+        .comment-list-container::-webkit-scrollbar {
 
-            width: 4px;
+            width: 4px;
 
-        }
+        }
 
-        .comment-list-container::-webkit-scrollbar-thumb {
+        .comment-list-container::-webkit-scrollbar-thumb {
 
-            background: #e5e7eb; /* light gray */
+            background: #e5e7eb; /* light gray */
 
-            border-radius: 2px;
+            border-radius: 2px;
 
-        }
+        }
 
-    </style>
+    </style>
 
-    <script>
+    <script>
 
-        // Tailwind configuration for the purple/gray theme
+        // Tailwind configuration for the purple/gray theme
 
-        tailwind.config = {
+        tailwind.config = {
 
-            theme: {
+            theme: {
 
-                extend: {
+                extend: {
 
-                    colors: {
+                    colors: {
 
-                        'primary': '#9333ea', /* Indigo/Purple */
+                        'primary': '#9333ea', /* Indigo/Purple */
 
-                        'primary-dark': '#7e22ce',
+                        'primary-dark': '#7e22ce',
 
-                        'soft-gray': '#f9fafb',
+                        'soft-gray': '#f9fafb',
 
-                    },
+                    },
 
-                },
+                },
 
-            }
+            }
 
-        };
+        };
 
-    </script>
+    </script>
 
 </head>
 
@@ -102,524 +102,473 @@
 
 
 
-    <header class="sticky top-0 bg-white shadow-sm z-10 border-b border-gray-100">
+    <header class="sticky top-0 bg-white shadow-sm z-10 border-b border-gray-100">
 
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <div class="flex justify-between items-center h-16">
+            <div class="flex justify-between items-center h-16">
 
 
 
-                <div class="flex-shrink-0">
+                <div class="flex-shrink-0">
 
-                    <img src="../static/Only_Celebs_LogoV1.png" alt="Only Celebs Logo" class="h-40 w-auto">
+                    <img src="../static/Only_Celebs_LogoV1.png" alt="Only Celebs Logo" class="h-40 w-auto">
 
-                </div>
+                </div>
 
 
 
-                <div class="hidden md:flex flex-1 max-w-lg mx-8">
+                <div class="hidden md:flex flex-1 max-w-lg mx-8">
 
-                    <div class="relative w-full">
+                    <div class="relative w-full">
 
-                        <input type="search" placeholder="Search for celebs, news & gossip" class="w-full py-2 pl-10 pr-4 border border-gray-300 bg-gray-50 rounded-full focus:ring-2 focus:ring-primary focus:border-primary transition">
+                        <input type="search" placeholder="Search for celebs, news & gossip" class="w-full py-2 pl-10 pr-4 border border-gray-300 bg-gray-50 rounded-full focus:ring-2 focus:ring-primary focus:border-primary transition">
 
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
 
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
 
-                        </div>
+                        </div>
 
-                    </div>
+                    </div>
 
-                </div>
+                </div>
 
 
 
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-4">
 
-                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
 
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
 
-                    </button>
+                    </button>
 
-                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
+                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
 
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
 
-                    </button>
+                    </button>
 
 
 
-                    <div class="relative">
+                    <div class="relative">
 
-                        <button id="userMenuButton" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
+                        <button id="userMenuButton" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
 
-                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
+                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
 
-                        </button>
+                        </button>
 
 
 
-                        <div id="userDropdown"
+                        <div id="userDropdown"
 
-                            class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg 
+                            class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg 
 
-                                opacity-0 scale-95 max-h-0 overflow-hidden 
+                                opacity-0 scale-95 max-h-0 overflow-hidden 
 
-                                transition-all duration-200 transform origin-top hidden">
+                                transition-all duration-200 transform origin-top hidden">
 
-                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
 
-                                Log Out
+                                Log Out
 
-                            </a>
+                            </a>
 
-                        </div>
+                        </div>
 
-                    </div>
+                    </div>
 
-                </div> 
+                </div> 
 
 
 
-            </div> 
+            </div> 
 
-        </div> 
+        </div> 
 
-    </header> 
+    </header> 
 
 
 
-    <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+    <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
 
 
-        <div class="lg:col-span-3 space-y-6">
+        <div class="lg:col-span-3 space-y-6">
 
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:block hidden">Welcome, {{ username }}!</h2>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:block hidden">Welcome, {{ username }}!</h2>
 
 
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
 
-                <h3 class="text-lg font-semibold mb-4 text-gray-800">My Friends</h3>
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">My Friends</h3>
 
-                <div class="flex space-x-5 overflow-x-auto stories-container pb-2">
+                <div class="flex space-x-5 overflow-x-auto stories-container pb-2">
 
-                    <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
+                    <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
 
-                        <div class="relative w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-400 text-lg font-bold text-gray-700 hover:border-primary transition duration-300">
+                        <div class="relative w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-400 text-lg font-bold text-gray-700 hover:border-primary transition duration-300">
 
-                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
+                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
 
-                        </div>
+                        </div>
 
-                        <span class="text-xs mt-1 text-gray-500">My Story</span>
+                        <span class="text-xs mt-1 text-gray-500">My Story</span>
 
-                    </div>
+                    </div>
 
-                    
+                    
 
-                    {% for friend in friends %}
+                    {% for friend in friends %}
 
-                    <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
+                    <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
 
-                        <a href="/friend/{{ friend.username }}" class="relative w-16 h-16 rounded-full bg-gray-200 ring-2 ring-primary ring-offset-2 ring-offset-white flex items-center justify-center text-lg font-bold text-primary hover:ring-primary-dark transition duration-300">
+                        <a href="/friend/{{ friend.username }}" class="relative w-16 h-16 rounded-full bg-gray-200 ring-2 ring-primary ring-offset-2 ring-offset-white flex items-center justify-center text-lg font-bold text-primary hover:ring-primary-dark transition duration-300">
 
-                            {{ friend.username[0] }}
+                            {{ friend.username[0] }}
 
-                        </a>
+                        </a>
 
-                        <span class="text-xs mt-1 text-gray-700 truncate w-16 text-center">{{ friend.username }}</span>
+                        <span class="text-xs mt-1 text-gray-700 truncate w-16 text-center">{{ friend.username }}</span>
 
-                    </div>
+                    </div>
 
-                    {% endfor %}
+                    {% endfor %}
 
-                </div>
+                </div>
 
-            </div>
+            </div>
 
 
 
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
 
-                <h3 class="text-lg font-semibold mb-4 text-gray-800">Share Your Insight</h3>
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">Share Your Insight</h3>
 
-                <form id="post-form" method="post" action="/post">
+                <form id="post-form" method="post" action="/post">
 
-                    <div class="mb-4">
+                    <div class="mb-4">
 
-                        <textarea class="w-full p-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-700" name="post" rows="3" placeholder="What's the latest gossip?"></textarea>
+                        <textarea class="w-full p-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-700" name="post" rows="3" placeholder="What's the latest gossip?"></textarea>
 
-                    </div>
+                    </div>
 
-                    <div class="flex justify-end">
+                    <div class="flex justify-end">
 
-                        <button type="submit" class="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark shadow-md transition" name="post-submit">Post</button>
+                        <button type="submit" class="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark shadow-md transition" name="post-submit">Post</button>
 
-                    </div>
+                    </div>
 
-                </form>
+                </form>
 
-            </div>
+            </div>
 
 
 
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
 
-                <h5 class="font-bold text-lg mb-3 text-gray-800">Find & Follow</h5>
+                <h5 class="font-bold text-lg mb-3 text-gray-800">Find & Follow</h5>
 
-                <form method="post" action="/addfriend" class="flex flex-col space-y-3">
+                <form method="post" action="/addfriend" class="flex flex-col space-y-3">
 
-                    <input type="text" class="px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg focus:ring-primary focus:border-primary text-sm text-gray-700" name="name" placeholder="Username to follow" />
+                    <input type="text" class="px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg focus:ring-primary focus:border-primary text-sm text-gray-700" name="name" placeholder="Username to follow" />
 
-                    <button type="submit" class="w-full py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition" name="addfriend">Follow</button>
+                    <button type="submit" class="w-full py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition" name="addfriend">Follow</button>
 
-                </form>
+                </form>
 
-            </div>
+                
 
-        </div>
+            </div>
 
+        </div>
 
 
-        <div class="lg:col-span-6 space-y-8">
 
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:hidden">Celebrity News</h2>
+        <div class="lg:col-span-6 space-y-8">
 
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:hidden">Celebrity News</h2>
 
 
-            <div id="main-feed-grid" class="space-y-6">
 
-                {% for post in posts %}
+            <div id="main-feed-grid" class="space-y-6">
 
-                <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white" id="post-{{ post.id }}">
+                {% for post in posts %}
 
-                    
+                <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white" id="post-{{ post.id }}">
 
-                    <div class="p-5">
+                    
 
-                        <div class="flex items-center justify-between mb-3">
+                    <div class="p-5">
 
-                            <div class="flex items-center">
+                        <div class="flex items-center justify-between mb-3">
 
-                                <div class="w-9 h-9 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-sm font-semibold text-gray-700">
+                            <div class="flex items-center">
 
-                                    {{ post.user[0] }}
+                                <div class="w-9 h-9 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-sm font-semibold text-gray-700">
 
-                                </div>
+                                    {{ post.user[0] }}
 
-                                <div>
+                                </div>
 
-                                    <h6 class="font-bold text-base text-gray-900">{{ post.user }}</h6>
+                                <div>
 
-                                    <small class="text-xs text-gray-500">{{ post.time|convert_time }}</small>
+                                    <h6 class="font-bold text-base text-gray-900">{{ post.user }}</h6>
 
-                                </div>
+                                    <small class="text-xs text-gray-500">{{ post.time|convert_time }}</small>
 
-                            </div>
+                                </div>
 
-                            <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
+                            </div>
 
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                            <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
 
-                            </button>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
 
-                        </div>
+                            </button>
 
-                        <p class="text-base text-gray-800 line-clamp-3 mb-4">{{ post.text }}</p>
+                        </div>
 
+                        <p class="text-base text-gray-800 line-clamp-3 mb-4">{{ post.text }}</p>
 
 
-                        <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
 
-                            <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg like-button" data-likes="0" data-post-id="{{ post.id }}">
+                        <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
 
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg like-button" data-likes="0" data-post-id="{{ post.id }}">
 
-                                <span class="text-sm post-like-count">0</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
 
-                            </button>
+                                <span class="text-sm post-like-count">0</span>
 
+                            </button>
 
 
-                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg comment-toggle" data-post-id="{{ post.id }}">
 
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg comment-toggle" data-post-id="{{ post.id }}">
 
-                                <span class="text-sm post-comment-count">{{ post.comments|length if post.comments else 0 }}</span>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
 
-                            </button>
+                                <span class="text-sm post-comment-count">{{ post.comments|length if post.comments else 0 }}</span>
 
+                            </button>
 
 
-                            <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share">
 
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share">
 
-                            </button>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
 
-                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
+                            </button>
 
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
 
-                            </button>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
 
-                        </div>
+                            </button>
 
-                    </div>
+                        </div>
 
+                    </div>
 
 
-                    <div class="px-5 pb-5 pt-3 border-t border-gray-100 hidden comment-section" id="comments-for-post-{{ post.id }}">
 
-                        
+                    <div class="px-5 pb-5 pt-3 border-t border-gray-100 hidden comment-section" id="comments-for-post-{{ post.id }}">
 
-                        <div class="space-y-3 mb-4 max-h-48 overflow-y-auto pr-2 comment-list-container" id="comment-list-{{ post.id }}">
+                        
 
-                            {% for comment in post.comments %}
+                        <div class="space-y-3 mb-4 max-h-48 overflow-y-auto pr-2 comment-list-container" id="comment-list-{{ post.id }}">
 
-                            <div class="flex space-x-2 text-sm">
+                            {% for comment in post.comments %}
 
-                                <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-600 flex-shrink-0">
+                            <div class="flex space-x-2 text-sm">
 
-                                    {{ comment.user[0] }}
+                                <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-600 flex-shrink-0">
 
-                                </div>
+                                    {{ comment.user[0] }}
 
-                                <p class="text-gray-700">
+                                </div>
 
-                                    <span class="font-semibold">{{ comment.user }}</span> 
+                                <p class="text-gray-700">
 
-                                    {{ comment.text }}
+                                    <span class="font-semibold">{{ comment.user }}</span> 
 
-                                    <span class="text-xs text-gray-400 block mt-0.5">{{ comment.time }}</span>
+                                    {{ comment.text }}
 
-                                </p>
+                                    <span class="text-xs text-gray-400 block mt-0.5">{{ comment.time }}</span>
 
-                            </div>
+                                </p>
 
-                            {% endfor %}
+                            </div>
 
-                            
+                            {% endfor %}
 
-                            {% if not post.comments %}
+                            
 
-                            <p class="text-gray-400 text-sm italic text-center py-2 no-comments-message">No comments yet. Be the first to reply!</p>
+                            {% if not post.comments %}
 
-                            {% endif %}
+                            <p class="text-gray-400 text-sm italic text-center py-2 no-comments-message">No comments yet. Be the first to reply!</p>
 
-                        </div>
+                            {% endif %}
 
+                        </div>
 
 
-                        <form class="comment-form flex space-x-2" data-post-id="{{ post.id }}">
 
-                            <input type="text" name="comment_text" placeholder="Add a comment..." class="flex-grow p-2 border border-gray-200 bg-gray-50 rounded-lg text-sm focus:ring-primary focus:border-primary" required>
+                        <form class="comment-form flex space-x-2" data-post-id="{{ post.id }}">
 
-                            <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary-dark transition">
+                            <input type="text" name="comment_text" placeholder="Add a comment..." class="flex-grow p-2 border border-gray-200 bg-gray-50 rounded-lg text-sm focus:ring-primary focus:border-primary" required>
 
-                                Post
+                            <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary-dark transition">
 
-                            </button>
+                                Post
 
-                        </form>
+                            </button>
 
-                    </div>
+                        </form>
 
-                </div>
+                    </div>
 
-                {% endfor %}
+                </div>
 
-            </div>
+                {% endfor %}
 
-        </div>
+            </div>
 
+        </div>
 
 
-        <div class="lg:col-span-3 space-y-6">
 
-            <div class="bg-white p-5 rounded-xl shadow-md sticky sticky-sidebar border border-gray-100">
+        <div class="lg:col-span-3 space-y-6">
 
-                <h3 class="text-xl font-bold mb-4 text-gray-800">Trending Tops</h3>
+            <div class="bg-white p-5 rounded-xl shadow-md sticky sticky-sidebar border border-gray-100">
 
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Trending Tops</h3>
 
 
-                <div class="flex border-b border-gray-200 mb-4 text-sm text-gray-600">
 
-                    <button class="py-2 px-3 border-b-2 border-primary text-primary font-semibold transition">Videos</button>
+                <div class="flex border-b border-gray-200 mb-4 text-sm text-gray-600">
 
-                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">Stories</button>
+                    <button class="py-2 px-3 border-b-2 border-primary text-primary font-semibold transition">Videos</button>
 
-                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">News</button>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">Stories</button>
 
-                </div>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">News</button>
 
+                </div>
 
 
-                <ul class="space-y-4">
 
-                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                <ul class="space-y-4">
 
-                        <div class="w-16 h-16 bg-green-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
 
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
+                        <div class="w-16 h-16 bg-green-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
 
-                        </div>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
 
-                        <div>
+                        </div>
 
-                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">#ARTGala2024: Glamour, Glitter, and Unforgettable Moments</p>
+                        <div>
 
-                            <small class="text-xs text-gray-500 block mt-0.5">Fashion_Insider</small>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">#ARTGala2024: Glamour, Glitter, and Unforgettable Moments</p>
 
-                            <div class="text-xs mt-1">
+                            <small class="text-xs text-gray-500 block mt-0.5">Fashion_Insider</small>
 
-                                <span class="text-primary font-medium">9.5K Views</span>
+                            <div class="text-xs mt-1">
 
-                            </div>
+                                <span class="text-primary font-medium">9.5K Views</span>
 
-                        </div>
+                            </div>
 
-                    </li>
+                        </div>
 
-                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                    </li>
 
-                        <div class="w-16 h-16 bg-orange-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
 
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                        <div class="w-16 h-16 bg-orange-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
 
-                        </div>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
 
-                        <div>
+                        </div>
 
-                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">FOCUSIMAH303 reveals exclusive details about new project</p>
+                        <div>
 
-                            <small class="text-xs text-gray-500 block mt-0.5">GlobalPopNews</small>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">FOCUSIMAH303 reveals exclusive details about new project</p>
 
-                            <div class="text-xs mt-1">
+                            <small class="text-xs text-gray-500 block mt-0.5">GlobalPopNews</small>
 
-                                <span class="text-primary font-medium">2 days ago</span>
+                            <div class="text-xs mt-1">
 
-                            </div>
+                                <span class="text-primary font-medium">2 days ago</span>
 
-                        </div>
+                            </div>
 
-                    </li>
+                        </div>
 
-                </ul>
+                    </li>
 
-            </div>
+                </ul>
 
-        </div>
+            </div>
 
+        </div>
 
 
-    </div> 
+
+    </div> 
 
 <script>
 
-// --- Explanation of the Comment Feature Success ---
-
+// --- Explanation of the Comment Feature Success (Original Block) ---
 /*
-
-The comment submission feature now works without a page reload because of **Asynchronous JavaScript and XML (AJAX)**, specifically using the **Fetch API**.
-
-
-
-1.  **event.preventDefault():** This line, added to the `comment-form`'s submit listener, **stops the default browser behavior** of a form submit, which is a full page reload.
-
-2.  **Fetch API:** Instead of reloading, JavaScript uses `fetch(actionUrl, { method: 'POST', ... })` to send the comment data to the Flask server **in the background**.
-
-3.  **JSON Data Format:** The comment data is sent as a **JSON string** (`body: JSON.stringify(commentData)`), and the request header explicitly sets the `Content-Type: application/json`. This is crucial because it allows the Flask server (backend) to easily parse the data using `request.get_json()`.
-
-4.  **Server Response:** The Flask route handles the data, saves the comment, and returns a **JSON response** with the new comment details (user, text, time).
-
-5.  **Client-side Update (DOM Manipulation):** Upon receiving the JSON response (`.then(data => { ... })`), the JavaScript code **dynamically creates the new comment's HTML** (`newCommentHTML`) and inserts it directly into the post's comment list (`commentList.insertAdjacentHTML('afterbegin', ...)`). It also updates the comment count on the post.
-
-
-
-This entire process happens without leaving the current page, creating a smooth, modern **Single-Page Application (SPA)** like feel for that specific interaction.
-
+... (Original explanation block remains here for reference)
 */
-
 // --- End of Explanation Block ---
 
 
 
 // --- User Menu Dropdown Functionality ---
-
 document.getElementById('userMenuButton').addEventListener('click', function () {
+    const dropdown = document.getElementById('userDropdown');
 
-    const dropdown = document.getElementById('userDropdown');
-
-
-
-    dropdown.classList.toggle('hidden');
-
-    dropdown.classList.toggle('opacity-0');
-
-    dropdown.classList.toggle('scale-95');
-
-    dropdown.classList.toggle('max-h-0');
-
+    dropdown.classList.toggle('hidden');
+    dropdown.classList.toggle('opacity-0');
+    dropdown.classList.toggle('scale-95');
+    dropdown.classList.toggle('max-h-0');
 });
 
 
 
 // --- Like Button Functionality (Client-side simulation) ---
-
 // This function needs to be callable for both old and new posts
-
 const initializeLikeButton = (button) => {
+    button.addEventListener('click', function() {
+        // IMPORTANT: In a real app, you would send a fetch request here to your server
+        // const postId = this.getAttribute('data-post-id'); 
+        
+        const countSpan = this.querySelector('.post-like-count');
+        let currentLikes = parseInt(this.getAttribute('data-likes'));
+        
+        if (this.classList.contains('liked')) {
+            // UNLIKE
+            currentLikes--;
+            this.classList.remove('liked', 'text-red-500');
+            this.classList.add('text-gray-500');
+        } else {
+            // LIKE
+            currentLikes++;
+            this.classList.add('liked', 'text-red-500');
+            this.classList.remove('text-gray-500');
+        }
 
-    button.addEventListener('click', function() {
-
-        // IMPORTANT: In a real app, you would send a fetch request here to your server
-
-        // const postId = this.getAttribute('data-post-id'); 
-
-        
-
-        const countSpan = this.querySelector('.post-like-count');
-
-        let currentLikes = parseInt(this.getAttribute('data-likes'));
-
-        
-
-        if (this.classList.contains('liked')) {
-
-            // UNLIKE
-
-            currentLikes--;
-
-            this.classList.remove('liked', 'text-red-500');
-
-            this.classList.add('text-gray-500');
-
-        } else {
-
-            // LIKE
-
-            currentLikes++;
-
-            this.classList.add('liked', 'text-red-500');
-
-            this.classList.remove('text-gray-500');
-
-        }
-
-
-
-        this.setAttribute('data-likes', currentLikes);
-
-        countSpan.textContent = currentLikes;
-
-    });
-
+        this.setAttribute('data-likes', currentLikes);
+        countSpan.textContent = currentLikes;
+    });
 };
 
 
@@ -628,426 +577,253 @@ const initializeLikeButton = (button) => {
 
 
 
-// --- NEW AJAX/Fetch Post Submission Functionality (Unchanged) ---
-
+// --- POST SUBMISSION (AJAX/Fetch) Functionality (Unchanged) ---
 document.getElementById('post-form').addEventListener('submit', function(event) {
-
-    // 1. STOP the default form submission to prevent the page from reloading
-
-    event.preventDefault();
-
-
-
-    const form = event.target;
-
-    // Get the post text from the form
-
-    const postTextarea = form.querySelector('textarea[name="post"]');
-
-    const newPostText = postTextarea.value.trim(); // Trim whitespace
-
-    const formData = new FormData(form);
-
-
-
-    if (!newPostText) {
-
-        alert('Your post cannot be empty!');
-
-        return; // Stop if the post is empty
-
-    }
-
-
-
-    // 2. Send the data to the server (to the '/post' route)
-
-    fetch(form.action, {
-
-        method: 'POST',
-
-        body: formData
-
-    })
-
-    .then(response => {
-
-        if (!response.ok) {
-
-            throw new Error(`HTTP error! status: ${response.status}`);
-
-        }
-
-        // A real server would return the new post ID, user data, and time
-
-        return { 
-
-            user: '{{ username }}' || 'Guest', // Get the logged-in user from the template
-
-            text: newPostText,
-
-            time: 'Just now', // Simulated time
-
-            id: Date.now() // Simulated unique ID for the new post
-
-        }; 
-
-    })
-
-    .then(data => {
-
-        // 3. SUCCESS: Handle the successful post submission
-
-        
-
-        // Clear the textarea field
-
-        postTextarea.value = '';
-
-
-
-        // Get the main feed container
-
-        const feedContainer = document.getElementById('main-feed-grid');
-
-
-
-        // Create the HTML structure for the new post
-
-        const newPostHTML = `
-
-            <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white" id="post-${data.id}">
-
-                <div class="p-5">
-
-                    <div class="flex items-center justify-between mb-3">
-
-                        <div class="flex items-center">
-
-                            <div class="w-9 h-9 rounded-full bg-primary/20 mr-3 flex items-center justify-center text-sm font-semibold text-primary">
-
-                                ${data.user[0]}
-
-                            </div>
-
-                            <div>
-
-                                <h6 class="font-bold text-base text-gray-900">${data.user} <span class="text-xs font-normal text-green-500">(New!)</span></h6>
-
-                                <small class="text-xs text-gray-500">${data.time}</small>
-
-                            </div>
-
-                        </div>
-
-                        <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
-
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
-
-                        </button>
-
-                    </div>
-
-                    <p class="text-base text-gray-800 mb-4">${data.text}</p>
-
-
-
-                    <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
-
-                        <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg like-button" data-likes="0" data-post-id="${data.id}">
-
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-
-                            <span class="text-sm post-like-count">0</span>
-
-                        </button>
-
-                        <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg comment-toggle" data-post-id="${data.id}">
-
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-
-                            <span class="text-sm post-comment-count">0</span>
-
-                        </button>
-
-                        <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></button>
-
-                        <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
-
-                    </div>
-
-                </div>
-
-                <div class="px-5 pb-5 pt-3 border-t border-gray-100 hidden comment-section" id="comments-for-post-${data.id}">
-
-                    <div class="space-y-3 mb-4 max-h-48 overflow-y-auto pr-2 comment-list-container" id="comment-list-${data.id}">
-
-                        <p class="text-gray-400 text-sm italic text-center py-2 no-comments-message">No comments yet. Be the first to reply!</p>
-
-                    </div>
-
-                    <form class="comment-form flex space-x-2" data-post-id="${data.id}">
-
-                        <input type="text" name="comment_text" placeholder="Add a comment..." class="flex-grow p-2 border border-gray-200 bg-gray-50 rounded-lg text-sm focus:ring-primary focus:border-primary" required>
-
-                        <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary-dark transition">Post</button>
-
-                    </form>
-
-                </div>
-
-            </div>
-
-        `;
-
-
-
-        // Insert the new post HTML at the top of the feed
-
-        feedContainer.insertAdjacentHTML('afterbegin', newPostHTML);
-
-        
-
-        // IMPORTANT: Re-initialize event listeners for the NEW post
-
-        const newPostElement = feedContainer.firstElementChild;
-
-        
-
-        // Initialize Like Button
-
-        const newLikeButton = newPostElement.querySelector('.like-button');
-
-        if (newLikeButton) {
-
-            initializeLikeButton(newLikeButton);
-
-        }
-
-
-
-        // Initialize Comment Toggle Button
-
-        const newCommentToggleButton = newPostElement.querySelector('.comment-toggle');
-
-        if (newCommentToggleButton) {
-
-            initializeCommentToggle(newCommentToggleButton);
-
-        }
-
-
-
-        // Initialize Comment Form
-
-        const newCommentForm = newPostElement.querySelector('.comment-form');
-
-        if (newCommentForm) {
-
-            initializeCommentForm(newCommentForm);
-
-        }
-
-    })
-
-    .catch(error => {
-
-        // 4. ERROR: Handle any network or server errors
-
-        console.error('Error submitting post:', error);
-
-        alert('An error occurred while posting: ' + error.message);
-
-    });
-
+    // 1. STOP the default form submission to prevent the page from reloading
+    event.preventDefault();
+
+    const form = event.target;
+    // Get the post text from the form
+    const postTextarea = form.querySelector('textarea[name="post"]');
+    const newPostText = postTextarea.value.trim(); // Trim whitespace
+    const formData = new FormData(form);
+
+    if (!newPostText) {
+        alert('Your post cannot be empty!');
+        return; // Stop if the post is empty
+    }
+
+    // 2. Send the data to the server (to the '/post' route)
+    fetch(form.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        // A real server would return the new post ID, user data, and time
+        return { 
+            user: '{{ username }}' || 'Guest', // Get the logged-in user from the template
+            text: newPostText,
+            time: 'Just now', // Simulated time
+            id: Date.now() // Simulated unique ID for the new post
+        }; 
+    })
+    .then(data => {
+        // 3. SUCCESS: Handle the successful post submission
+        
+        // Clear the textarea field
+        postTextarea.value = '';
+
+        // Get the main feed container
+        const feedContainer = document.getElementById('main-feed-grid');
+
+        // Create the HTML structure for the new post
+        const newPostHTML = `
+            <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white" id="post-${data.id}">
+                <div class="p-5">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-9 h-9 rounded-full bg-primary/20 mr-3 flex items-center justify-center text-sm font-semibold text-primary">
+                                ${data.user[0]}
+                            </div>
+                            <div>
+                                <h6 class="font-bold text-base text-gray-900">${data.user} <span class="text-xs font-normal text-green-500">(New!)</span></h6>
+                                <small class="text-xs text-gray-500">${data.time}</small>
+                            </div>
+                        </div>
+                        <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                        </button>
+                    </div>
+                    <p class="text-base text-gray-800 mb-4">${data.text}</p>
+
+                    <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
+                        <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg like-button" data-likes="0" data-post-id="${data.id}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                            <span class="text-sm post-like-count">0</span>
+                        </button>
+                        <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg comment-toggle" data-post-id="${data.id}">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                            <span class="text-sm post-comment-count">0</span>
+                        </button>
+                        <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg></button>
+                        <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg></button>
+                    </div>
+                </div>
+                <div class="px-5 pb-5 pt-3 border-t border-gray-100 hidden comment-section" id="comments-for-post-${data.id}">
+                    <div class="space-y-3 mb-4 max-h-48 overflow-y-auto pr-2 comment-list-container" id="comment-list-${data.id}">
+                        <p class="text-gray-400 text-sm italic text-center py-2 no-comments-message">No comments yet. Be the first to reply!</p>
+                    </div>
+                    <form class="comment-form flex space-x-2" data-post-id="${data.id}">
+                        <input type="text" name="comment_text" placeholder="Add a comment..." class="flex-grow p-2 border border-gray-200 bg-gray-50 rounded-lg text-sm focus:ring-primary focus:border-primary" required>
+                        <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary-dark transition">Post</button>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        // Insert the new post HTML at the top of the feed
+        feedContainer.insertAdjacentHTML('afterbegin', newPostHTML);
+        
+        // IMPORTANT: Re-initialize event listeners for the NEW post
+        const newPostElement = feedContainer.firstElementChild;
+        
+        // Initialize Like Button
+        const newLikeButton = newPostElement.querySelector('.like-button');
+        if (newLikeButton) {
+            initializeLikeButton(newLikeButton);
+        }
+
+        // Initialize Comment Toggle Button
+        const newCommentToggleButton = newPostElement.querySelector('.comment-toggle');
+        if (newCommentToggleButton) {
+            initializeCommentToggle(newCommentToggleButton);
+        }
+
+        // Initialize Comment Form
+        const newCommentForm = newPostElement.querySelector('.comment-form');
+        if (newCommentForm) {
+            initializeCommentForm(newCommentForm);
+        }
+    })
+    .catch(error => {
+        // 4. ERROR: Handle any network or server errors
+        console.error('Error submitting post:', error);
+        alert('An error occurred while posting: ' + error.message);
+    });
 });
 
 
+// ------------------------------------------------------------------
+
+
+// --- CORE COMMENT FUNCTIONALITY ---
+
+/**
+ * Initializes the click listener for a single comment toggle button.
+ * Controls the visibility of the corresponding comment section.
+ */
+const initializeCommentToggle = (button) => {
+    button.addEventListener('click', function() {
+        const postId = this.getAttribute('data-post-id');
+        const commentSection = document.getElementById(`comments-for-post-${postId}`);
+        
+        // Toggle the visibility of the comment section
+        commentSection.classList.toggle('hidden');
+        
+        // Toggle the active state of the button's color
+        this.classList.toggle('text-primary'); 
+        this.classList.toggle('text-gray-500'); 
+    });
+};
+
+
+/**
+ * Initializes the submit listener for a single comment form.
+ * Sends the comment via AJAX/Fetch and updates the DOM dynamically.
+ */
+const initializeCommentForm = (form) => {
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // STOP default form submission (prevents page reload)
+
+        const postId = form.getAttribute('data-post-id');
+        const commentInput = form.querySelector('input[name="comment_text"]');
+        const newCommentText = commentInput.value.trim();
+        
+        const actionUrl = `/comment/${postId}`; 
+
+        if (!newCommentText) {
+            alert('Your comment cannot be empty!');
+            return;
+        }
+
+        // Prepare the data payload as JSON
+        const commentData = {
+            comment_text: newCommentText,
+            post_id: postId
+        };
+
+        // 1. Send the data to the server as JSON
+        fetch(actionUrl, {
+            method: 'POST',
+            // IMPORTANT: Tell the server we are sending JSON
+            headers: {
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(commentData)
+        })
+        .then(response => {
+            // Check for a successful status (200-299)
+            if (response.ok) {
+                // If Flask returns JSON (as expected), parse it
+                return response.json(); 
+            }
+            throw new Error(`Server error (${response.status}). Could not post comment.`);
+        })
+        .then(data => {
+            // 2. SUCCESS: Handle the successful comment submission
+            
+            // Clear the input field
+            commentInput.value = '';
+
+            // Get the comment list container and the comment count element
+            const commentList = document.getElementById(`comment-list-${postId}`);
+            const countSpan = document.querySelector(`#post-${postId} .post-comment-count`);
+
+            // Remove the "No comments yet" message if it exists
+            const noCommentsMessage = commentList.querySelector('.no-comments-message');
+            if (noCommentsMessage) {
+                noCommentsMessage.remove();
+            }
+
+            // Create the HTML structure for the new comment using the returned data
+            const newCommentHTML = `
+                <div class="flex space-x-2 text-sm">
+                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0">
+                        ${data.user[0]}
+                    </div>
+                    <p class="text-gray-700">
+                        <span class="font-semibold">${data.user}</span> 
+                        ${data.text}
+                        <span class="text-xs text-gray-400 block mt-0.5">${data.time}</span>
+                    </p>
+                </div>
+            `;
+
+            // Insert the new comment HTML at the top of the comment list
+            commentList.insertAdjacentHTML('afterbegin', newCommentHTML);
+
+            // Update the comment count
+            let currentCommentCount = parseInt(countSpan.textContent);
+            countSpan.textContent = currentCommentCount + 1;
+        })
+        .catch(error => {
+            // 3. ERROR: Handle any network or server errors
+            console.error('Error submitting comment:', error);
+            alert('An error occurred while commenting: ' + error.message);
+        });
+    });
+};
+
 
 // ------------------------------------------------------------------
 
 
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize all existing like buttons
+    document.querySelectorAll('.like-button').forEach(initializeLikeButton);
 
-// --- Comment Toggle Functionality (Unchanged) ---
+    // Initialize all existing comment toggles
+    document.querySelectorAll('.comment-toggle').forEach(initializeCommentToggle);
 
+    // Initialize all existing comment forms
+    document.querySelectorAll('.comment-form').forEach(initializeCommentForm);
+});
 
 
-const initializeCommentToggle = (button) => {
-
-    button.addEventListener('click', function() {
-
-        const postId = this.getAttribute('data-post-id');
-
-        const commentSection = document.getElementById(`comments-for-post-${postId}`);
-
-        
-
-        // Toggle the visibility of the comment section
-
-        commentSection.classList.toggle('hidden');
-
-        
-
-        // Toggle the active state of the button
-
-        this.classList.toggle('text-primary'); 
-
-        this.classList.toggle('text-gray-500'); 
-
-    });
-
-};
-
-
-
-
-
-// --- REVISED AJAX/Fetch Comment Submission Functionality (JSON) ---
-
-
-
-const initializeCommentForm = (form) => {
-
-    form.addEventListener('submit', function(event) {
-
-        event.preventDefault(); // STOP default form submission
-
-
-
-        const postId = form.getAttribute('data-post-id');
-
-        const commentInput = form.querySelector('input[name="comment_text"]');
-
-        const newCommentText = commentInput.value.trim();
-
-        
-
-        // The URL for the POST request to Flask
-
-        const actionUrl = `/comment/${postId}`; 
-
-
-
-        if (!newCommentText) {
-
-            alert('Your comment cannot be empty!');
-
-            return;
-
-        }
-
-
-
-        // --- REVISED DATA SENDING METHOD: SENDING JSON ---
-
-        const commentData = {
-
-            comment_text: newCommentText,
-
-            post_id: postId // Also include the post ID in the body for verification
-
-        };
-
-
-
-        // 1. Send the data to the server as JSON
-
-        fetch(actionUrl, {
-
-            method: 'POST',
-
-            // IMPORTANT: Tell the server we are sending JSON
-
-            headers: {
-
-                'Content-Type': 'application/json' 
-
-            },
-
-            // Send the data as a stringified JSON object
-
-            body: JSON.stringify(commentData)
-
-        })
-
-        .then(response => {
-
-            // Check for a successful status (200-299)
-
-            if (response.ok) {
-
-                // If Flask returns JSON (as expected), parse it
-
-                return response.json(); 
-
-            }
-
-            // If the server returns a non-200 error (e.g., 401 unauthenticated), throw an error
-
-            throw new Error(`Server error (${response.status}). Could not post comment. Please check the console.`);
-
-        })
-
-        .then(data => {
-
-            // 2. SUCCESS: Handle the successful comment submission
-
-            
-
-            // Clear the input field
-
-            commentInput.value = '';
-
-
-
-            // Get the comment list container and the comment count element
-
-            const commentList = document.getElementById(`comment-list-${postId}`);
-
-            const countSpan = document.querySelector(`#post-${postId} .post-comment-count`);
-
-
-
-            // Remove the "No comments yet" message if it exists
-
-            const noCommentsMessage = commentList.querySelector('.no-comments-message');
-
-            if (noCommentsMessage) {
-
-                noCommentsMessage.remove();
-
-            }
-
-
-
-            // Create the HTML structure for the new comment using the returned data
-
-            const newCommentHTML = `
-
-                <div class="flex space-x-2 text-sm">
-
-                    <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0">
-
-                        ${data.user[0]}
-
-                    </div>
-
-                    <p class="text-gray-700">
-
-                        <span class="font-semibold">${data.user}</span> 
-
-                        ${data.text}
-
-                        <span class="text-xs text-gray-400 block mt-0.5">${data.time}</span>
-
-                    </p>
-
-                </div>
-
-            `;
-
-
-
-            // Insert the new comment HTML at the top of the comment list
-
-            commentList.in
+</script>
+</body>
+</html>
