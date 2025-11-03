@@ -1,4 +1,3 @@
-# posts1.py (Updated with Like/Unlike logic)
 import time
 import tinydb
 
