@@ -260,6 +260,20 @@
 
     </div> 
 <script>
+// --- Explanation of the Comment Feature Success ---
+/*
+The comment submission feature now works without a page reload because of **Asynchronous JavaScript and XML (AJAX)**, specifically using the **Fetch API**.
+
+1.  **event.preventDefault():** This line, added to the `comment-form`'s submit listener, **stops the default browser behavior** of a form submit, which is a full page reload.
+2.  **Fetch API:** Instead of reloading, JavaScript uses `fetch(actionUrl, { method: 'POST', ... })` to send the comment data to the Flask server **in the background**.
+3.  **JSON Data Format:** The comment data is sent as a **JSON string** (`body: JSON.stringify(commentData)`), and the request header explicitly sets the `Content-Type: application/json`. This is crucial because it allows the Flask server (backend) to easily parse the data using `request.get_json()`.
+4.  **Server Response:** The Flask route handles the data, saves the comment, and returns a **JSON response** with the new comment details (user, text, time).
+5.  **Client-side Update (DOM Manipulation):** Upon receiving the JSON response (`.then(data => { ... })`), the JavaScript code **dynamically creates the new comment's HTML** (`newCommentHTML`) and inserts it directly into the post's comment list (`commentList.insertAdjacentHTML('afterbegin', ...)`). It also updates the comment count on the post.
+
+This entire process happens without leaving the current page, creating a smooth, modern **Single-Page Application (SPA)** like feel for that specific interaction.
+*/
+// --- End of Explanation Block ---
+
 // --- User Menu Dropdown Functionality ---
 document.getElementById('userMenuButton').addEventListener('click', function () {
     const dropdown = document.getElementById('userDropdown');
