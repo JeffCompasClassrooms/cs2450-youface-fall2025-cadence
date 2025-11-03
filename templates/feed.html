@@ -3,474 +3,481 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Feed App</title>
+    <title>Celebrity Feed</title>
+    <!-- Load Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons for aesthetic icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* Custom styles for the app */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f7f9;
+        /* Define custom scrollbar style for better aesthetics */
+        .stories-container::-webkit-scrollbar {
+            height: 4px;
         }
-        .container {
-            max-width: 600px;
-            margin-top: 2rem;
+        .stories-container::-webkit-scrollbar-thumb {
+            background: #d1d5db; /* Softer gray */
+            border-radius: 2px;
         }
-        .card {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
+        /* Ensure the sticky sidebar performs well */
+        .sticky-sidebar {
+            top: 6rem; /* Space below the fixed header */
         }
-        .comment-button {
-            transition: background-color 0.2s;
+        /* Style for the main container to ensure fluid width and centering */
+        #app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
         }
-        .comment-button:hover {
-            background-color: #3b82f6;
+        /* Override default textarea focus ring for smoother transitions */
+        textarea:focus {
+            outline: none;
         }
     </style>
-    <script type="module">
-        // Import necessary Firebase functions
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, collection, query, orderBy, addDoc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global Firebase variables
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let app;
-        let db;
-        let auth;
-        let userId = null;
-        let username = 'AnonymousUser';
-        
-        // This promise resolves ONLY after Firebase auth is complete and userId is set.
-        let dbReadyResolve;
-        const dbReadyPromise = new Promise(resolve => {
-            dbReadyResolve = resolve;
-        });
-
-        // --- Utility Functions ---
-
-        /**
-         * Converts base64 PCM audio data to a playable WAV Blob.
-         * @param {string} base64Data Base64 encoded PCM data.
-         * @param {number} sampleRate Sample rate extracted from mimeType.
-         * @returns {Blob} WAV audio blob.
-         */
-        const base64ToArrayBuffer = (base64) => {
-            const binaryString = atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        };
-
-        const pcmToWav = (pcm16, sampleRate) => {
-            const numChannels = 1;
-            const bitsPerSample = 16;
-            const byteRate = sampleRate * numChannels * (bitsPerSample / 8);
-            const blockAlign = numChannels * (bitsPerSample / 8);
-            const dataSize = pcm16.length * 2;
-            const buffer = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(buffer);
-            let offset = 0;
-
-            // RIFF chunk
-            writeString(view, offset, 'RIFF'); offset += 4;
-            view.setUint32(offset, 36 + dataSize, true); offset += 4;
-            writeString(view, offset, 'WAVE'); offset += 4;
-
-            // FMT chunk
-            writeString(view, offset, 'fmt '); offset += 4;
-            view.setUint33(offset, 16, true); offset += 4; // Subchunk1Size (16 for PCM)
-            view.setUint16(offset, 1, true); offset += 2; // AudioFormat (1 for PCM)
-            view.setUint16(offset, numChannels, true); offset += 2;
-            view.setUint33(offset, sampleRate, true); offset += 4;
-            view.setUint33(offset, byteRate, true); offset += 4;
-            view.setUint16(offset, blockAlign, true); offset += 2;
-            view.setUint16(offset, bitsPerSample, true); offset += 2;
-
-            // DATA chunk
-            writeString(view, offset, 'data'); offset += 4;
-            view.setUint33(offset, dataSize, true); offset += 4;
-
-            // Write PCM data
-            for (let i = 0; i < pcm16.length; i++) {
-                view.setInt16(offset, pcm16[i], true);
-                offset += 2;
-            }
-
-            return new Blob([view], { type: 'audio/wav' });
-        };
-
-        const writeString = (view, offset, string) => {
-            for (let i = 0; i < string.length; i++) {
-                view.setUint8(offset + i, string.charCodeAt(i));
-            }
-        };
-
-        /**
-         * Plays the audio using a base64 encoded string and MIME type (L16 format).
-         * @param {string} audioData Base64 encoded audio data.
-         * @param {string} mimeType The full MIME type string (e.g., 'audio/L16;rate=24000').
-         */
-        const playAudio = async (audioData, mimeType) => {
-            try {
-                // Extract sample rate from mimeType (e.g., 'audio/L16;rate=24000')
-                const rateMatch = mimeType.match(/rate=(\d+)/);
-                if (!rateMatch) {
-                    throw new Error("Could not extract sample rate from MIME type.");
-                }
-                const sampleRate = parseInt(rateMatch[1], 10);
-                
-                // Convert base64 to ArrayBuffer
-                const pcmData = base64ToArrayBuffer(audioData);
-                
-                // API returns signed PCM16 audio data.
-                const pcm16 = new Int16Array(pcmData);
-
-                // Convert PCM to a WAV Blob
-                const wavBlob = pcmToWav(pcm16, sampleRate);
-                
-                // Create object URL and play
-                const audioUrl = URL.createObjectURL(wavBlob);
-                const audio = new Audio(audioUrl);
-                await audio.play();
-
-            } catch (error) {
-                console.error("Error playing audio:", error);
-                showNotification(`Audio playback failed: ${error.message}`, 'error');
-            }
-        };
-
-        // --- Firebase Initialization and Auth ---
-
-        window.onload = async () => {
-            // Set up Firebase logging for better debugging
-            setLogLevel('Debug');
-
-            if (Object.keys(firebaseConfig).length === 0) {
-                console.error("Firebase configuration is missing. Cannot initialize the app.");
-                return;
-            }
-
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-
-            // 1. Initial Authentication
-            try {
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Firebase Authentication failed:", error);
-                // Fallback to anonymous sign-in if custom token fails
-                await signInAnonymously(auth);
-            }
-
-            // 2. Set up Auth State Listener
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    userId = user.uid;
-                    username = `User-${userId.substring(0, 8)}`; // Set a simple default username
-                    console.log("Authenticated as:", userId);
-                    // Resolve the promise once we have the user ID
-                    dbReadyResolve();
-                    // Start listening for data now that auth is complete
-                    listenForFeedUpdates();
-                } else {
-                    userId = null;
-                    console.log("No user signed in.");
-                }
-            });
-            
-            // Set up event listeners for the TTS button
-            document.getElementById('tts-button').addEventListener('click', generateAndPlayTTS);
-            document.getElementById('submit-button').addEventListener('click', submitComment);
-        };
-
-        // --- Database Pathing and Data Fetching ---
-
-        const getFeedCollectionPath = () => {
-            // Public data path: /artifacts/{appId}/public/data/feed_comments
-            return `artifacts/${appId}/public/data/feed_comments`;
-        };
-        
-        const listenForFeedUpdates = () => {
-            if (!db) {
-                console.error("Firestore DB not initialized.");
-                return;
-            }
-
-            const feedRef = collection(db, getFeedCollectionPath());
-            
-            // Query: order by timestamp descending
-            const q = query(feedRef, orderBy("timestamp", "desc"));
-
-            onSnapshot(q, (snapshot) => {
-                const comments = [];
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    comments.push({
-                        id: doc.id,
-                        ...data,
-                        // Format the timestamp for display
-                        displayTime: data.timestamp ? new Date(data.timestamp.toDate()).toLocaleString() : 'Just now'
-                    });
-                });
-                renderFeed(comments);
-            }, (error) => {
-                console.error("Error listening to feed updates:", error);
-                showNotification("Failed to connect to the live feed.", 'error');
-            });
-        };
-
-        // --- Comment Submission ---
-
-        const submitComment = async () => {
-            const inputElement = document.getElementById('comment-input');
-            const commentText = inputElement.value.trim();
-
-            if (!commentText) {
-                showNotification("Please enter a message to post.", 'warning');
-                return;
-            }
-            
-            // IMPORTANT: Wait for the database to be ready (auth complete)
-            await dbReadyPromise; 
-
-            if (!userId) {
-                showNotification("Authentication not complete. Please wait a moment.", 'error');
-                return;
-            }
-
-            try {
-                const feedRef = collection(db, getFeedCollectionPath());
-                
-                await addDoc(feedRef, {
-                    userId: userId,
-                    username: username,
-                    text: commentText,
-                    timestamp: serverTimestamp() // Use server timestamp for accurate ordering
-                });
-
-                inputElement.value = ''; // Clear input on success
-                showNotification("Comment posted successfully!", 'success');
-
-            } catch (e) {
-                console.error("Error submitting comment: ", e);
-                showNotification(`Error posting comment: ${e.message}`, 'error');
-            }
-        };
-        
-        // --- TTS Generation and Playback ---
-        
-        const generateAndPlayTTS = async () => {
-            const inputElement = document.getElementById('comment-input');
-            const textToSpeak = inputElement.value.trim();
-
-            if (!textToSpeak) {
-                showNotification("Please enter a message to generate speech.", 'warning');
-                return;
-            }
-            
-            const ttsButton = document.getElementById('tts-button');
-            const originalText = ttsButton.innerHTML;
-            
-            // Set loading state
-            ttsButton.disabled = true;
-            ttsButton.innerHTML = `
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generating...
-            `;
-            
-            // API Configuration
-            const payload = {
-                contents: [{
-                    parts: [{ text: textToSpeak }]
-                }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: {
-                        voiceConfig: {
-                            // Using a clear, informative voice
-                            prebuiltVoiceConfig: { voiceName: "Charon" }
-                        }
-                    }
+    <script>
+        // Tailwind configuration for the purple/gray theme
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#9333ea', /* Indigo/Purple */
+                        'primary-dark': '#7e22ce',
+                        'soft-gray': '#f9fafb',
+                    },
                 },
-                model: "gemini-2.5-flash-preview-tts"
-            };
-
-            const apiKey = ""; 
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-
-            try {
-                let response = null;
-                // Implement exponential backoff for robustness
-                for (let i = 0; i < 3; i++) {
-                    response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.ok) {
-                        break;
-                    } else if (response.status === 429 && i < 2) {
-                        const delay = Math.pow(2, i) * 1000;
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue;
-                    } else {
-                        throw new Error(`API error: ${response.statusText}`);
-                    }
-                }
-                
-                if (!response || !response.ok) {
-                    throw new Error("Failed to get a successful response from the TTS API.");
-                }
-
-                const result = await response.json();
-                const part = result?.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType;
-
-                if (audioData && mimeType && mimeType.startsWith("audio/L16")) {
-                    await playAudio(audioData, mimeType);
-                    showNotification("Speech generated and played!", 'success');
-                } else {
-                    throw new Error("Invalid TTS response format or missing audio data.");
-                }
-
-            } catch (error) {
-                console.error("TTS Generation Error:", error);
-                showNotification(`TTS failed: ${error.message}`, 'error');
-            } finally {
-                // Restore button state
-                ttsButton.disabled = false;
-                ttsButton.innerHTML = originalText;
-            }
+            },
         };
 
+        // --- MOCK DATA (Previously Jinja Context) ---
+        const MOCK_POSTS = [
+            { id: 'p1', user: 'CelebInsider', text: 'Exclusive photo leak suggests that mega-star Kira is working on a new secret project outside of Hollywood! Is she moving into independent film? #KiraMystery #NewProject', time: '1 hour ago', likes: 1543, comment_count: 55, is_liked_by_user: false },
+            { id: 'p2', user: 'FashionScoop', text: 'The Art Gala fashion was truly iconic this year. We break down the top 5 looks that set the internet on fire. Who wore it best? Let us know! #ARTGala2024 #Fashion', time: '5 hours ago', likes: 890, comment_count: 21, is_liked_by_user: true },
+            { id: 'p3', user: 'GossipGuru', text: 'The cryptic tweets from @JAXmusic have fans convinced an album drop is imminent! The hype is real. What are your album title predictions? #JAXAlbum #DropSoon', time: '1 day ago', likes: 3405, comment_count: 112, is_liked_by_user: false }
+        ];
 
-        // --- UI Rendering and Notifications ---
+        const MOCK_FRIENDS = [
+            { username: 'Taylor' },
+            { username: 'Ryan' },
+            { username: 'Emma' },
+            { username: 'Chris' },
+            { username: 'Alex' }
+        ];
         
-        const showNotification = (message, type) => {
-            const notification = document.getElementById('notification');
-            notification.innerHTML = message;
-            notification.className = `p-3 mb-4 text-sm font-medium rounded-lg text-white ${type === 'success' ? 'bg-green-500' : type === 'warning' ? 'bg-yellow-500' : 'bg-red-500'}`;
-            notification.style.display = 'block';
-            
-            // Hide after 5 seconds
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 5000);
-        };
+        const MOCK_USERNAME = 'Gemini';
 
+        /**
+         * Renders the posts array into the main feed container.
+         */
+        function renderFeed() {
+            const feedContainer = document.getElementById('main-feed-grid');
+            if (!feedContainer) return;
 
-        const renderFeed = (comments) => {
-            const feedContainer = document.getElementById('feed-container');
-            feedContainer.innerHTML = ''; // Clear existing comments
-
-            if (comments.length === 0) {
-                feedContainer.innerHTML = '<p class="text-center text-gray-500">No posts yet. Be the first to share!</p>';
-                return;
-            }
-
-            comments.forEach(comment => {
-                // Determine if the comment is from the current user
-                const isCurrentUser = comment.userId === userId;
+            feedContainer.innerHTML = MOCK_POSTS.map(post => {
+                const likedClass = post.is_liked_by_user ? 'text-red-500' : '';
+                const likedFill = post.is_liked_by_user ? 'currentColor' : 'none';
                 
-                const commentElement = document.createElement('div');
-                commentElement.className = 'card p-4';
-                
-                commentElement.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <!-- User Info -->
-                        <div>
-                            <p class="text-sm font-semibold text-gray-900">${comment.username}</p>
-                            <p class="text-xs text-gray-500 mb-2">ID: ${comment.userId}</p>
+                return `
+                <div id="post-container-${post.id}" class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
+                    
+                    <!-- Post Header and Content -->
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center">
+                                <!-- User Avatar with soft background -->
+                                <div class="w-9 h-9 rounded-full bg-gray-200 mr-3 flex items-center justify-center text-sm font-semibold text-gray-700">
+                                    ${post.user[0]}
+                                </div>
+                                <div>
+                                    <h6 class="font-bold text-base text-gray-900">${post.user}</h6>
+                                    <small class="text-xs text-gray-500">${post.time}</small>
+                                </div>
+                            </div>
+                            <!-- Options/More Button -->
+                            <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                            </button>
                         </div>
-                        <!-- Timestamp -->
-                        <div class="text-xs text-gray-400 mt-1">${comment.displayTime}</div>
+                        <p class="text-base text-gray-800 line-clamp-3 mb-4">${post.text}</p>
+
+                        <!-- Actions (Like, Comment, Share, Save) -->
+                        <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
+                            
+                            <!-- Heart (Like) -->
+                            <button 
+                                class="like-button flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg ${likedClass}"
+                                onclick="toggleLike(this, '${post.id}')" 
+                                data-liked="${post.is_liked_by_user}"
+                            >
+                                <svg class="w-5 h-5 like-icon" 
+                                    fill="${likedFill}" 
+                                    stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span class="text-sm like-count">${post.likes}</span>
+                            </button>
+                            
+                            <!-- Comment Button -->
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg" onclick="toggleCommentSection('${post.id}')">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                <span class="text-sm comment-count-${post.id}">${post.comment_count}</span>
+                            </button>
+                            
+                            <!-- iOS Style Share Icon Button -->
+                            <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                            </button>
+                            <!-- Save -->
+                            <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                            </button>
+                        </div>
                     </div>
                     
-                    <!-- Content -->
-                    <p class="text-gray-700 mt-2 whitespace-pre-wrap">${comment.text}</p>
+                    <!-- Hidden Comment Section - NEW BLOCK -->
+                    <div id="comments-${post.id}" class="hidden px-5 pb-5 pt-3 border-t border-gray-100">
+                        <!-- Comment Form -->
+                        <div class="mb-4 flex items-end space-x-2">
+                            <textarea 
+                                id="comment-input-${post.id}" 
+                                class="w-full p-2 border border-gray-300 rounded-lg text-sm resize-none focus:ring-2 focus:ring-primary focus:border-primary transition" 
+                                rows="1" 
+                                placeholder="Add a comment..."
+                                oninput="this.style.height = 'auto'; this.style.height = (this.scrollHeight) + 'px';"
+                            ></textarea>
+                            <button onclick="submitComment('${post.id}')" class="flex-shrink-0 px-4 py-1 h-fit bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary-dark shadow-md transition">Post</button>
+                        </div>
+
+                        <!-- Existing Comments List (Static placeholder, will be updated) -->
+                        <div id="comments-list-${post.id}" class="space-y-3">
+                            <p class="text-gray-500 text-sm italic">No comments yet. Be the first!</p>
+                        </div>
+                    </div>
+                    <!-- END NEW COMMENT BLOCK -->
+
+                </div>
                 `;
+            }).join('');
+        }
 
-                feedContainer.appendChild(commentElement);
-            });
-        };
+        /**
+         * Renders the friends list into the left sidebar.
+         */
+        function renderFriends() {
+            const friendsContainer = document.getElementById('friends-list-container');
+            if (!friendsContainer) return;
 
-        // Make functions globally accessible for HTML event attributes (if needed)
-        window.submitComment = submitComment;
-        window.generateAndPlayTTS = generateAndPlayTTS;
+            const myProfile = `
+                <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
+                    <div class="relative w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center border-2 border-dashed border-gray-400 text-lg font-bold text-gray-700 hover:border-primary transition duration-300">
+                        ${MOCK_USERNAME[0]}
+                    </div>
+                    <span class="text-xs mt-1 text-gray-500">My Story</span>
+                </div>
+            `;
 
+            const friendItems = MOCK_FRIENDS.map(friend => `
+                <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
+                    <!-- Friend Avatar (Initial in a purple ring) -->
+                    <a href="#" class="relative w-16 h-16 rounded-full bg-gray-200 ring-2 ring-primary ring-offset-2 ring-offset-white flex items-center justify-center text-lg font-bold text-primary hover:ring-primary-dark transition duration-300">
+                        ${friend.username[0]}
+                    </a>
+                    <span class="text-xs mt-1 text-gray-700 truncate w-16 text-center">${friend.username}</span>
+                </div>
+            `).join('');
+
+            friendsContainer.innerHTML = myProfile + friendItems;
+        }
+
+
+        // --- INTERACTION LOGIC ---
+
+        /**
+         * Toggles the like state of a post (Client-side simulation).
+         * @param {HTMLElement} button - The clicked button element.
+         * @param {string} postId - The unique ID of the post.
+         */
+        function toggleLike(button, postId) {
+            const countSpan = button.querySelector('.like-count');
+            const icon = button.querySelector('.like-icon');
+            let currentCount = parseInt(countSpan.textContent) || 0;
+            let isLiked = button.getAttribute('data-liked') === 'true';
+
+            // Simulate server toggle
+            if (isLiked) {
+                // Unlike
+                currentCount -= 1;
+                button.setAttribute('data-liked', 'false');
+                button.classList.remove('text-red-500');
+                icon.setAttribute('fill', 'none');
+                showMessageBox('Post unliked.', 'bg-gray-500');
+            } else {
+                // Like
+                currentCount += 1;
+                button.setAttribute('data-liked', 'true');
+                button.classList.add('text-red-500');
+                icon.setAttribute('fill', 'currentColor');
+                showMessageBox('Post liked!', 'bg-red-500');
+            }
+            countSpan.textContent = currentCount;
+
+            // In a real app, you would send an AJAX request here.
+            // fetch(`/like_post/${postId}`, { method: 'POST' }).then(...);
+        }
+
+        /**
+         * Toggles the visibility of the comment section for a specific post.
+         * @param {string} postId - The unique document ID of the post.
+         */
+        function toggleCommentSection(postId) {
+            const commentSection = document.getElementById(`comments-${postId}`);
+            
+            if (!commentSection) {
+                console.error(`Comment section element not found for ID: comments-${postId}`);
+                return;
+            }
+
+            commentSection.classList.toggle('hidden');
+            
+            if (!commentSection.classList.contains('hidden')) {
+                const input = document.getElementById(`comment-input-${postId}`);
+                if (input) {
+                    input.focus();
+                }
+            }
+        }
+
+        /**
+         * Placeholder for submitting a comment (Client-side simulation).
+         * @param {string} postId - The unique document ID of the post.
+         */
+        function submitComment(postId) {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const countSpan = document.querySelector(`.comment-count-${postId}`);
+            const commentsList = document.getElementById(`comments-list-${postId}`);
+            const commentText = input.value.trim();
+
+            if (commentText === "") {
+                input.classList.add('border-red-500', 'ring-red-500');
+                setTimeout(() => input.classList.remove('border-red-500', 'ring-red-500'), 1500);
+                return;
+            }
+
+            // 1. Remove the "No comments yet" message if it exists
+            const placeholder = commentsList.querySelector('.italic');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            // 2. Create a mock comment element
+            const newComment = document.createElement('div');
+            newComment.className = 'flex space-x-2 text-sm';
+            newComment.innerHTML = `
+                <span class="font-bold text-primary">${MOCK_USERNAME}:</span>
+                <span class="text-gray-700 break-words">${commentText}</span>
+            `;
+
+            // Add the new comment to the top of the list
+            commentsList.prepend(newComment);
+            
+            // 3. Update the comment counter
+            const currentCount = parseInt(countSpan.textContent) || 0;
+            countSpan.textContent = currentCount + 1;
+            
+            // 4. Clear the input and reset the height
+            input.value = '';
+            input.style.height = 'auto';
+
+            showMessageBox('Comment posted successfully!', 'bg-primary');
+        }
+
+        /**
+         * Utility function to display a transient, non-blocking message box.
+         */
+        function showMessageBox(message, colorClass = 'bg-green-600') {
+            const messageElement = document.createElement('div');
+            messageElement.className = `fixed top-5 right-5 ${colorClass} text-white p-4 rounded-lg shadow-xl z-50 transition duration-300 transform translate-x-0 opacity-100`;
+            messageElement.textContent = message;
+            document.body.appendChild(messageElement);
+            
+            setTimeout(() => {
+                messageElement.classList.replace('translate-x-0', 'translate-x-full');
+                messageElement.classList.replace('opacity-100', 'opacity-0');
+                setTimeout(() => messageElement.remove(), 500); 
+            }, 3500);
+        }
+
+        /**
+         * Toggles the visibility of the profile dropdown menu.
+         */
+        function toggleDropdown() {
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        // Initialize the page content once the document is fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFeed();
+            renderFriends();
+            // This ensures Lucide icons render after initial load
+            lucide.createIcons();
+        });
     </script>
 </head>
-<body class="min-h-screen">
+<body class="bg-gray-50 font-sans">
 
-    <!-- Navigation Bar (Minimal Header) -->
-    <header class="bg-white shadow-md">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-gray-800">Community Buzz</h1>
-            <div id="auth-status" class="text-sm text-gray-600">
-                <!-- User status will be updated dynamically if needed -->
+    <!-- TOP NAVIGATION BAR (Replaces {% include 'header_nav.html' %}) -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white shadow-lg border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo/Title -->
+                <div class="flex items-center">
+                    <a href="#" class="text-3xl font-extrabold text-primary tracking-tighter">
+                        <span class="font-serif italic">Pop</span>Feed
+                    </a>
+                </div>
+
+                <!-- Search Bar (Hidden on small screens for cleaner look) -->
+                <div class="hidden md:flex flex-grow max-w-lg mx-10">
+                    <div class="relative w-full">
+                        <input type="search" placeholder="Search celebrities, news, or trends..."
+                            class="w-full py-2 pl-10 pr-4 text-sm bg-gray-50 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-primary transition" />
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- User Actions (Icons and Profile) -->
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    
+                    <!-- Notification Bell -->
+                    <button class="p-2 rounded-full text-gray-500 hover:text-primary hover:bg-primary/10 transition">
+                        <i data-lucide="bell" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Messages Icon -->
+                    <button class="p-2 rounded-full text-gray-500 hover:text-primary hover:bg-primary/10 transition">
+                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                    </button>
+
+                    <!-- Profile Dropdown Button -->
+                    <div class="relative">
+                        <button onclick="toggleDropdown()" class="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition focus:outline-none">
+                            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-sm font-semibold text-white">
+                                ${MOCK_USERNAME[0]}
+                            </div>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-1 hidden transition duration-150 transform origin-top-right z-50">
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg m-1">
+                                <i data-lucide="user" class="w-4 h-4 mr-2"></i> Profile
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg m-1">
+                                <i data-lucide="settings" class="w-4 h-4 mr-2"></i> Settings
+                            </a>
+                            <div class="border-t border-gray-100 my-1"></div>
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg m-1">
+                                <i data-lucide="log-out" class="w-4 h-4 mr-2"></i> Sign Out
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Container -->
-    <div class="container mx-auto px-4">
-        
-        <!-- Notification Area -->
-        <div id="notification" class="hidden" role="alert"></div>
+    <!-- MAIN CONTENT LAYOUT (3 Columns) -->
+    <div id="app-container" class="pt-20 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        <!-- New Post Area -->
-        <div class="card p-6 bg-blue-50">
-            <h2 class="text-xl font-semibold text-gray-800 mb-4">Share Your Thoughts</h2>
-            
-            <textarea id="comment-input" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" placeholder="What's on your mind? (Use the TTS button to hear your message before posting!)"></textarea>
-            
-            <div class="mt-4 flex space-x-3 justify-end">
-                
-                <!-- TTS Button -->
-                <button id="tts-button" class="flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out" aria-label="Generate and play speech for the input text">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M18 3a1 1 0 00-1.707-.707l-1.414 1.414A9.998 9.998 0 0010 2C5.03 2 1 6.03 1 11h2c0-3.86 3.14-7 7-7s7 3.14 7 7h2c0-4.97-4.03-9-9-9-3.32 0-6.315 1.472-8.385 3.82l-1.414-1.414A1 1 0 002 3V0h3zM3 17h14a1 1 0 000-2H3a1 1 0 000 2z" />
-                    </svg>
-                    TTS Preview
-                </button>
-                
-                <!-- Submit Button -->
-                <button id="submit-button" class="comment-button bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow-md transition duration-150 ease-in-out" aria-label="Post your comment to the feed">
-                    Post Comment
-                </button>
+        <!-- Column 1: Friends/Features (Left Sidebar) -->
+        <div class="lg:col-span-3 space-y-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:block hidden">Welcome, ${MOCK_USERNAME}!</h2>
+
+            <!-- Friends/Stories Section (Avatar based on initials) -->
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">My Friends</h3>
+                <div id="friends-list-container" class="flex space-x-5 overflow-x-auto stories-container pb-2">
+                    <!-- Content will be rendered by renderFriends() -->
+                </div>
+            </div>
+
+            <!-- New Post Box (Form) -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">Share Your Insight</h3>
+                <form onsubmit="event.preventDefault(); showMessageBox('Post submitted (mock action).', 'bg-blue-600');">
+                    <div class="mb-4">
+                        <textarea class="w-full p-3 border border-gray-200 bg-gray-50 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary resize-none text-gray-700" name="post" rows="3" placeholder="What's the latest gossip?"></textarea>
+                    </div>
+                    <div class="flex justify-end">
+                        <button type="submit" class="px-5 py-2 bg-primary text-white text-sm font-semibold rounded-full hover:bg-primary-dark shadow-md transition">Post</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Add Friend / Following Section (Form) -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <h5 class="font-bold text-lg mb-3 text-gray-800">Find & Follow</h5>
+                <form onsubmit="event.preventDefault(); showMessageBox('User followed (mock action).', 'bg-blue-600');" class="flex flex-col space-y-3">
+                    <input type="text" class="px-3 py-2 border border-gray-200 bg-gray-50 rounded-lg focus:ring-primary focus:border-primary text-sm text-gray-700" name="name" placeholder="Username to follow" />
+                    <button type="submit" class="w-full py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition">Follow</button>
+                </form>
             </div>
         </div>
 
-        <!-- Feed Container -->
-        <h2 class="text-2xl font-bold text-gray-800 my-6">Latest Posts</h2>
-        <div id="feed-container">
-            <div class="text-center p-8 text-gray-500">
-                <svg class="animate-spin h-5 w-5 mx-auto mb-2 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Loading posts...
+        <!-- Column 2: Main Feed (Center) -->
+        <div class="lg:col-span-6 space-y-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:hidden">Celebrity News</h2>
+
+            <!-- The Feed Section: Single post per row -->
+            <div id="main-feed-grid" class="space-y-6">
+                <!-- Posts will be rendered by renderFeed() -->
             </div>
         </div>
-        
+
+        <!-- Column 3: Trending Tops (Right Sidebar) -->
+        <div class="lg:col-span-3 space-y-6">
+            <div class="bg-white p-5 rounded-xl shadow-md sticky sticky-sidebar border border-gray-100">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Trending Tops</h3>
+
+                <!-- Tab Navigation (Mocked) -->
+                <div class="flex border-b border-gray-200 mb-4 text-sm text-gray-600">
+                    <button class="py-2 px-3 border-b-2 border-primary text-primary font-semibold transition">Videos</button>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">Stories</button>
+                    <button class="py-2 px-3 hover:border-b-2 hover:border-gray-400 hover:text-gray-800 transition">News</button>
+                </div>
+
+                <!-- Trending List Items (Static Mock Content - text only) -->
+                <ul class="space-y-4">
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                        <!-- Placeholder box for Video (Green theme) -->
+                        <div class="w-16 h-16 bg-green-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                            <i data-lucide="video" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">#ARTGala2024: Glamour, Glitter, and Unforgettable Moments</p>
+                            <small class="text-xs text-gray-500 block mt-0.5">Fashion_Insider</small>
+                            <div class="text-xs mt-1">
+                                <span class="text-primary font-medium">9.5K Views</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
+                        <!-- Placeholder box for Story (Orange theme) -->
+                        <div class="w-16 h-16 bg-orange-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
+                            <i data-lucide="zap" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-800 line-clamp-2">FOCUSIMAH303 reveals exclusive details about new project</p>
+                            <small class="text-xs text-gray-500 block mt-0.5">GlobalPopNews</small>
+                            <div class="text-xs mt-1">
+                                <span class="text-primary font-medium">2 days ago</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
     </div>
+
 </body>
 </html>
