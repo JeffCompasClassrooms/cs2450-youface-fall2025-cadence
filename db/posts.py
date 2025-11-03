@@ -1,23 +1,33 @@
+# posts1.py (Updated with Like/Unlike logic)
 import time
 import tinydb
 
 # Use the TinyDB Query object for filtering
 Post = tinydb.Query()
-Like = tinydb.Query() # NEW: Query object for the likes table
+# Define a Query object for the 'likes' table
+Like = tinydb.Query()
 
 def add_post(db, user, text):
     """Creates a new post in the 'posts' table."""
     posts_table = db.table('posts')
+    # Store the user's ID (the user dictionary contains an 'id' which is the TinyDB doc_id)
     posts_table.insert({
         'user': user['username'], 
         'text': text, 
         'time': time.time(),
-        'likes': 0  # Initialize likes counter for new posts
+        'user_id': user.doc_id # Store the user's document ID for easier lookups
     })
 
 def get_posts(db, user):
     """
     Retrieves all non-empty posts created by a specific user using TinyDB.
+    
+    Args:
+        db (tinydb.TinyDB): The loaded database instance.
+        user (dict): The dictionary object for the user.
+
+    Returns:
+        list: A list of post dictionaries.
     """
     posts_table = db.table('posts')
     target_username = user.get('username')
@@ -33,61 +43,67 @@ def get_posts(db, user):
     
     return user_posts
 
-# --- FIX FOR AttributeError: get_all_valid_posts ---
-def get_all_valid_posts(db):
+def get_all_valid_posts(db, current_user_id=None):
     """
     Retrieves all non-empty posts from the entire database using TinyDB.
+    
+    Args:
+        db (tinydb.TinyDB): The loaded database instance.
+        current_user_id (int, optional): The user ID of the currently logged-in user.
+                                         Used to check if the user has liked a post.
     """
     posts_table = db.table('posts')
+    likes_table = db.table('likes')
     
     # Search for all posts where the text is not an empty string
     all_valid_posts = posts_table.search(Post.text != '')
     
+    # Enrich posts with like data
+    for post in all_valid_posts:
+        post_id = post.doc_id
+        
+        # 1. Get the total like count for the post
+        post['like_count'] = len(likes_table.search(Like.post_id == post_id))
+        
+        # 2. Check if the current user has liked this post
+        post['liked_by_user'] = False
+        if current_user_id is not None:
+            like_record = likes_table.get(
+                (Like.user_id == current_user_id) & (Like.post_id == post_id)
+            )
+            if like_record:
+                post['liked_by_user'] = True
+                
+    # Sort the posts by time, newest first
+    all_valid_posts.sort(key=lambda p: p['time'], reverse=True)
+
     return all_valid_posts
-# --------------------------------------------------
 
-# --- NEW FUNCTION TO SUPPORT THE LIKE BUTTON ---
-def toggle_post_like(db, post_doc_id, user_username):
-    """
-    Toggles the like status for a post by a user and updates the post count.
-    """
-    posts_table = db.table('posts')
-    likes_table = db.table('likes') # New table to track relationships
+def like_post(db, user_id, post_id):
+    """Adds a like from a user to a post."""
+    likes_table = db.table('likes')
     
-    # 1. Type check and error handling for post_doc_id
-    try:
-        post_doc_id = int(post_doc_id)
-    except ValueError:
-        return 'error', 0 
-
-    # 2. Check if the user has already liked this post
-    like_entry = likes_table.get(
-        (Like.user == user_username) & 
-        (Like.post_id == post_doc_id)
+    # Check if the user has already liked this post
+    existing_like = likes_table.get(
+        (Like.user_id == user_id) & (Like.post_id == post_id)
     )
-
-    post_doc = posts_table.get(doc_id=post_doc_id)
-    if not post_doc:
-        return 'error', 0 
-
-    current_likes = post_doc.get('likes', 0)
-
-    if like_entry:
-        # 3. UNLIKE: Remove record and decrement count
-        likes_table.remove(doc_ids=[like_entry.doc_id])
-        new_count = current_likes - 1 if current_likes > 0 else 0
-        new_status = 'unliked'
-    else:
-        # 4. LIKE: Add record and increment count
+    
+    if not existing_like:
         likes_table.insert({
-            'user': user_username, 
-            'post_id': post_doc_id, 
+            'user_id': user_id,
+            'post_id': post_id,
             'time': time.time()
         })
-        new_count = current_likes + 1
-        new_status = 'liked'
+        return True # Like added
+    return False # Already liked
+
+def unlike_post(db, user_id, post_id):
+    """Removes a like from a user to a post."""
+    likes_table = db.table('likes')
     
-    # 5. Update the 'posts' table with the new total count
-    posts_table.update({'likes': new_count}, doc_ids=[post_doc_id])
+    # Remove the like record
+    delete_count = likes_table.remove(
+        (Like.user_id == user_id) & (Like.post_id == post_id)
+    )
     
-    return new_status, new_count
+    return delete_count > 0 # Returns True if a like was removed
