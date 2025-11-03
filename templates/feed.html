@@ -32,6 +32,10 @@
             background: #e5e7eb; /* light gray */
             border-radius: 2px;
         }
+        /* Necessary for the new dropdown transition to work correctly with max-h-0 */
+        .dropdownMenu.max-h-0 {
+            transition: max-height 0.2s ease-out, opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
     </style>
     <script>
         // Tailwind configuration for the purple/gray theme
@@ -44,56 +48,13 @@
                         'soft-gray': '#f9fafb',
                     },
                 },
-            }
+            },
         };
     </script>
 </head>
 <body class="bg-gray-50 font-sans">
 
-    <header class="sticky top-0 bg-white shadow-sm z-10 border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-
-                <div class="flex-shrink-0">
-                    <img src="../static/Only_Celebs_LogoV1.png" alt="Only Celebs Logo" class="h-40 w-auto">
-                </div>
-
-                <div class="hidden md:flex flex-1 max-w-lg mx-8">
-                    <div class="relative w-full">
-                        <input type="search" placeholder="Search for celebs, news & gossip" class="w-full py-2 pl-10 pr-4 border border-gray-300 bg-gray-50 rounded-full focus:ring-2 focus:ring-primary focus:border-primary transition">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                    </button>
-                    <button class="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-                    </button>
-
-                    <div class="relative">
-                        <button id="userMenuButton" class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
-                            {% if username %}{{ username[0] }}{% else %}U{% endif %}
-                        </button>
-
-                        <div id="userDropdown"
-                            class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg 
-                                opacity-0 scale-95 max-h-0 overflow-hidden 
-                                transition-all duration-200 transform origin-top hidden">
-                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
-                                Log Out
-                            </a>
-                        </div>
-                    </div>
-                </div> 
-
-            </div> 
-        </div> 
-    </header> 
+    {% include 'header_nav.html' %}
 
     <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -258,17 +219,66 @@
             </div>
         </div>
 
-    </div> 
+    </div>
 <script>
-// --- User Menu Dropdown Functionality ---
-document.getElementById('userMenuButton').addEventListener('click', function () {
-    const dropdown = document.getElementById('userDropdown');
+// --- UNIVERSAL DROPDOWN FUNCTIONALITY (From header_nav.html script) ---
+const HIDDEN_CLASSES = ['opacity-0', 'scale-95', 'max-h-0', 'hidden'];
+const VISIBLE_CLASSES = ['opacity-100', 'scale-100', 'max-h-96'];
 
-    dropdown.classList.toggle('hidden');
-    dropdown.classList.toggle('opacity-0');
-    dropdown.classList.toggle('scale-95');
-    dropdown.classList.toggle('max-h-0');
+document.addEventListener('DOMContentLoaded', () => {
+    // Select all buttons and menus that use the new dropdown pattern
+    const menus = document.querySelectorAll('.dropdownMenu');
+    const buttons = document.querySelectorAll('.dropdownBtn');
+
+    // Function to close ALL dropdown menus
+    function closeAllMenus() {
+        menus.forEach(menu => {
+            // Remove visible classes and add hidden classes
+            menu.classList.remove(...VISIBLE_CLASSES);
+            menu.classList.add(...HIDDEN_CLASSES);
+            menu.classList.add('hidden'); // Add the hidden class to ensure it doesn't block clicks when fully closed
+        });
+    }
+
+    buttons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+
+            const targetId = button.getAttribute('data-dropdown');
+            const targetMenu = document.getElementById(targetId);
+            
+            if (!targetMenu) return;
+
+            // Check if the current menu is already open
+            const isMenuOpen = targetMenu.classList.contains('opacity-100');
+
+            // 1. Close all menus first
+            closeAllMenus();
+
+            // 2. If the menu wasn't already open, open it
+            if (!isMenuOpen) {
+                targetMenu.classList.remove('hidden'); // Remove 'hidden' first so transition can work
+                setTimeout(() => { // Use a small timeout to ensure the transition is respected
+                    targetMenu.classList.remove(...HIDDEN_CLASSES);
+                    targetMenu.classList.add(...VISIBLE_CLASSES);
+                }, 10); // Minimal delay
+            }
+        });
+    });
+
+    // Close dropdowns when clicking anywhere else on the document
+    document.addEventListener('click', (e) => {
+        const clickedInsideDropdown = e.target.closest('.dropdownBtn') || e.target.closest('.dropdownMenu');
+        
+        if (!clickedInsideDropdown) {
+            closeAllMenus();
+        }
+    });
+    
+    // Ensure all dropdowns are initially hidden when the page loads
+    closeAllMenus();
 });
+
 
 // --- Like Button Functionality (Client-side simulation) ---
 // This function needs to be callable for both old and new posts
@@ -469,7 +479,12 @@ const initializeCommentForm = (form) => {
             // Check for a successful status (200-299)
             if (response.ok) {
                 // If Flask returns JSON (as expected), parse it
-                return response.json(); 
+                // We'll simulate the return data here since the backend isn't visible
+                return {
+                    user: '{{ username }}' || 'Guest',
+                    text: newCommentText,
+                    time: 'Just now'
+                };
             }
             // If the server returns a non-200 error (e.g., 401 unauthenticated), throw an error
             throw new Error(`Server error (${response.status}). Could not post comment.`);
