@@ -18,7 +18,7 @@ def new_user(db, username, password):
 
 def get_user(db, username, password):
     users = db.table('users')
-    User = tinydb.Query()
+    #User = tinydb.Query()
     return users.get((User.username == username) &
             (User.password == password))
 
