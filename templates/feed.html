@@ -32,16 +32,16 @@
             background: #e5e7eb; /* light gray */
             border-radius: 2px;
         }
-        /* Add CSS for the new dropdown script to work correctly */
+        /* FIX: CSS to ensure the new header dropdowns work visually */
         .dropdownMenu {
-            display: none; /* Default hidden state */
+            display: none; /* Default hidden state based on max-h-0 */
         }
         .dropdownMenu.open {
             display: block; /* Show when open */
         }
     </style>
     <script>
-        // Tailwind configuration for the purple/gray theme
+        // Tailwind configuration for the purple/gray theme (kept unchanged)
         tailwind.config = {
             theme: {
                 extend: {
