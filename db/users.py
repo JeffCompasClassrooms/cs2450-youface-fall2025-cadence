@@ -1,9 +1,13 @@
 import tinydb
+# Define the Query object once at the top, globally
+User = tinydb.Query()
+
+# --- All other code follows ---
 
 def new_user(db, username, password):
     users = db.table('users')
-    User = tinydb.Query()
-    if users.get(User.username == username):
+    # Remove: User = tinydb.Query() 
+    if users.get(User.username == username): # Now uses the global User object
         return None
     user_record = {
             'username': username,
