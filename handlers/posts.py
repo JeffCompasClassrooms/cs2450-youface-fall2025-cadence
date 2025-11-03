@@ -1,4 +1,3 @@
-# posts2.py (Updated with Like/Unlike Route and doc_id storage)
 import flask
 
 # NOTE: We are importing the *database* functions from db.posts
