@@ -183,12 +183,58 @@
                         <p class="text-base text-gray-800 line-clamp-3 mb-4">{{ post.text }}</p>
 
                         <!-- Actions (Like, Comment, Share, Save) -->
-                        <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
-                            <!-- Heart (Like) -->
-                            <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                <span class="text-sm">0</span>
-                            </button>
+                        This new block replaces the static "Heart (Like)" button with the dynamic form, but keeps the surrounding **Comment**, **Share**, and **Save** buttons exactly the same.
+
+```html
+                                                <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
+                                                        <form method="post" action="{{ url_for('posts.toggle_like', post_id=post.doc_id) }}">
+                                {% if post.liked_by_user %}
+                                                                        <input type="hidden" name="action" value="unlike">
+                                    <button type="submit" class="flex items-center space-x-1 text-red-500 hover:text-red-700 transition p-2 rounded-lg">
+                                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
+                                        <span class="text-sm font-semibold">{{ post.like_count }}</span>
+                                    </button>
+                                {% else %}
+                                                                        <input type="hidden" name="action" value="like">
+                                    <button type="submit" class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg">
+                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                        <span class="text-sm">{{ post.like_count }}</span>
+                                    </button>
+                                {% endif %}
+                            </form>
+                            ```
+
+This should restore your original file while adding the required **like functionality**.
+
+---
+
+## 💡 Recommended Addition: Flash Messages
+
+To ensure you see a confirmation when you like or unlike a post (since the action involves a server redirect), I recommend also inserting the **Flash Message** display block.
+
+Please locate the start of the **Main Feed Column** (around line 117):
+
+```html
+                <div class="lg:col-span-6 space-y-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:hidden">Celebrity News</h2>
+
+            ```
+
+### ➡️ Insert this flash message block *before* ``:
+
+```html
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-2">
+                {% for category, message in messages %}
+                    {% set bg_color = 'bg-green-100 border-green-400 text-green-700' if category == 'success' else 'bg-red-100 border-red-400 text-red-700' if category == 'danger' else 'bg-blue-100 border-blue-400 text-blue-700' %}
+                    <div class="{{ bg_color }} border px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ message }}</span>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+            {% endwith %}
                             <!-- Comment -->
                             <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
