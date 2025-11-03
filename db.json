@@ -80,21 +80,36 @@
         "1": {
             "friends": [],
             "password": "UKWildcats1",
+            "pending_requests_received": [
+                "ringwood"
+            ],
+            "pending_requests_sent": [],
             "username": "tylermullins14"
         },
         "2": {
             "friends": [],
             "password": "tyler",
+            "pending_requests_received": [
+                "ringwood"
+            ],
+            "pending_requests_sent": [],
             "username": "tyler"
         },
         "3": {
             "friends": [],
             "password": "real1",
+            "pending_requests_received": [],
+            "pending_requests_sent": [
+                "tylermullins14",
+                "tyler"
+            ],
             "username": "ringwood"
         },
         "4": {
             "friends": [],
             "password": "bot",
+            "pending_requests_received": [],
+            "pending_requests_sent": [],
             "username": "test_BOT"
         }
     }

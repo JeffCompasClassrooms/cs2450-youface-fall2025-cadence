@@ -37,6 +37,53 @@ db = TinyDB(db_path)
 User = Query()
 
 
+# --- NEW: Database Migration Function ---
+def run_db_migration(db):
+    """
+    Checks all users in the DB and adds missing fields to ensure
+    compatibility with the new friend request system.
+    """
+    print("Checking database schema...")
+    users_table = db.table('users')
+    User = Query()
+    
+    # Define the default schema keys and their default values
+    default_schema = {
+        'friends': [],
+        'pending_requests_received': [],
+        'pending_requests_sent': []
+    }
+    
+    # Find all users that are missing at least one of these keys.
+    # This is more efficient than looping through every single user in Python.
+    query = (
+        (~ User.friends.exists()) |
+        (~ User.pending_requests_received.exists()) |
+        (~ User.pending_requests_sent.exists())
+    )
+    users_to_migrate = users_table.search(query)
+
+    if not users_to_migrate:
+        print("Database schema is up-to-date. No migration needed.")
+        return
+
+    print(f"Found {len(users_to_migrate)} user(s) needing migration...")
+    
+    for user_doc in users_to_migrate:
+        update_data = {}
+        
+        # Check for each key individually to be safe
+        for key, default_value in default_schema.items():
+            if key not in user_doc:
+                update_data[key] = default_value
+        
+        if update_data:
+            print(f"  -> Migrating user: {user_doc['username']}")
+            users_table.update(update_data, User.username == user_doc['username'])
+            
+    print("Database migration complete.")
+
+
 # ==============================
 # ROUTES
 # ==============================
@@ -65,7 +112,7 @@ def profile():
         return flask.redirect(flask.url_for('login.loginscreen'))
 
     # --- Load DB and verify user ---
-    db = helpers.load_db()
+    # Use the global 'db' variable
     user = users.get_user(db, username, password)
     if not user:
         return flask.redirect(flask.url_for('login.loginscreen'))
@@ -98,5 +145,8 @@ app.register_blueprint(posts.blueprint)
 # ==============================
 
 if __name__ == "__main__":
+    # --- Run the migration check *before* starting the server ---
+    run_db_migration(db)
+    
+    # --- Start the app ---
     app.run(debug=True, host='0.0.0.0', port=5005)
-
