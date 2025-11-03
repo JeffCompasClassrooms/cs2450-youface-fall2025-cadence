@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Celebrity Feed</title>
-        <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Define custom scrollbar style for better aesthetics */
         .stories-container::-webkit-scrollbar {
@@ -73,18 +73,19 @@
                         </button>
 
                                                 <div id="userDropdown"
-                            class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg
-                                   opacity-0 scale-95 max-h-0 overflow-hidden
+                            class="absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg 
+                                   opacity-0 scale-95 max-h-0 overflow-hidden 
                                    transition-all duration-200 transform origin-top hidden">
                             <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">
                                 Log Out
                             </a>
                         </div>
                     </div>
-                </div> 
-            </div> 
-        </div> 
-    </header> 
+                </div> 
+
+            </div> 
+        </div> 
+    </header> 
 
         <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
@@ -100,7 +101,7 @@
                         </div>
                         <span class="text-xs mt-1 text-gray-500">My Story</span>
                     </div>
-                    
+                    
                                         {% for friend in friends %}
                     <div class="flex flex-col items-center flex-shrink-0 w-20 cursor-pointer">
                                                 <a href="/friend/{{ friend.username }}" class="relative w-16 h-16 rounded-full bg-gray-200 ring-2 ring-primary ring-offset-2 ring-offset-white flex items-center justify-center text-lg font-bold text-primary hover:ring-primary-dark transition duration-300">
@@ -136,23 +137,10 @@
                 <div class="lg:col-span-6 space-y-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4 lg:hidden">Celebrity News</h2>
 
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="space-y-2">
-                {% for category, message in messages %}
-                    {% set bg_color = 'bg-green-100 border-green-400 text-green-700' if category == 'success' else 'bg-red-100 border-red-400 text-red-700' if category == 'danger' else 'bg-blue-100 border-blue-400 text-blue-700' %}
-                    <div class="{{ bg_color }} border px-4 py-3 rounded relative" role="alert">
-                        <span class="block sm:inline">{{ message }}</span>
-                    </div>
-                {% endfor %}
-                </div>
-            {% endif %}
-            {% endwith %}
-
                         <div id="main-feed-grid" class="space-y-6">
                                 {% for post in posts %}
                 <div class="border border-gray-100 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
-                    
+                    
                                         <div class="p-5">
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center">
@@ -165,37 +153,25 @@
                                 </div>
                             </div>
                                                         <button class="text-gray-400 hover:text-primary p-2 rounded-full hover:bg-gray-50 transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path></svg>
                             </button>
                         </div>
                         <p class="text-base text-gray-800 line-clamp-3 mb-4">{{ post.text }}</p>
 
                                                 <div class="flex justify-around items-center pt-3 border-t border-gray-100 text-gray-500">
-                                                        <form method="post" action="{{ url_for('posts.toggle_like', post_id=post.doc_id) }}">
-                                {% if post.liked_by_user %}
-                                                                        <input type="hidden" name="action" value="unlike">
-                                    <button type="submit" class="flex items-center space-x-1 text-red-500 hover:text-red-700 transition p-2 rounded-lg">
-                                                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></svg>
-                                        <span class="text-sm font-semibold">{{ post.like_count }}</span>
-                                    </button>
-                                {% else %}
-                                                                        <input type="hidden" name="action" value="like">
-                                    <button type="submit" class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg">
-                                                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                        <span class="text-sm">{{ post.like_count }}</span>
-                                    </button>
-                                {% endif %}
-                            </form>
-                            
+                                                        <button class="flex items-center space-x-1 hover:text-red-500 transition p-2 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                                <span class="text-sm">0</span>
+                            </button>
                                                         <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                                 <span class="text-sm">0</span>
                             </button>
                                                         <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share">
-                                <svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16a2 2 0 002-2V10a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                             </button>
                                                         <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
                             </button>
                         </div>
                     </div>
@@ -217,7 +193,7 @@
                                 <ul class="space-y-4">
                     <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
                                                 <div class="w-16 h-16 bg-green-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path></svg>
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-gray-800 line-clamp-2">#ARTGala2024: Glamour, Glitter, and Unforgettable Moments</p>
@@ -229,7 +205,7 @@
                     </li>
                     <li class="flex items-start space-x-3 hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150 cursor-pointer">
                                                 <div class="w-16 h-16 bg-orange-500/80 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm text-white">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15H9v-2h2v2zm0-4H9V7h2v6zm4 4h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
                         </div>
                         <div>
                             <p class="text-sm font-semibold text-gray-800 line-clamp-2">FOCUSIMAH303 reveals exclusive details about new project</p>
