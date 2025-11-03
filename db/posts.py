@@ -106,3 +106,34 @@ def unlike_post(db, user_id, post_id):
     )
     
     return delete_count > 0 # Returns True if a like was removed
+
+def add_comment(db, post_id, username, text):
+    """
+    Adds a comment to a specific post by its doc_id.
+    """
+    posts_table = db.table('posts')
+    # 1. Find the post by its TinyDB document ID (post_id)
+    post_record = posts_table.get(doc_id=post_id)
+
+    if post_record:
+        # 2. Prepare the new comment data
+        new_comment = {
+            'user': username,
+            'text': text,
+            'time': time.time()
+        }
+        
+        # Initialize the 'comments' key if it doesn't exist
+        if 'comments' not in post_record:
+            post_record['comments'] = []
+            
+        # 3. Add the new comment to the list
+        post_record['comments'].append(new_comment)
+        
+        # 4. Update the record in the database
+        posts_table.update(post_record, doc_ids=[post_id])
+        
+        # Return the new comment data for the AJAX response
+        return new_comment
+    
+    return None # Return None if the post ID was not found
