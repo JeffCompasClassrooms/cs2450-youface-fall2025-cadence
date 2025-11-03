@@ -1,0 +1,45 @@
+name: Run All Selenium Tests
+
+# This tells GitHub to trigger the workflow whenever someone pushes to main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  selenium-tests:
+    runs-on: ubuntu-latest   # runs the workflow on a Linux VM
+
+    steps:
+      # 1️⃣ Checkout your repository so the workflow can see your code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Set up Python (you can adjust version if needed)
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3️⃣ Install your project dependencies (from requirements.txt)
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install selenium pytest
+
+      # 4️⃣ Install a virtual display so Selenium can run headlessly (no GUI)
+      - name: Set up virtual display
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb
+          Xvfb :99 -ac &
+          export DISPLAY=:99
+
+      # 5️⃣ Run ALL Selenium test scripts in your repo
+      - name: Run Selenium tests
+        env:
+          DISPLAY: :99
+        run: |
+          pytest tests/selenium/ --maxfail=1 --disable-warnings -q
+
