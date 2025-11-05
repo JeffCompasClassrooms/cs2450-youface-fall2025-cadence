@@ -450,14 +450,14 @@ const initializeCommentToggle = (button) => {
 
 const initializeCommentForm = (form) => {
     form.addEventListener('submit', function(event) {
-        event.preventDefault(); // STOP default form submission
+        event.preventDefault();
 
         const postId = form.getAttribute('data-post-id');
         const commentInput = form.querySelector('input[name="comment_text"]');
         const newCommentText = commentInput.value.trim();
         
         // The URL for the POST request to Flask
-        const actionUrl = `/comment/${postId}`; 
+        const actionUrl = `/comment/${postId}`;
 
         if (!newCommentText) {
             alert('Your comment cannot be empty!');
@@ -467,28 +467,32 @@ const initializeCommentForm = (form) => {
         // Use FormData to correctly package the text for the Flask route
         const formData = new FormData();
         formData.append('comment_text', newCommentText);
-        // Note: For a real application, you might want to get the actual data returned from Flask
-        // (like the actual time and a potential comment ID) instead of simulating it.
-
+        // This is the key line: you must pass the formData object in the body!
+        
         // 1. Send the data to the server
         fetch(actionUrl, {
             method: 'POST',
-            body: formData
+            body: formData // <--- 🌟 FIX IS HERE 🌟
         })
         .then(response => {
-            // Check for a successful status (200-299)
+            // ... (rest of the response handling code remains the same) ...
             if (response.ok) {
-                // If Flask returns JSON (as expected), parse it
-                // We'll simulate the return data here since the backend isn't visible
                 return {
                     user: '{{ username }}' || 'Guest',
                     text: newCommentText,
                     time: 'Just now'
                 };
             }
-            // If the server returns a non-200 error (e.g., 401 unauthenticated), throw an error
             throw new Error(`Server error (${response.status}). Could not post comment.`);
         })
+        .then(data => {
+            // ... (rest of the success handling code remains the same) ...
+        })
+        .catch(error => {
+            // ... (rest of the error handling code remains the same) ...
+        });
+    });
+};
         .then(data => {
             // 2. SUCCESS: Handle the successful comment submission
             
