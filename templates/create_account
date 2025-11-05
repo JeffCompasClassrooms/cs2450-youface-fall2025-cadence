@@ -1,227 +1,124 @@
-# app.py (single file)
-from flask import Flask, render_template, request, redirect, url_for, flash, Response
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash
-from jinja2 import DictLoader
-import re, os
+{% extends "base.html" %}
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-change-me')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-# ---------------- Templates ----------------
-TEMPLATES = {
-    "base.html": """<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{{ title or "Create Account" }}</title>
-    <link rel="stylesheet" href="{{ url_for('styles') }}">
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <h1>{{ title or "Create Account" }}</h1>
-      </header>
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-          <ul class="flash" role="status" aria-live="polite">
-            {% for category, message in messages %}
-              <li class="{{ category }}">{{ message }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      {% endwith %}
-
-      <main>
-        {% block content %}{% endblock %}
-      </main>
-
-      <footer>
-        <small>Sample app • Flask + SQLite • Replace styles as you like</small>
-      </footer>
-    </div>
-    <script>
-      // simple client-side guard for mismatched passwords
-      document.addEventListener('DOMContentLoaded', function () {
-        const form = document.querySelector('form');
-        if (!form) return;
-        form.addEventListener('submit', function (e) {
-          const pwd = form.querySelector('#password');
-          const cfm = form.querySelector('#confirm');
-          if (pwd && cfm && pwd.value !== cfm.value) {
-            e.preventDefault();
-            alert('Passwords do not match.');
-            cfm.focus();
-          }
-        });
-      });
-    </script>
-  </body>
-</html>""",
-
-    "register.html": """{% extends "base.html" %}
 {% block content %}
-<form method="post" class="card" novalidate>
-  <div class="field">
-    <label for="username">Username</label>
-    <input id="username" name="username" type="text"
-           value="{{ form.get('username','') }}"
-           placeholder="e.g., cole_seal"
-           required minlength="3" autocomplete="username" autofocus />
+  <!-- Assuming base.html includes styles, or add styles here -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Using similar styles from the login page for consistency */
+    body {
+      background: linear-gradient(135deg, #2e1a47, #4b2a82);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 1.25rem;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 420px;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+
+    .card img {
+      display: block;
+      width: 220px;
+      height: auto;
+      margin: 0 auto 0.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #3B2667, #9B7CF0);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #6f6f6f;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-control {
+      border-radius: 0.75rem;
+      border: 1px solid #ccc;
+      padding: 0.75rem;
+      width: 100%;
+      box-sizing: border-box;
+      margin-bottom: 0.75rem;
+    }
+
+    .form-control:focus {
+      border-color: #9B7CF0;
+      box-shadow: 0 0 0 0.2rem rgba(155, 124, 240, 0.25);
+      outline: none;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 0.5rem;
+      font-weight: 600;
+      border-radius: 0.75rem;
+      transition: all 0.2s ease-in-out;
+      padding: 0.75rem;
+      box-sizing: border-box;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #3B2667, #9B7CF0);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: 1px solid #ccc;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+  </style>
+
+  <div class="card">
+    <!-- Assuming logo path is correct from your other template -->
+    <img src="{{ url_for('static', filename='Only_Celebs_LogoV1.png') }}" alt="OnlyCelebs Logo">
+    <h2>Create Account</h2>
+    <p class="subtitle">Join the exclusive community ✨</p>
+
+    <form method="post" action="{{ url_for('login.createaccount_submit') }}">
+      <!-- New Fields Added -->
+      <input type="text" class="form-control" name="first_name" placeholder="First Name" required>
+      <input type="text" class="form-control" name="last_name" placeholder="Last Name" required>
+      <input type="email" class="form-control" name="email" placeholder="Email Address" required>
+      <input type="tel" class="form-control" name="phone" placeholder="Phone Number" required>
+      <input type="text" class="form-control" name="hometown" placeholder="Hometown" required>
+
+      <!-- Original Fields -->
+      <input type="text" class="form-control" name="username" placeholder="Choose a username" required>
+      <input type="password" class="form-control" name="password" placeholder="Enter a password" required>
+      <input type="password" class="form-control" name="confirm" placeholder="Confirm your password" required>
+
+      <button type="submit" class="btn btn-primary">Create Account</button>
+      <a href="{{ url_for('login.loginscreen') }}" class="btn btn-secondary">Back to Login</a>
+    </form>
   </div>
-
-  <div class="field">
-    <label for="email">Email</label>
-    <input id="email" name="email" type="email"
-           value="{{ form.get('email','') }}"
-           placeholder="you@example.com"
-           required autocomplete="email" />
-  </div>
-
-  <div class="field2">
-    <div>
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password"
-             required minlength="8" autocomplete="new-password"
-             placeholder="At least 8 characters" />
-    </div>
-    <div>
-      <label for="confirm">Confirm password</label>
-      <input id="confirm" name="confirm" type="password"
-             required minlength="8" autocomplete="new-password"
-             placeholder="Re-type your password" />
-    </div>
-  </div>
-
-  <button type="submit" aria-label="Create account">Create Account</button>
-</form>
-
-<p class="hint">Dev note: after registering, visit <code>/_users</code> to see saved users.</p>
-{% endblock %}""",
-
-    "success.html": """{% extends "base.html" %}
-{% block content %}
-<div class="card">
-  <h2>Welcome, {{ username }}! 🎉</h2>
-  <p>Your account was created successfully.</p>
-  <p><a href="{{ url_for('register') }}">Create another account</a> • <a href="{{ url_for('_users') }}">View users</a></p>
-</div>
-{% endblock %}""",
-
-    "users.html": """{% extends "base.html" %}
-{% block content %}
-<div class="card">
-  <h2>Registered Users</h2>
-  <table>
-    <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Password Hash</th></tr></thead>
-    <tbody>
-      {% for u in users %}
-      <tr>
-        <td>{{ u.id }}</td>
-        <td>{{ u.username }}</td>
-        <td>{{ u.email }}</td>
-        <td class="mono">{{ u.password_hash }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-{% endblock %}""",
-}
-app.jinja_loader = DictLoader(TEMPLATES)
-
-# ---------------- CSS ----------------
-CSS = """*{box-sizing:border-box}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0b1020;color:#eaf0ff;margin:0}
-.container{max-width:720px;margin:2rem auto;padding:0 1rem}
-header h1{margin:0 0 1rem 0;font-size:1.9rem}
-.card{background:#121735;border:1px solid #1e2b6b;border-radius:14px;padding:1rem;box-shadow:0 10px 24px rgba(0,0,0,.25)}
-.field{display:flex;flex-direction:column;gap:.25rem;margin-bottom:.8rem}
-.field2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:.4rem}
-label{font-weight:600;color:#cdd9ff}
-input{padding:.6rem .75rem;border:1px solid #2d3b80;border-radius:10px;background:#0e1430;color:#eaf0ff}
-button{appearance:none;border:none;background:#3b82f6;color:#fff;padding:.7rem 1rem;border-radius:10px;font-weight:700;cursor:pointer}
-button:hover{filter:brightness(1.05)}
-.flash{list-style:none;padding:0;margin:0 0 1rem 0}
-.flash li{padding:.6rem .8rem;border-radius:10px;margin-bottom:.5rem}
-.flash li.error{background:#3b1a1a;border:1px solid #8e2a2a}
-.flash li.success{background:#10361e;border:1px solid #1f7a3b}
-footer{margin-top:1rem;color:#9db3ff}
-table{width:100%;border-collapse:collapse;margin-top:.5rem}
-th,td{text-align:left;padding:.5rem;border-bottom:1px solid #24316d}
-.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,Liberation Mono,monospace;font-size:.8rem;word-break:break-all}
-.hint{margin-top:.8rem;color:#9db3ff}
-code{background:#0e1430;padding:.15rem .35rem;border:1px solid #2d3b80;border-radius:6px}
-@media (max-width:640px){.field2{grid-template-columns:1fr}}
-"""
-
-@app.get("/styles.css")
-def styles():
-    return Response(CSS, mimetype="text/css")
-
-# ---------------- Model ----------------
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    def __repr__(self): return f"<User {self.username}>"
-
-with app.app_context():
-    db.create_all()
-
-# ---------------- Validation ----------------
-EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-
-def validate_registration(form):
-    username = form.get('username', '').strip()
-    email = form.get('email', '').strip().lower()
-    password = form.get('password', '')
-    confirm  = form.get('confirm', '')
-    errors = []
-    if not username: errors.append("Username is required.")
-    elif len(username) < 3: errors.append("Username must be at least 3 characters.")
-    if not email: errors.append("Email is required.")
-    elif not EMAIL_REGEX.match(email): errors.append("Please enter a valid email address.")
-    if not password: errors.append("Password is required.")
-    elif len(password) < 8: errors.append("Password must be at least 8 characters long.")
-    if password and confirm and password != confirm: errors.append("Passwords do not match.")
-    if username and User.query.filter_by(username=username).first(): errors.append("Username is already taken.")
-    if email and User.query.filter_by(email=email).first(): errors.append("An account with that email already exists.")
-    return errors, username, email, password
-
-# ---------------- Routes ----------------
-@app.route("/")
-def home():
-    return redirect(url_for('register'))
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        errors, username, email, password = validate_registration(request.form)
-        if errors:
-            for e in errors: flash(e, "error")
-            return render_template("register.html", form=request.form)
-        user = User(username=username, email=email, password_hash=generate_password_hash(password))
-        db.session.add(user); db.session.commit()
-        flash("Account created successfully!", "success")
-        return redirect(url_for('success', username=username))
-    return render_template("register.html", form={})
-
-@app.route("/success/<username>")
-def success(username):
-    return render_template("success.html", username=username)
-
-# dev helper (remove in prod)
-@app.route("/_users")
-def _users():
-    users = User.query.order_by(User.id.desc()).all()
-    return render_template("users.html", users=users)
-
-if __name__ == "__main__":
-    app.run(debug=True)
+{% endblock %}
