@@ -1,11 +1,10 @@
 {% extends "base.html" %}
+{% set title = "Create Account" %}
 
 {% block content %}
-  <!-- Assuming base.html includes styles, or add styles here -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
-    /* Using similar styles from the login page for consistency */
     body {
       background: linear-gradient(135deg, #2e1a47, #4b2a82);
       min-height: 100vh;
@@ -28,7 +27,7 @@
 
     .card img {
       display: block;
-      width: 220px;
+      width: 200px;
       height: auto;
       margin: 0 auto 0.5rem;
     }
@@ -55,6 +54,7 @@
       width: 100%;
       box-sizing: border-box;
       margin-bottom: 0.75rem;
+      font-size: 1rem;
     }
 
     .form-control:focus {
@@ -99,23 +99,14 @@
   </style>
 
   <div class="card">
-    <!-- Assuming logo path is correct from your other template -->
     <img src="{{ url_for('static', filename='Only_Celebs_LogoV1.png') }}" alt="OnlyCelebs Logo">
     <h2>Create Account</h2>
     <p class="subtitle">Join the exclusive community ✨</p>
 
     <form method="post" action="{{ url_for('login.createaccount_submit') }}">
-      <!-- New Fields Added -->
-      <input type="text" class="form-control" name="first_name" placeholder="First Name" required>
-      <input type="text" class="form-control" name="last_name" placeholder="Last Name" required>
       <input type="email" class="form-control" name="email" placeholder="Email Address" required>
-      <input type="tel" class="form-control" name="phone" placeholder="Phone Number" required>
-      <input type="text" class="form-control" name="hometown" placeholder="Hometown" required>
-
-      <!-- Original Fields -->
       <input type="text" class="form-control" name="username" placeholder="Choose a username" required>
       <input type="password" class="form-control" name="password" placeholder="Enter a password" required>
-      <input type="password" class="form-control" name="confirm" placeholder="Confirm your password" required>
 
       <button type="submit" class="btn btn-primary">Create Account</button>
       <a href="{{ url_for('login.loginscreen') }}" class="btn btn-secondary">Back to Login</a>
