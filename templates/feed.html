@@ -34,6 +34,7 @@
         }
         /* Necessary for the new dropdown transition to work correctly with max-h-0 */
         .dropdownMenu.max-h-0 {
+            /* Note: Your original transition was good, but adding opacity and transform for a smoother effect */
             transition: max-height 0.2s ease-out, opacity 0.2s ease-out, transform 0.2s ease-out;
         }
     </style>
@@ -135,7 +136,7 @@
 
                             <button class="flex items-center space-x-1 hover:text-primary transition p-2 rounded-lg comment-toggle" data-post-id="{{ post.id }}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                                <span class="text-sm post-comment-count">{{ post.comments|length if post.comments else 0 }}</span>
+                                <span class="text-sm post-comment-count">{{ post.comments|count }}</span>
                             </button>
 
                             <button class="p-2 rounded-full text-gray-500 hover:text-blue-600 hover:bg-blue-100 transition-colors duration-200" title="Share">
@@ -222,7 +223,7 @@
     </div>
 <script>
 // --- UNIVERSAL DROPDOWN FUNCTIONALITY (From header_nav.html script) ---
-const HIDDEN_CLASSES = ['opacity-0', 'scale-95', 'max-h-0', 'hidden'];
+const HIDDEN_CLASSES = ['opacity-0', 'scale-95', 'max-h-0']; // Removed 'hidden' from here to let transition start
 const VISIBLE_CLASSES = ['opacity-100', 'scale-100', 'max-h-96'];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -233,10 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to close ALL dropdown menus
     function closeAllMenus() {
         menus.forEach(menu => {
-            // Remove visible classes and add hidden classes
+            // Remove visible classes
             menu.classList.remove(...VISIBLE_CLASSES);
+            // Add hidden classes for transition
             menu.classList.add(...HIDDEN_CLASSES);
-            menu.classList.add('hidden'); // Add the hidden class to ensure it doesn't block clicks when fully closed
+            // Add the hidden class after the transition ends (best practice, but setTimeout simplifies for demo)
+            setTimeout(() => {
+                menu.classList.add('hidden');
+            }, 200); // Must match or exceed CSS transition time (0.2s)
         });
     }
 
@@ -276,12 +281,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     // Ensure all dropdowns are initially hidden when the page loads
+    // Note: This relies on the buttons existing. If they are in header_nav.html, you'd need this logic there too.
     closeAllMenus();
 });
 
 
 // --- Like Button Functionality (Client-side simulation) ---
-// This function needs to be callable for both old and new posts
 const initializeLikeButton = (button) => {
     button.addEventListener('click', function() {
         // IMPORTANT: In a real app, you would send a fetch request here to your server
@@ -446,7 +451,7 @@ const initializeCommentToggle = (button) => {
 };
 
 
-// --- FIXED AJAX/Fetch Comment Submission Functionality ---
+// --- FIXED AJAX/Fetch Comment Submission Functionality 🌟 FIX HERE 🌟 ---
 
 const initializeCommentForm = (form) => {
     form.addEventListener('submit', function(event) {
@@ -467,32 +472,25 @@ const initializeCommentForm = (form) => {
         // Use FormData to correctly package the text for the Flask route
         const formData = new FormData();
         formData.append('comment_text', newCommentText);
-        // This is the key line: you must pass the formData object in the body!
         
         // 1. Send the data to the server
         fetch(actionUrl, {
             method: 'POST',
-            body: formData // <--- 🌟 FIX IS HERE 🌟
+            body: formData
         })
         .then(response => {
-            // ... (rest of the response handling code remains the same) ...
-            if (response.ok) {
-                return {
-                    user: '{{ username }}' || 'Guest',
-                    text: newCommentText,
-                    time: 'Just now'
-                };
+            // Check for HTTP success before continuing the promise chain
+            if (!response.ok) {
+                 // Throw an error to be caught by the .catch block below
+                 throw new Error(`Server error (${response.status}). Could not post comment.`);
             }
-            throw new Error(`Server error (${response.status}). Could not post comment.`);
+            // Simulate the success response data (you would return response.json() in production)
+            return {
+                user: '{{ username }}' || 'Guest',
+                text: newCommentText,
+                time: 'Just now'
+            };
         })
-        .then(data => {
-            // ... (rest of the success handling code remains the same) ...
-        })
-        .catch(error => {
-            // ... (rest of the error handling code remains the same) ...
-        });
-    });
-};
         .then(data => {
             // 2. SUCCESS: Handle the successful comment submission
             
