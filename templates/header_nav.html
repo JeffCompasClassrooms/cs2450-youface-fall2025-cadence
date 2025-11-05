@@ -60,7 +60,7 @@
                          class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-32 bg-white border rounded-lg shadow-lg
                                 opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
                         <a href="{{ url_for('profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                        <a href="{{ url_for('settings') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+                        <a href="/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
                         <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Log Out</a>
                     </div>
                 </div>
@@ -84,27 +84,26 @@
     }
 
     buttons.forEach(button => {
-    button.addEventListener('click', (e) => {
-        if (button.tagName.toLowerCase() !== 'button') return;
+        button.addEventListener('click', (e) => {
+            // Only toggle dropdown if the button itself was clicked, not a link inside
+            if (button.tagName.toLowerCase() !== 'button') return;
 
-        const targetId = button.getAttribute('data-dropdown');
-        const targetMenu = document.getElementById(targetId);
+            const targetId = button.getAttribute('data-dropdown');
+            const targetMenu = document.getElementById(targetId);
 
-        const isOpen = targetMenu.classList.contains('open');
-        closeAll();
+            const isOpen = targetMenu.classList.contains('open');
+            closeAll();
 
-        if (!isOpen) {
-            targetMenu.classList.add('open');
-            targetMenu.style.maxHeight = '500px';
-            targetMenu.style.opacity = '1';
-            targetMenu.style.transform = 'scale(1)';
-        }
+            if (!isOpen) {
+                targetMenu.classList.add('open');
+                targetMenu.style.maxHeight = '500px';
+                targetMenu.style.opacity = '1';
+                targetMenu.style.transform = 'scale(1)';
+            }
 
-        // ✅ Don't block normal link clicks
-        if (e.target.tagName.toLowerCase() === 'a') return;
-        e.stopPropagation();
+            e.stopPropagation(); // prevent clicks on the button from closing immediately
+        });
     });
-});
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
