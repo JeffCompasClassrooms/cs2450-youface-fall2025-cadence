@@ -9,23 +9,23 @@
     <div class="space-y-3 text-gray-700">
         <div class="flex justify-between border-b pb-2">
             <span class="font-semibold">Username:</span>
-            <span>{{ user.username }}</span>
+            <span>{{ user['username'] }}</span>
         </div>
 
         <div class="flex justify-between border-b pb-2">
             <span class="font-semibold">Email:</span>
-            <span>{{ user.email or 'Not provided' }}</span>
+            <span>{{ user.get('email', 'Not provided') }}</span>
         </div>
 
         <div class="flex justify-between border-b pb-2">
             <span class="font-semibold">Member Since:</span>
-            <span>{{ user.joined or 'Unknown' }}</span>
+            <span>{{ user.get('joined', 'Unknown') }}</span>
         </div>
 
-        {% if user.bio %}
+        {% if user.get('bio') %}
         <div class="pt-2">
             <span class="font-semibold block mb-1">Bio:</span>
-            <p class="text-gray-600">{{ user.bio }}</p>
+            <p class="text-gray-600">{{ user['bio'] }}</p>
         </div>
         {% endif %}
     </div>
@@ -44,4 +44,3 @@
     </div>
 </div>
 {% endblock %}
-
