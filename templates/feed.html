@@ -434,25 +434,7 @@ document.getElementById('post-form').addEventListener('submit', function(event) 
 
 // ------------------------------------------------------------------
 
-// --- Comment Toggle Functionality (Unchanged) ---
-
-const initializeCommentToggle = (button) => {
-    button.addEventListener('click', function() {
-        const postId = this.getAttribute('data-post-id');
-        const commentSection = document.getElementById(`comments-for-post-${postId}`);
-        
-        // Toggle the visibility of the comment section
-        commentSection.classList.toggle('hidden');
-        
-        // Toggle the active state of the button
-        this.classList.toggle('text-primary'); 
-        this.classList.toggle('text-gray-500'); 
-    });
-};
-
-
-// --- FIXED AJAX/Fetch Comment Submission Functionality 🌟 FIX HERE 🌟 ---
-
+// --- COMMENT FORM FUNCTIONALITY ---
 const initializeCommentForm = (form) => {
     form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -460,54 +442,41 @@ const initializeCommentForm = (form) => {
         const postId = form.getAttribute('data-post-id');
         const commentInput = form.querySelector('input[name="comment_text"]');
         const newCommentText = commentInput.value.trim();
-        
-        // The URL for the POST request to Flask
-        const actionUrl = `/comment/${postId}`;
 
         if (!newCommentText) {
             alert('Your comment cannot be empty!');
             return;
         }
 
-        // Use FormData to correctly package the text for the Flask route
         const formData = new FormData();
         formData.append('comment_text', newCommentText);
-        
-        // 1. Send the data to the server
+
+        const actionUrl = `/comment/${postId}`;
+
+        // ✅ Send to Flask backend
         fetch(actionUrl, {
             method: 'POST',
             body: formData
         })
         .then(response => {
-            // Check for HTTP success before continuing the promise chain
             if (!response.ok) {
-                 // Throw an error to be caught by the .catch block below
-                 throw new Error(`Server error (${response.status}). Could not post comment.`);
+                throw new Error(`Server error (${response.status})`);
             }
-            // Simulate the success response data (you would return response.json() in production)
-            return {
-                user: '{{ username }}' || 'Guest',
-                text: newCommentText,
-                time: 'Just now'
-            };
+            return response.json(); // real data from Flask
         })
         .then(data => {
-            // 2. SUCCESS: Handle the successful comment submission
-            
-            // Clear the input field
+            // Clear the comment input box
             commentInput.value = '';
 
-            // Get the comment list container and the comment count element
+            // Update comment list and count
             const commentList = document.getElementById(`comment-list-${postId}`);
             const countSpan = document.querySelector(`#post-${postId} .post-comment-count`);
 
-            // Remove the "No comments yet" message if it exists
+            // Remove “no comments” message if it exists
             const noCommentsMessage = commentList.querySelector('.no-comments-message');
-            if (noCommentsMessage) {
-                noCommentsMessage.remove();
-            }
+            if (noCommentsMessage) noCommentsMessage.remove();
 
-            // Create the HTML structure for the new comment using the returned data
+            // Create and insert new comment HTML
             const newCommentHTML = `
                 <div class="flex space-x-2 text-sm">
                     <div class="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary flex-shrink-0">
@@ -521,23 +490,40 @@ const initializeCommentForm = (form) => {
                 </div>
             `;
 
-            // Insert the new comment HTML at the top of the comment list
             commentList.insertAdjacentHTML('afterbegin', newCommentHTML);
 
-            // Increment the comment count
-            let currentCount = parseInt(countSpan.textContent);
+            // Increment comment count safely
+            let currentCount = parseInt(countSpan.textContent) || 0;
             countSpan.textContent = currentCount + 1;
-            
-            // OPTIONAL: Scroll the comment list to the top to show the new comment
-            commentList.scrollTop = 0;
         })
         .catch(error => {
-            // 3. ERROR: Handle any network or server errors
             console.error('Error submitting comment:', error);
-            alert('An error occurred while posting your comment. Please try again or check the console for details.');
+            alert('Error posting comment. Please try again.');
         });
     });
 };
+
+// --- COMMENT TOGGLE FUNCTIONALITY (ADDED) ---
+const initializeCommentToggle = (button) => {
+    button.addEventListener('click', function() {
+        const postId = button.getAttribute('data-post-id');
+        const commentSection = document.getElementById(`comments-for-post-${postId}`);
+        if (commentSection) {
+            commentSection.classList.toggle('hidden');
+        }
+    });
+};
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Apply to all comment forms
+    document.querySelectorAll('.comment-form').forEach(initializeCommentForm);
+
+    // Apply to all comment toggle buttons
+    document.querySelectorAll('.comment-toggle').forEach(initializeCommentToggle);
+});
+
+
 
 
 // --- INITIALIZATION ---
