@@ -83,7 +83,9 @@
             "username": "tylermullins14"
         },
         "2": {
-            "friends": [],
+            "friends": [
+                "ringwood"
+            ],
             "password": "tyler",
             "username": "tyler"
         },
@@ -96,6 +98,11 @@
             "friends": [],
             "password": "bot",
             "username": "test_BOT"
+        },
+        "5": {
+            "friends": [],
+            "password": "tyler2",
+            "username": "tyler2"
         }
     }
 }
