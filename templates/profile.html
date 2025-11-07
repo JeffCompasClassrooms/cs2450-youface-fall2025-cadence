@@ -1,31 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow" style="color: black; position: relative; z-index: 1;">
+<div class="max-w-2xl mx-auto mt-10 bg-white p-6 rounded-lg shadow">
     <!-- Header -->
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Your Profile</h1>
 
     <!-- Profile Information -->
-    <div class="space-y-3 text-gray-800">
+    <div class="space-y-3 text-gray-700">
         <div class="flex justify-between border-b pb-2">
             <span class="font-semibold">Username:</span>
-            <span>{{ user['username'] }}</span>
+            <span>{{ user.username }}</span>
         </div>
 
         <div class="flex justify-between border-b pb-2">
             <span class="font-semibold">Email:</span>
-            <span>{{ user.get('email', 'Not provided') }}</span>
+            <span>{{ user.email or 'Not provided' }}</span>
         </div>
 
         <div class="flex justify-between border-b pb-2">
             <span class="font-semibold">Member Since:</span>
-            <span>{{ user.get('joined', 'Unknown') }}</span>
+            <span>{{ user.joined or 'Unknown' }}</span>
         </div>
 
-        {% if user.get('bio') %}
+        {% if user.bio %}
         <div class="pt-2">
             <span class="font-semibold block mb-1">Bio:</span>
-            <p class="text-gray-700">{{ user['bio'] }}</p>
+            <p class="text-gray-600">{{ user.bio }}</p>
         </div>
         {% endif %}
     </div>
@@ -43,7 +43,5 @@
         </a>
     </div>
 </div>
-
-<!-- Debugging (Optional) -->
-{# <pre>{{ user | pprint }}</pre> #}
 {% endblock %}
+
