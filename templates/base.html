@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>{{ title }}</title>
+    <title>{{ title or "YouFace" }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}" type="text/css">
     <link rel="stylesheet" href="{{ url_for('static', filename='onlycelebs.css') }}" type="text/css">
     
@@ -47,4 +47,3 @@
   </script>
 
 </html>
-

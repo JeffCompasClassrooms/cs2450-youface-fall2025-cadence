@@ -1,11 +1,14 @@
 import tinydb
+# Define the Query object once at the top, globally
+User = tinydb.Query()
+
+# --- All other code follows ---
 
 def new_user(db, username, password):
     """
     Creates a new user with the new *follow-only* data structure.
     """
     users = db.table('users')
-    User = tinydb.Query()
     if users.get(User.username == username):
         return None
     
@@ -20,20 +23,19 @@ def new_user(db, username, password):
 def get_user(db, username, password):
     """Gets a user document by username and password."""
     users = db.table('users')
-    User = tinydb.Query()
     return users.get((User.username == username) &
                      (User.password == password))
 
 def get_user_by_name(db, username):
     """Gets a user document by only their username."""
     users = db.table('users')
-    User = tinydb.Query()
+    # REMOVE: User = tinydb.Query()
     return users.get(User.username == username)
 
 def delete_user(db, username, password):
     """Deletes a user."""
     users = db.table('users')
-    User = tinydb.Query()
+    # REMOVE: User = tinydb.Query()
     return users.remove((User.username == username) &
                         (User.password == password))
 
