@@ -7,14 +7,11 @@ from db import posts, users, helpers
 # Initialize the Flask Blueprint
 blueprint = flask.Blueprint("friends", __name__)
 
-# --- NEW/UPDATED ROUTES for Request System ---
+# --- FRIEND REQUEST ROUTES ---
 
 @blueprint.route('/send_request', methods=['POST'])
 def send_request():
-    """Sends a friend request to another user."""
     db = helpers.load_db()
-    
-    # Authentication check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
     user = users.get_user(db, username, password)
@@ -22,28 +19,16 @@ def send_request():
         flask.flash('You need to be logged in to do that.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # Get the username from the form
     recipient_username = flask.request.form.get('username')
-    if not recipient_username:
-        flask.flash('No user specified.', 'warning')
-        return flask.redirect(flask.url_for('friends.friends_list'))
-
-    # Call your new DB helper function
-    # This function should add recipient to user['pending_requests_sent']
-    # and add user to recipient['pending_requests_received']
     msg, category = users.send_friend_request(db, user, recipient_username)
     
     flask.flash(msg, category)
-    # Redirect back to the page they were on
     return flask.redirect(flask.request.referrer or flask.url_for('friends.friends_list'))
 
 
 @blueprint.route('/accept_request', methods=['POST'])
 def accept_request():
-    """Accepts a pending friend request."""
     db = helpers.load_db()
-    
-    # Authentication check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
     user = users.get_user(db, username, password)
@@ -51,13 +36,6 @@ def accept_request():
         return flask.redirect(flask.url_for('login.loginscreen'))
 
     requestor_username = flask.request.form.get('username')
-
-    # Call your new DB helper function
-    # This function should:
-    # 1. Remove requestor from user['pending_requests_received']
-    # 2. Remove user from requestor['pending_requests_sent']
-    # 3. Add requestor to user['friends']
-    # 4. Add user to requestor['friends']
     msg, category = users.accept_friend_request(db, user, requestor_username)
     
     flask.flash(msg, category)
@@ -66,10 +44,7 @@ def accept_request():
 
 @blueprint.route('/reject_request', methods=['POST'])
 def reject_request():
-    """Rejects or cancels a pending friend request."""
     db = helpers.load_db()
-    
-    # Authentication check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
     user = users.get_user(db, username, password)
@@ -77,11 +52,6 @@ def reject_request():
         return flask.redirect(flask.url_for('login.loginscreen'))
 
     other_username = flask.request.form.get('username')
-
-    # Call your new DB helper function
-    # This function should:
-    # 1. Remove other_username from user['pending_requests_received']
-    # 2. Remove user from other_username['pending_requests_sent']
     msg, category = users.reject_friend_request(db, user, other_username)
     
     flask.flash(msg, category)
@@ -90,9 +60,28 @@ def reject_request():
 
 @blueprint.route('/unfriend', methods=['POST'])
 def unfriend():
-    """Removes a user from the user's friends list."""
     db = helpers.load_db()
+    username = flask.request.cookies.get('username')
+    password = flask.request.cookies.get('password')
+    user = users.get_user(db, username, password)
+    if not user:
+        flask.flash('You need to be logged in to do that.', 'danger')
+        return flask.redirect(flask.url_for('login.loginscreen'))
 
+    name = flask.request.form.get('name')
+    msg, category = users.remove_user_friend(db, user, name)
+
+    flask.flash(msg, category)
+    return flask.redirect(flask.url_for('friends.friends_list'))
+
+
+# --- NEW FOLLOW/UNFOLLOW ROUTES ---
+
+@blueprint.route('/follow', methods=['POST'])
+def follow():
+    """Follows a user."""
+    db = helpers.load_db()
+    
     # Authentication check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
@@ -101,12 +90,40 @@ def unfriend():
         flask.flash('You need to be logged in to do that.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # This route remains largely the same
-    name = flask.request.form.get('name')
-    msg, category = users.remove_user_friend(db, user, name)
+    user_to_follow_name = flask.request.form.get('username')
+    if not user_to_follow_name:
+        flask.flash('No user specified.', 'warning')
+        return flask.redirect(flask.url_for('friends.friends_list'))
 
+    msg, category = users.follow_user(db, user, user_to_follow_name)
+    
     flask.flash(msg, category)
-    return flask.redirect(flask.url_for('friends.friends_list'))
+    return flask.redirect(flask.request.referrer or flask.url_for('friends.friends_list'))
+
+
+@blueprint.route('/unfollow', methods=['POST'])
+def unfollow():
+    """Unfollows a user."""
+    db = helpers.load_db()
+    
+    # Authentication check
+    username = flask.request.cookies.get('username')
+    password = flask.request.cookies.get('password')
+    user = users.get_user(db, username, password)
+    if not user:
+        flask.flash('You need to be logged in to do that.', 'danger')
+        return flask.redirect(flask.url_for('login.loginscreen'))
+
+    user_to_unfollow_name = flask.request.form.get('username')
+    if not user_to_unfollow_name:
+        flask.flash('No user specified.', 'warning')
+        return flask.redirect(flask.url_for('friends.friends_list'))
+
+    msg, category = users.unfollow_user(db, user, user_to_unfollow_name)
+    
+    flask.flash(msg, category)
+    return flask.redirect(flask.request.referrer or flask.url_for('friends.friends_list'))
+
 
 # --- UPDATED VIEW ROUTES ---
 
@@ -115,7 +132,6 @@ def view_friend(fname):
     """View the page of a given friend (single profile view)."""
     db = helpers.load_db()
 
-    # Authentication check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
     user = users.get_user(db, username, password)
@@ -146,7 +162,6 @@ def friends_list():
     """Renders the main page showing friends, requests, and suggestions."""
     db = helpers.load_db()
 
-    # Authentication Check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
     user = users.get_user(db, username, password)
@@ -154,13 +169,12 @@ def friends_list():
         flask.flash('You must be logged in to view your friends.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # Fetch all the data needed for the template
     current_friends = users.get_user_friends(db, user)
     pending_requests = users.get_pending_requests(db, user)
-    # Get a few suggestions for the "People You May Know" box
+    
+    # This now correctly gets only users with no relationship
     potential_friends = users.get_potential_friends(db, user, limit=5)
 
-    # Render the 'friends.html' template
     return flask.render_template(
         'friends.html', 
         title=copy.title,
@@ -170,17 +184,17 @@ def friends_list():
         friends=current_friends,
         pending_requests=pending_requests,
         potential_friends=potential_friends
-        # Note: search_results is not defined here, so the 'else' block
-        # in the template's right column will be used.
     )
     
 
 @blueprint.route('/find_users')
 def find_users():
-    """Handles the user search and displays results on the same friends page."""
+    """
+    Handles user search. This is now more powerful.
+    It searches ALL users and lets the template decide which button to show.
+    """
     db = helpers.load_db()
 
-    # Authentication Check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
     user = users.get_user(db, username, password)
@@ -188,33 +202,33 @@ def find_users():
         flask.flash('You must be logged in to search for users.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
         
-    # Get the search query from the URL
     query = flask.request.args.get('query', '')
     
-    # --- This route now re-renders friends.html, just like friends_list ---
-    # But it passes an *additional* variable: search_results
-    
-    # Fetch all the data needed for the template
+    # Fetch common data
     current_friends = users.get_user_friends(db, user)
     pending_requests = users.get_pending_requests(db, user)
     
-    # Get search results using your new helper
+    # --- NEW SEARCH LOGIC ---
+    # Search all users in the DB
+    all_users = db.table('users').all()
+    search_results = []
     if query:
-        search_results = users.get_potential_friends(db, user, query=query)
+        for u in all_users:
+            # Add if query matches and is NOT the user themselves
+            if query.lower() in u['username'].lower() and u['username'] != user['username']:
+                search_results.append(u)
     else:
-        # If search is empty, show all potential friends
-        search_results = users.get_potential_friends(db, user)
-
-    # We pass search_results, which the template will use for the right column
-    # We don't need potential_friends here since search_results takes precedence
+        # If no query, just show nothing for search
+        search_results = [] # Or you could use get_potential_friends here
+        
     return flask.render_template(
-        'friends.html', 
+        'freinds.html', 
         title=copy.title,
         subtitle=copy.subtitle, 
         user=user, 
         username=username,
         friends=current_friends,
         pending_requests=pending_requests,
-        search_results=search_results, # This is the key variable for the search
-        query=query # Pass the query back to pre-fill the search box
+        search_results=search_results, # Pass the new search results
+        query=query
     )

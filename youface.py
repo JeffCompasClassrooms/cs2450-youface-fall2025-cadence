@@ -41,25 +41,28 @@ User = Query()
 def run_db_migration(db):
     """
     Checks all users in the DB and adds missing fields to ensure
-    compatibility with the new friend request system.
+    compatibility with the new friend request AND follow system.
     """
     print("Checking database schema...")
     users_table = db.table('users')
     User = Query()
     
-    # Define the default schema keys and their default values
+    # --- UPDATED: Added new 'following' and 'followers' fields ---
     default_schema = {
         'friends': [],
         'pending_requests_received': [],
-        'pending_requests_sent': []
+        'pending_requests_sent': [],
+        'following': [],
+        'followers': []
     }
     
-    # Find all users that are missing at least one of these keys.
-    # This is more efficient than looping through every single user in Python.
+    # --- UPDATED: The query now checks for all 5 keys ---
     query = (
         (~ User.friends.exists()) |
         (~ User.pending_requests_received.exists()) |
-        (~ User.pending_requests_sent.exists())
+        (~ User.pending_requests_sent.exists()) |
+        (~ User.following.exists()) |
+        (~ User.followers.exists())
     )
     users_to_migrate = users_table.search(query)
 
