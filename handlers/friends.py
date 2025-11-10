@@ -7,72 +7,82 @@ from db import posts, users, helpers
 # Initialize the Flask Blueprint
 blueprint = flask.Blueprint("friends", __name__)
 
-@blueprint.route('/addfriend', methods=['POST'])
-def addfriend():
-    """Adds a friend to the user's friends list."""
+# --- GONE: All send_request, accept_request, reject_request, unfriend routes ---
+
+
+# --- NEW FOLLOW/UNFOLLOW ROUTES (These are the main actions) ---
+
+@blueprint.route('/follow', methods=['POST'])
+def follow():
+    """Follows a user."""
     db = helpers.load_db()
-
-    # Make sure the user is logged in (Authentication check)
-    username = flask.request.cookies.get('username')
-    password = flask.request.cookies.get('password')
-
-    if username is None and password is None:
-        return flask.redirect(flask.url_for('login.loginscreen'))
-
-    user = users.get_user(db, username, password)
-    if not user:
-        flask.flash('You need to be logged in to do that.', 'danger')
-        return flask.redirect(flask.url_for('login.loginscreen'))
-
-    # Add the friend
-    name = flask.request.form.get('name')
-    msg, category = users.add_user_friend(db, user, name)
-
-    flask.flash(msg, category)
-    return flask.redirect(flask.url_for('login.index'))
-
-@blueprint.route('/unfriend', methods=['POST'])
-def unfriend():
-    """Removes a user from the user's friends list."""
-    db = helpers.load_db()
-
+    
     # Authentication check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
-
     user = users.get_user(db, username, password)
     if not user:
         flask.flash('You need to be logged in to do that.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # Remove the friend
-    name = flask.request.form.get('name')
-    msg, category = users.remove_user_friend(db, user, name)
+    user_to_follow_name = flask.request.form.get('username')
+    if not user_to_follow_name:
+        flask.flash('No user specified.', 'warning')
+        return flask.redirect(flask.url_for('friends.friends_list'))
 
+    msg, category = users.follow_user(db, user, user_to_follow_name)
+    
     flask.flash(msg, category)
-    return flask.redirect(flask.url_for('login.index'))
+    # Redirect back to the page the user was on
+    return flask.redirect(flask.request.referrer or flask.url_for('friends.friends_list'))
+
+
+@blueprint.route('/unfollow', methods=['POST'])
+def unfollow():
+    """Unfollows a user."""
+    db = helpers.load_db()
+    
+    # Authentication check
+    username = flask.request.cookies.get('username')
+    password = flask.request.cookies.get('password')
+    user = users.get_user(db, username, password)
+    if not user:
+        flask.flash('You need to be logged in to do that.', 'danger')
+        return flask.redirect(flask.url_for('login.loginscreen'))
+
+    user_to_unfollow_name = flask.request.form.get('username')
+    if not user_to_unfollow_name:
+        flask.flash('No user specified.', 'warning')
+        return flask.redirect(flask.url_for('friends.friends_list'))
+
+    msg, category = users.unfollow_user(db, user, user_to_unfollow_name)
+    
+    flask.flash(msg, category)
+    # Redirect back to the page the user was on
+    return flask.redirect(flask.request.referrer or flask.url_for('friends.friends_list'))
+
+
+# --- UPDATED VIEW ROUTES ---
 
 @blueprint.route('/friend/<fname>')
 def view_friend(fname):
-    """View the page of a given friend (single profile view)."""
+    """View the page of a given user (single profile view)."""
     db = helpers.load_db()
 
-    # Authentication check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
-
     user = users.get_user(db, username, password)
     if not user:
         flask.flash('You must be logged in to do that.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # Retrieve the specific friend's data and their posts
-    friend = users.get_user_by_name(db, fname)
-    if not friend:
+    # Renamed 'friend' to 'profile_user' for clarity
+    profile_user = users.get_user_by_name(db, fname)
+    if not profile_user:
         flask.flash(f"User '{fname}' not found.", 'danger')
         return flask.redirect(flask.url_for('friends.friends_list')) 
 
-    all_posts = posts.get_posts(db, friend)[::-1] # reverse order
+    all_posts = posts.get_posts(db, profile_user)[::-1] # reverse order
 
     return flask.render_template(
         'friend.html', 
@@ -80,68 +90,90 @@ def view_friend(fname):
         subtitle=copy.subtitle, 
         user=user, 
         username=username,
-        friend=friend['username'],
+        friend=profile_user['username'], # template might still use 'friend'
+        # Pass the new lists to the template
         friends=users.get_user_friends(db, user), 
+        following=users.get_user_following(db, user),
+        followers=users.get_user_followers(db, user),
         posts=all_posts
     )
 
-# --- NEW ROUTE: Displays the list of all friends ---
 @blueprint.route('/friends')
 def friends_list():
-    """Renders the main page showing the list of the current user's friends."""
+    """Renders the main page showing Friends, Following, Followers, and Suggestions."""
     db = helpers.load_db()
 
-    # Authentication Check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
-
     user = users.get_user(db, username, password)
     if not user:
         flask.flash('You must be logged in to view your friends.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
-    # Fetch real data using your DB helper
-    current_friends_list = users.get_user_friends(db, user)
+    # --- Get the three new lists ---
+    friends = users.get_user_friends(db, user) # Mutuals
+    following = users.get_user_following(db, user) # People I follow
+    followers = users.get_user_followers(db, user) # People following me
+    
+    # This now correctly gets only users the user is NOT following
+    potential_friends = users.get_potential_friends(db, user, limit=5)
 
-    # Render the 'friends.html' template
     return flask.render_template(
         'friends.html', 
         title=copy.title,
         subtitle=copy.subtitle, 
         user=user, 
         username=username,
-        friends=current_friends_list # This list populates the template
+        friends=friends,
+        following=following,
+        followers=followers,
+        potential_friends=potential_friends
     )
     
-# --- MISSING ROUTE: Resolves the BuildError from friends.html ---
+
 @blueprint.route('/find_users')
 def find_users():
-    """Handles the page where the user can search for and add new users."""
+    """
+    Handles user search. This renders the same 'friends.html' template
+    but passes 'search_results' to the sidebar.
+    """
     db = helpers.load_db()
 
-    # Authentication Check
     username = flask.request.cookies.get('username')
     password = flask.request.cookies.get('password')
-
     user = users.get_user(db, username, password)
     if not user:
         flask.flash('You must be logged in to search for users.', 'danger')
         return flask.redirect(flask.url_for('login.loginscreen'))
         
-    # In a real app, you'd handle search forms and query the DB for users here.
-    # For now, we'll just redirect to the index or a dedicated search template.
+    query = flask.request.args.get('query', '')
     
-    # You will need to create a 'find_users.html' template for this route.
-    # For testing, we'll redirect back to the friend list with a message.
-    flask.flash("User search feature is coming soon!", "info")
-    return flask.redirect(flask.url_for('friends.friends_list'))
+    # --- Fetch all necessary data for the template ---
+    friends = users.get_user_friends(db, user)
+    following = users.get_user_following(db, user)
+    followers = users.get_user_followers(db, user)
     
-# You can uncomment and update the above to render a new template later:
-# return flask.render_template(
-#     'find_users.html', 
-#     title=copy.title,
-#     subtitle=copy.subtitle, 
-#     user=user, 
-#     username=username,
-#     search_results=[]
-# )
+    # --- NEW SEARCH LOGIC ---
+    # Search all users in the DB
+    all_users = db.table('users').all()
+    search_results = []
+    if query:
+        for u in all_users:
+            # Add if query matches and is NOT the user themselves
+            if query.lower() in u['username'].lower() and u['username'] != user['username']:
+                search_results.append(u)
+    else:
+        search_results = []
+        
+    return flask.render_template(
+        'friends.html', # Fixed typo: 'freinds.html' -> 'friends.html'
+        title=copy.title,
+        subtitle=copy.subtitle, 
+        user=user, 
+        username=username,
+        friends=friends,
+        following=following,
+        followers=followers,
+        search_results=search_results, # Pass the new search results
+        query=query
+    )

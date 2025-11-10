@@ -78,24 +78,26 @@
     },
     "users": {
         "1": {
-            "friends": [],
+            "followers": [],
+            "following": [],
             "password": "UKWildcats1",
             "username": "tylermullins14"
         },
         "2": {
-            "friends": [
-                "ringwood"
-            ],
+            "followers": [],
+            "following": [],
             "password": "tyler",
             "username": "tyler"
         },
         "3": {
-            "friends": [],
+            "followers": [],
+            "following": [],
             "password": "real1",
             "username": "ringwood"
         },
         "4": {
-            "friends": [],
+            "followers": [],
+            "following": [],
             "password": "bot",
             "username": "test_BOT"
         },
