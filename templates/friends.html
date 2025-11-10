@@ -43,45 +43,7 @@
     <div id="app-container" class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
 
         <div class="lg:col-span-3 space-y-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4 hidden lg:block">Friend Management</h2>
-
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-xl mb-3 text-gray-800">Pending Requests</h3>
-                
-                <div class="space-y-4">
-                    {% if pending_requests %}
-                        {% for requestor in pending_requests %}
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3 min-w-0">
-                                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary flex-shrink-0">
-                                    {{ requestor.username[0] }}
-                                </div>
-                                <span class="text-sm font-semibold text-gray-800 truncate">{{ requestor.username }}</span>
-                            </div>
-                            
-                            <div class="flex space-x-2 flex-shrink-0">
-                                <form method="POST" action="{{ url_for('friends.accept_request') }}">
-                                    <input type="hidden" name="username" value="{{ requestor.username }}">
-                                    <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-medium rounded-full hover:bg-primary-dark transition">
-                                        Accept
-                                    </button>
-                                </form>
-                                <form method="POST" action="{{ url_for('friends.reject_request') }}">
-                                    <input type="hidden" name="username" value="{{ requestor.username }}">
-                                    <button type="submit" class="px-3 py-1 bg-gray-200 text-gray-700 text-xs font-medium rounded-full hover:bg-gray-300 transition">
-                                        Reject
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <div class="text-gray-500 text-sm p-3 bg-gray-50 rounded-lg">
-                            You have no pending friend requests.
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 hidden lg:block">My Network</h2>
 
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                 <h5 class="font-bold text-xl mb-3 text-gray-800">Find New Users</h5>
@@ -93,42 +55,118 @@
         </div>
 
         <div class="lg:col-span-6 space-y-8">
-            <h1 class="text-3xl font-extrabold text-gray-900 mb-6 border-b pb-2">My Friends ({{ friends|length }})</h1>
-
-            <div id="friends-list-grid" class="space-y-4">
-                {% if friends %}
-                    {% for friend in friends %}
-                    <div class="border border-gray-100 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-200 bg-white p-5 flex justify-between items-center">
-                        <div class="flex items-center space-x-4 min-w-0">
-                            <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-primary flex-shrink-0">
-                                {{ friend.username[0] }}
+            
+            <div>
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-4 border-b pb-2">
+                    Friends ({{ friends|length }})
+                </h1>
+                <p class="text-sm text-gray-500 mb-4 -mt-2">People you follow who also follow you back.</p>
+                <div class="space-y-4">
+                    {% if friends %}
+                        {% for friend in friends %}
+                        <div class="border border-gray-100 rounded-xl shadow-sm bg-white p-5 flex justify-between items-center">
+                            <div class="flex items-center space-x-4 min-w-0">
+                                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-lg font-bold text-primary flex-shrink-0">
+                                    {{ friend.username[0] }}
+                                </div>
+                                <h4 class="card-title text-lg font-semibold text-gray-900 truncate">
+                                    <a href="{{ url_for('friends.view_friend', fname=friend.username) }}" class="hover:text-primary transition">
+                                        {{ friend.username }}
+                                    </a>
+                                </h4>
                             </div>
-                            <h4 class="card-title text-lg font-semibold text-gray-900 truncate">
-                                <a href="{{ url_for('friends.view_friend', fname=friend.username) }}" class="hover:text-primary transition">
-                                    {{ friend.username }}
-                                </a>
-                            </h4>
+                            <div class="flex space-x-3 flex-shrink-0">
+                                <form method="POST" action="{{ url_for('friends.unfollow') }}" class="d-inline">
+                                    <input type="hidden" name="username" value="{{ friend.username }}">
+                                    <button type="submit" class="btn px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-300 transition">
+                                        Unfollow
+                                    </button>
+                                </form>
+                            </div>
                         </div>
-                        <div class="flex space-x-3 flex-shrink-0">
-                            <a href="{{ url_for('friends.view_friend', fname=friend.username) }}" class="btn px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition">
-                                View Profile
-                            </a>
-                            <form method="POST" action="{{ url_for('friends.unfriend') }}" class="d-inline">
-                                <input type="hidden" name="name" value="{{ friend.username }}">
-                                <button type="submit" class="btn px-4 py-2 bg-red-500 text-white text-sm font-medium rounded-full hover:bg-red-600 shadow-md transition">
-                                    Remove
-                                </button>
-                            </form>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-gray-500 text-sm p-4 bg-gray-100 rounded-lg">
+                            You have no mutual friends yet.
                         </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="alert bg-yellow-100 border border-yellow-200 p-6 rounded-xl text-center text-yellow-800" role="alert">
-                        <p class="font-semibold mb-2">You don't have any friends yet!</p>
-                        <a href="{{ url_for('friends.find_users') }}" class="text-primary hover:underline font-medium">Click here to search for new users to connect with.</a>
-                    </div>
-                {% endif %}
+                    {% endif %}
+                </div>
             </div>
+
+            <div>
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-4 border-b pb-2">
+                    Following ({{ following|length }})
+                </h1>
+                <p class="text-sm text-gray-500 mb-4 -mt-2">People you follow.</p>
+                <div class="space-y-4">
+                    {% if following %}
+                        {% for user_followed in following %}
+                        <div class="border border-gray-100 rounded-xl shadow-sm bg-white p-5 flex justify-between items-center">
+                            <div class="flex items-center space-x-4 min-w-0">
+                                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-700 flex-shrink-0">
+                                    {{ user_followed.username[0] }}
+                                </div>
+                                <h4 class="card-title text-lg font-semibold text-gray-900 truncate">
+                                    <a href="{{ url_for('friends.view_friend', fname=user_followed.username) }}" class="hover:text-primary transition">
+                                        {{ user_followed.username }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div class="flex space-x-3 flex-shrink-0">
+                                <form method="POST" action="{{ url_for('friends.unfollow') }}" class="d-inline">
+                                    <input type="hidden" name="username" value="{{ user_followed.username }}">
+                                    <button type="submit" class="btn px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-300 transition">
+                                        Unfollow
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-gray-500 text-sm p-4 bg-gray-100 rounded-lg">
+                            You aren't following anyone yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div>
+                <h1 class="text-2xl font-extrabold text-gray-900 mb-4 border-b pb-2">
+                    Followers ({{ followers|length }})
+                </h1>
+                <p class="text-sm text-gray-500 mb-4 -mt-2">People who follow you.</p>
+                <div class="space-y-4">
+                    {% if followers %}
+                        {% for follower in followers %}
+                        <div class="border border-gray-100 rounded-xl shadow-sm bg-white p-5 flex justify-between items-center">
+                            <div class="flex items-center space-x-4 min-w-0">
+                                <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-700 flex-shrink-0">
+                                    {{ follower.username[0] }}
+                                </div>
+                                <h4 class="card-title text-lg font-semibold text-gray-900 truncate">
+                                    <a href="{{ url_for('friends.view_friend', fname=follower.username) }}" class="hover:text-primary transition">
+                                        {{ follower.username }}
+                                    </a>
+                                </h4>
+                            </div>
+                            <div class="flex space-x-3 flex-shrink-0">
+                                <form method="POST" action="{{ url_for('friends.follow') }}" class="d-inline">
+                                    <input type="hidden" name="username" value="{{ follower.username }}">
+                                    <button type="submit" class="btn px-4 py-2 bg-primary text-white text-sm font-medium rounded-full hover:bg-primary-dark shadow-md transition">
+                                        + Follow Back
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-gray-500 text-sm p-4 bg-gray-100 rounded-lg">
+                            You have no new followers.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
         </div>
 
         <div class="lg:col-span-3 space-y-6">
@@ -142,9 +180,9 @@
                     {% set users_to_show = potential_friends %}
                 {% endif %}
 
-                <ul id="suggestions-list" class="space-y-4 max-h-[60vh] overflow-y-auto">
+                <ul id="suggestions-list" class="space-y-4 max-h-[60vh] overflow-y-auto overflow-x-hidden">
                     {% if users_to_show %}
-                        {% for u in users_to_show %} {# Renamed to 'u' for clarity #}
+                        {% for u in users_to_show %}
                         <li class="flex items-center justify-between hover:bg-gray-50 p-2 -mx-2 rounded-lg transition duration-150">
                             
                             <div class="flex items-center space-x-3 min-w-0">
@@ -155,43 +193,23 @@
                             </div>
                             
                             <div class="flex space-x-2 flex-shrink-0">
-                                {% if u.username in user.get('friends', []) %}
-                                    <span class="px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded-full">Friends</span>
                                 
-                                {% elif u.username in user.get('following', []) %}
+                                {% if u.username in user.get('following', []) %}
                                     <form method="POST" action="{{ url_for('friends.unfollow') }}">
                                         <input type="hidden" name="username" value="{{ u.username }}">
                                         <button type="submit" class="px-3 py-1 bg-gray-200 text-gray-700 text-xs font-medium rounded-full hover:bg-gray-300 transition">
                                             Unfollow
                                         </button>
                                     </form>
-
-                                {% elif u.username in user.get('pending_requests_sent', []) %}
-                                    <span class="px-3 py-1 text-xs font-medium text-gray-500 bg-gray-100 rounded-full">Sent</span>
-                                
-                                {% elif u.username in user.get('pending_requests_received', []) %}
-                                    <form method="POST" action="{{ url_for('friends.accept_request') }}">
-                                        <input type="hidden" name="username" value="{{ u.username }}">
-                                        <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-medium rounded-full hover:bg-primary-dark transition">
-                                            Accept
-                                        </button>
-                                    </form>
-
                                 {% else %}
-                                    <form method="POST" action="{{ url_for('friends.send_request') }}">
-                                        <input type="hidden" name="username" value="{{ u.username }}">
-                                        <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-medium rounded-full hover:bg-primary-dark transition">
-                                            + Friend
-                                        </button>
-                                    </form>
                                     <form method="POST" action="{{ url_for('friends.follow') }}">
                                         <input type="hidden" name="username" value="{{ u.username }}">
-                                        <button type="submit" class="px-3 py-1 bg-gray-200 text-gray-700 text-xs font-medium rounded-full hover:bg-gray-300 transition">
+                                        <button type="submit" class="px-3 py-1 bg-primary text-white text-xs font-medium rounded-full hover:bg-primary-dark transition">
                                             + Follow
                                         </button>
                                     </form>
                                 {% endif %}
-                            </div>
+                                </div>
                         </li>
                         {% endfor %}
                     {% else %}

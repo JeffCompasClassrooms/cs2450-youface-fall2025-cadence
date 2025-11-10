@@ -9,7 +9,8 @@ import time
 # --- Installed Imports ---
 import flask
 import timeago
-from tinydb import TinyDB, Query  # ✅ import TinyDB and Query properly
+from tinydb import TinyDB, Query
+from tinydb.operations import delete # ✅ Import 'delete' operation
 
 # --- Handlers ---
 from handlers import friends, login, posts
@@ -31,60 +32,73 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 # --- Database Setup ---
-# ✅ Initialize your TinyDB database and User query object
 db_path = os.path.join(PROJECT_ROOT, 'db.json')
 db = TinyDB(db_path)
 User = Query()
 
 
-# --- NEW: Database Migration Function ---
+# --- UPDATED: Database Migration Function ---
 def run_db_migration(db):
     """
-    Checks all users in the DB and adds missing fields to ensure
-    compatibility with the new friend request AND follow system.
+    Checks all users in the DB and migrates to the new follow-only system.
+    1. Adds 'following' and 'followers' if they don't exist.
+    2. Deletes old 'friends', 'pending_requests_received', 'pending_requests_sent'.
     """
     print("Checking database schema...")
     users_table = db.table('users')
     User = Query()
     
-    # --- UPDATED: Added new 'following' and 'followers' fields ---
+    # --- 1. Add new fields ---
+    print("Step 1: Adding 'following' and 'followers' fields...")
     default_schema = {
-        'friends': [],
-        'pending_requests_received': [],
-        'pending_requests_sent': [],
         'following': [],
         'followers': []
     }
-    
-    # --- UPDATED: The query now checks for all 5 keys ---
-    query = (
-        (~ User.friends.exists()) |
-        (~ User.pending_requests_received.exists()) |
-        (~ User.pending_requests_sent.exists()) |
+    query_add = (
         (~ User.following.exists()) |
         (~ User.followers.exists())
     )
-    users_to_migrate = users_table.search(query)
+    users_to_add = users_table.search(query_add)
 
-    if not users_to_migrate:
-        print("Database schema is up-to-date. No migration needed.")
-        return
-
-    print(f"Found {len(users_to_migrate)} user(s) needing migration...")
-    
-    for user_doc in users_to_migrate:
-        update_data = {}
-        
-        # Check for each key individually to be safe
-        for key, default_value in default_schema.items():
-            if key not in user_doc:
-                update_data[key] = default_value
-        
-        if update_data:
-            print(f"  -> Migrating user: {user_doc['username']}")
-            users_table.update(update_data, User.username == user_doc['username'])
+    if not users_to_add:
+        print(" -> 'following' and 'followers' fields are up-to-date.")
+    else:
+        print(f" -> Found {len(users_to_add)} user(s) needing new fields...")
+        for user_doc in users_to_add:
+            update_data = {}
+            for key, default_value in default_schema.items():
+                if key not in user_doc:
+                    update_data[key] = default_value
             
-    print("Database migration complete.")
+            if update_data:
+                print(f"    -> Migrating user: {user_doc['username']}")
+                users_table.update(update_data, User.username == user_doc['username'])
+    
+    # --- 2. Remove old, deprecated fields ---
+    print("\nStep 2: Removing deprecated 'friends' and 'pending_requests' fields...")
+    
+    # Check and remove 'friends'
+    if users_table.search(User.friends.exists()):
+        print(" -> Removing 'friends' field from users...")
+        users_table.update(delete('friends'), User.friends.exists())
+    else:
+        print(" -> 'friends' field already removed.")
+        
+    # Check and remove 'pending_requests_received'
+    if users_table.search(User.pending_requests_received.exists()):
+        print(" -> Removing 'pending_requests_received' field from users...")
+        users_table.update(delete('pending_requests_received'), User.pending_requests_received.exists())
+    else:
+        print(" -> 'pending_requests_received' field already removed.")
+
+    # Check and remove 'pending_requests_sent'
+    if users_table.search(User.pending_requests_sent.exists()):
+        print(" -> Removing 'pending_requests_sent' field from users...")
+        users_table.update(delete('pending_requests_sent'), User.pending_requests_sent.exists())
+    else:
+        print(" -> 'pending_requests_sent' field already removed.")
+        
+    print("\nDatabase migration complete.")
 
 
 # ==============================
@@ -115,7 +129,6 @@ def profile():
         return flask.redirect(flask.url_for('login.loginscreen'))
 
     # --- Load DB and verify user ---
-    # Use the global 'db' variable
     user = users.get_user(db, username, password)
     if not user:
         return flask.redirect(flask.url_for('login.loginscreen'))
