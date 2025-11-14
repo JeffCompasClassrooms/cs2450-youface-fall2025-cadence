@@ -192,8 +192,13 @@ app.register_blueprint(posts.blueprint)
 # ==============================
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     # --- Run the migration check *before* starting the server ---
     run_db_migration(db)
     
     # --- Start the app ---
     app.run(debug=True, host='0.0.0.0', port=5005)
+=======
+    app.run(host='0.0.0.0', port=5005)
+
+>>>>>>> bd8ab37 (updates)
