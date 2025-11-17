@@ -13,7 +13,7 @@ from tinydb import TinyDB, Query
 from tinydb.operations import delete # ✅ Import 'delete' operation
 
 # --- Handlers ---
-from handlers import friends, login, posts
+from handlers import friends, login, posts, leaderboard
 from db import helpers, users
 
 # --- Project Root ---
@@ -117,55 +117,34 @@ def logout():
     resp.set_cookie('password', '', expires=0)
     return resp
 
-
-# --- Project Root ---
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-
-# --- Flask App Setup ---
-app = flask.Flask(
-    __name__,
-    template_folder=os.path.join(PROJECT_ROOT, 'templates')
-)
-
-# --- Secret & Config ---
-app.secret_key = 'mygroup'
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-
-
-# --- Database Setup ---
-# ✅ Initialize your TinyDB database and User query object
-db_path = os.path.join(PROJECT_ROOT, 'db.json')
-db = TinyDB(db_path)
-User = Query()
-
-
-# ==============================
-# ROUTES
-# ==============================
-
-@app.route('/logout')
-def logout():
-    """Logs the user out by clearing cookies."""
-    resp = flask.make_response(flask.redirect(flask.url_for('login.loginscreen')))
-    resp.set_cookie('username', '', expires=0)
-    resp.set_cookie('password', '', expires=0)
-    return resp
-
-
 @app.route('/profile')
 def profile():
+    """Displays the currently logged-in user's profile page."""
     username = flask.request.cookies.get('username')
-    if not username:
+    password = flask.request.cookies.get('password') # Get password from cookie
+
+    if not username or not password:
+        flask.flash('You must be logged in to view your profile.', 'warning')
         return flask.redirect(flask.url_for('login.loginscreen'))
 
     # --- Load DB and verify user ---
-    user = users.get_user(db, username, password)
-    if not user:
-        return flask.redirect(flask.url_for('login.loginscreen'))
+    # We pass the 'db' instance from the top of this file
+    user_doc = users.get_user(db, username, password) 
+    
+    if not user_doc:
+        # User/pass combination is invalid, clear cookies and redirect
+        flask.flash('Your login session is invalid. Please log in again.', 'danger')
+        resp = flask.make_response(flask.redirect(flask.url_for('login.loginscreen')))
+        resp.set_cookie('username', '', expires=0)
+        resp.set_cookie('password', '', expires=0)
+        return resp
 
-    user_info = user_record[0]
-    return flask.render_template('profile.html', user=user_info)
+    # user_doc is the user's dictionary. Pass it to the template.
+    return flask.render_template('profile.html', user=user_doc)
+
+# --- DELETED ---
+# The old, conflicting @app.route('/leaderboard') was removed.
+# The app will now correctly use the 'leaderboard.blueprint'.
 
 
 # ==============================
@@ -185,6 +164,7 @@ def convert_time(ts):
 app.register_blueprint(friends.blueprint)
 app.register_blueprint(login.blueprint)
 app.register_blueprint(posts.blueprint)
+app.register_blueprint(leaderboard.blueprint)
 
 
 # ==============================

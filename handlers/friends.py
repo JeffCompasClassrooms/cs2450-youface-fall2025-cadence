@@ -95,7 +95,8 @@ def view_friend(fname):
         friends=users.get_user_friends(db, user), 
         following=users.get_user_following(db, user),
         followers=users.get_user_followers(db, user),
-        posts=all_posts
+        posts=all_posts,
+        active_page='friends' 
     )
 
 @blueprint.route('/friends')
@@ -127,7 +128,8 @@ def friends_list():
         friends=friends,
         following=following,
         followers=followers,
-        potential_friends=potential_friends
+        potential_friends=potential_friends,
+        active_page='friends' 
     )
     
 
@@ -175,5 +177,6 @@ def find_users():
         following=following,
         followers=followers,
         search_results=search_results, # Pass the new search results
-        query=query
+        query=query,
+        active_page='friends' 
     )

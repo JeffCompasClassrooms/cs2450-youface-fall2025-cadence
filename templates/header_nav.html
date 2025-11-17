@@ -1,11 +1,12 @@
-<header class="sticky top-0 bg-white shadow-sm z-10 border-b border-gray-100">
+<header class="sticky top-0 bg-white shadow-sm z-50 border-b border-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
 
             <!-- Logo (Link to Feed/Home) -->
             <div class="flex-shrink-0">
                 <a href="/" class="flex items-center">
-                    <img src="../static/Only_Celebs_LogoV1.png" alt="Only Celebs Logo" class="h-40 w-auto">
+                    <!-- Use url_for for static assets -->
+                    <img src="{{ url_for('static', filename='Only_Celebs_LogoV1.png') }}" alt="Only Celebs Logo" class="h-40 w-auto">
                 </a>
             </div>
 
@@ -24,15 +25,15 @@
                 <!-- Notifications Placeholder -->
                 <div class="relative">
                      <button data-dropdown="notificationDropdown" class="dropdownBtn p-2 rounded-full hover:bg-gray-100 text-gray-600 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                    </button>
-                    <div id="notificationDropdown"
-                         class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4 text-center text-gray-500
-                                opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
-                        No new notifications
-                    </div>
+                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                         </svg>
+                     </button>
+                     <div id="notificationDropdown"
+                          class="dropdownMenu absolute right-0 mt-2 w-64 bg-white border rounded-lg shadow-lg p-4 text-center text-gray-500
+                                 opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
+                         No new notifications
+                     </div>
                 </div>
 
                 <!-- Menu -->
@@ -43,24 +44,34 @@
                         </svg>
                     </button>
                     <div id="menuDropdown"
-                         class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-40 bg-white border rounded-lg shadow-lg
+                         class="dropdownMenu absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg
                                 opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
-                        <a href="/leaderboard" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Leaderboard</a>
-                        <a href="{{ url_for('friends.friends_list') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Friends</a>
-                        <a href="/messages" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Messages</a>
+                        
+                        <!-- ***** THIS IS THE NEW LOGIC ***** -->
+                        {% set base_class = 'block px-4 py-2 text-gray-700 hover:bg-gray-100' %}
+                        {% set active_class = 'font-bold text-primary' %}
+
+                        <a href="{{ url_for('leaderboard.leaderboard_page') }}" class="{{ base_class }} {% if active_page == 'leaderboard' %}{{ active_class }}{% endif %}">Leaderboard</a>
+                        <a href="{{ url_for('friends.friends_list') }}" class="{{ base_class }} {% if active_page == 'friends' %}{{ active_class }}{% endif %}">Friends</a>
+                        <a href="/messages" class="{{ base_class }} {% if active_page == 'messages' %}{{ active_class }}{% endif %}">Messages</a>
                     </div>
                 </div>
 
                 <!-- User Menu -->
                 <div class="relative">
                     <button data-dropdown="userDropdown" class="dropdownBtn w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white font-semibold text-base shadow-md">
-                        {% if username %}{{ username[0] }}{% else %}U{% endif %}
+                        {% if username %}{{ username[0] | upper }}{% else %}U{% endif %}
                     </button>
                     <div id="userDropdown"
-                         class="dropdownMenu absolute left-1/2 -translate-x-1/2 mt-2 w-32 bg-white border rounded-lg shadow-lg
+                         class="dropdownMenu absolute right-0 mt-2 w-32 bg-white border rounded-lg shadow-lg
                                 opacity-0 scale-95 max-h-0 overflow-hidden transition-all duration-200 transform origin-top z-10">
-                        <a href="{{ url_for('profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
-                        <a href="/settings" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+                        
+                        <!-- ***** ADDED LOGIC HERE TOO ***** -->
+                        {% set base_class = 'block px-4 py-2 text-gray-700 hover:bg-gray-100' %}
+                        {% set active_class = 'font-bold text-primary' %}
+
+                        <a href="{{ url_for('profile') }}" class="{{ base_class }} {% if active_page == 'profile' %}{{ active_class }}{% endif %}">Profile</a>
+                        <a href="{{ url_for('settings') }}" class="{{ base_class }} {% if active_page == 'settings' %}{{ active_class }}{% endif %}">Settings</a>
                         <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Log Out</a>
                     </div>
                 </div>
@@ -69,8 +80,34 @@
         </div>
     </div>
 </header>
+
+<!-- 
+============================================================
+== NEW TOAST NOTIFICATION SYSTEM
+============================================================
+-->
+
+<!-- 1. The container where popups will live -->
+<div id="toast-container" class="fixed bottom-0 right-0 p-6 z-50 space-y-3 w-full max-w-sm">
+    <!-- Toasts will be added here by JavaScript -->
+</div>
+
+<!-- 2. NEW: Hidden container for flashed messages -->
+<!-- This is where Flask/Jinja will safely write messages -->
+<div id="flashed-messages" class="hidden">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <span data-category="{{ category }}" data-message="{{ message|e }}"></span>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+
+<!-- The Dropdown JavaScript is now part of this file -->
 <script>
-    // Dropdown script: placed here so it loads alongside the header HTML
+    // --- (Existing Dropdown Script) ---
     const buttons = document.querySelectorAll('.dropdownBtn');
     const menus = document.querySelectorAll('.dropdownMenu');
 
@@ -85,32 +122,100 @@
 
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
-            // Only toggle dropdown if the button itself was clicked, not a link inside
             if (button.tagName.toLowerCase() !== 'button') return;
-
             const targetId = button.getAttribute('data-dropdown');
             const targetMenu = document.getElementById(targetId);
-
             const isOpen = targetMenu.classList.contains('open');
             closeAll();
-
             if (!isOpen) {
                 targetMenu.classList.add('open');
                 targetMenu.style.maxHeight = '500px';
                 targetMenu.style.opacity = '1';
                 targetMenu.style.transform = 'scale(1)';
             }
-
-            e.stopPropagation(); // prevent clicks on the button from closing immediately
+            e.stopPropagation();
         });
     });
 
-    // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
-        // Only close if the click isn’t inside a dropdown or button
         if (!e.target.closest('.dropdownBtn') && !e.target.closest('.dropdownMenu')) {
             closeAll();
         }
     });
-</script>
 
+
+    // --- (Existing Toast Notification Script) ---
+
+    /**
+     * Displays a toast notification.
+     * @param {string} message The message to show.
+     * @param {string} category 'success', 'danger', 'warning', or 'info'.
+     */
+    function showToast(message, category = 'info') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+
+        const toast = document.createElement('div');
+        
+        let bgColor = 'bg-primary'; // default/info
+        let iconSvg = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
+        if (category === 'success') {
+            bgColor = 'bg-green-600';
+            iconSvg = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        } else if (category === 'danger') {
+            bgColor = 'bg-red-600';
+            iconSvg = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+        } else if (category === 'warning') {
+            bgColor = 'bg-yellow-500';
+            iconSvg = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+        }
+
+        toast.className = `w-full ${bgColor} text-white p-4 rounded-lg shadow-xl flex items-center space-x-3 transform transition-all duration-300 opacity-0 translate-y-2`;
+        toast.innerHTML = `
+            <div class="flex-shrink-0">${iconSvg}</div>
+            <div class="flex-grow text-sm font-medium">${message}</div>
+            <button class="toast-close flex-shrink-0 p-1 -m-1 rounded-full hover:bg-white/20 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+        `;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+        }, 10); 
+
+        const timeout = setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toast.remove(), 300); 
+        }, 5000);
+
+        toast.querySelector('.toast-close').addEventListener('click', () => {
+            clearTimeout(timeout); 
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(100%)';
+            setTimeout(() => toast.remove(), 300);
+        });
+    }
+
+    // --- 3. SCRIPT TO GRAB FLASK MESSAGES (FIXED) ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // This script now reads from the hidden #flashed-messages div
+        const messageContainer = document.getElementById('flashed-messages');
+        if (messageContainer) {
+            const messages = messageContainer.querySelectorAll('span');
+            messages.forEach((msg, index) => {
+                const category = msg.dataset.category;
+                const message = msg.dataset.message;
+                
+                // We wait 100ms for the page to settle, then show.
+                // Stagger multiple popups
+                setTimeout(() => {
+                    showToast(message, category);
+                }, 100 * (index + 1));
+            });
+        }
+    });
+</script>

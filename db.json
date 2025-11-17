@@ -35,6 +35,12 @@
             "time": 1761587769.7020953,
             "user": "ringwood"
         },
+        "16": {
+            "text": "more points",
+            "time": 1763400255.1859121,
+            "user": "ringwood",
+            "user_id": 3
+        },
         "2": {
             "text": "Cole is a cool guy\r\n",
             "time": 1761583604.8150036,
@@ -78,20 +84,27 @@
     },
     "users": {
         "1": {
-            "followers": [],
+            "followers": [
+                "ringwood"
+            ],
             "following": [],
             "password": "UKWildcats1",
             "username": "tylermullins14"
         },
         "2": {
-            "followers": [],
+            "followers": [
+                "ringwood"
+            ],
             "following": [],
             "password": "tyler",
             "username": "tyler"
         },
         "3": {
             "followers": [],
-            "following": [],
+            "following": [
+                "tylermullins14",
+                "tyler"
+            ],
             "password": "real1",
             "username": "ringwood"
         },
@@ -102,7 +115,8 @@
             "username": "test_BOT"
         },
         "5": {
-            "friends": [],
+            "followers": [],
+            "following": [],
             "password": "tyler2",
             "username": "tyler2"
         }
