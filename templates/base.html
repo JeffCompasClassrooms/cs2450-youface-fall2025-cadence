@@ -17,22 +17,6 @@
   </head>
 
   <body class="bg-gradient">
-  <!-- Put this inside your base.html file -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <!-- This div will hold all the flashed messages -->
-        <div class="flashed-messages" style="width: 100%; text-align: center; position: absolute; top: 0; left: 0; z-index: 100;">
-          {% for category, message in messages %}
-            <!-- 
-              It styles the message based on the category you provided.
-              e.g., 'danger' gets a red background, 'success' gets green.
-            -->
-            
-            <!-- This uses your corrected class attribute, which is great! -->
-            <!-- Your CSS file should now handle styling for .alert-danger, .alert-success etc. -->
-            <div class="alert alert-{{ category }}" style="padding: 1rem; color: white;">
-
-              {{ message }}
             </div>
           {% endfor %}
         </div>

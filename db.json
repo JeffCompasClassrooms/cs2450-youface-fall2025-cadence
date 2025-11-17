@@ -1,1 +1,124 @@
-{"posts": {"1": {"text": "Caden is tall", "time": 1761322490.422299, "user": "tyler"}, "10": {"text": "dd", "time": 1760981724.1103776, "user": "boby"}, "11": {"text": "hi", "time": 1760982130.7588425, "user": "c"}, "12": {"text": "hi", "time": 1760546414.090271, "user": "caden"}, "13": {"text": "", "time": 1760546448.827538, "user": "caden"}, "14": {"text": "hey guys", "time": 1761585544.554482, "user": "ringwood"}, "15": {"text": "test if posts show up", "time": 1761587769.7020953, "user": "ringwood"}, "2": {"text": "Cole is a cool guy\r\n", "time": 1761583604.8150036, "user": "tyler"}, "3": {"text": "", "time": 1760719528.3265345, "user": "cade"}, "4": {"text": "", "time": 1760719529.3067074, "user": "cade"}, "5": {"text": "", "time": 1760719529.960297, "user": "cade"}, "6": {"text": "", "time": 1760719531.2558742, "user": "cade"}, "7": {"text": "", "time": 1760719532.350642, "user": "cade"}, "8": {"text": "", "time": 1760719533.335568, "user": "cade"}, "9": {"text": "gaga", "time": 1760981722.1744232, "user": "boby"}}, "users": {"1": {"followers": [], "following": [], "password": "UKWildcats1", "username": "tylermullins14"}, "2": {"followers": [], "following": [], "password": "tyler", "username": "tyler"}, "3": {"followers": [], "following": [], "password": "real1", "username": "ringwood"}, "4": {"followers": [], "following": [], "password": "bot", "username": "test_BOT"}, "5": {"password": "tyler2", "username": "tyler2", "following": [], "followers": []}}}
+{
+    "posts": {
+        "1": {
+            "text": "Caden is tall",
+            "time": 1761322490.422299,
+            "user": "tyler"
+        },
+        "10": {
+            "text": "dd",
+            "time": 1760981724.1103776,
+            "user": "boby"
+        },
+        "11": {
+            "text": "hi",
+            "time": 1760982130.7588425,
+            "user": "c"
+        },
+        "12": {
+            "text": "hi",
+            "time": 1760546414.090271,
+            "user": "caden"
+        },
+        "13": {
+            "text": "",
+            "time": 1760546448.827538,
+            "user": "caden"
+        },
+        "14": {
+            "text": "hey guys",
+            "time": 1761585544.554482,
+            "user": "ringwood"
+        },
+        "15": {
+            "text": "test if posts show up",
+            "time": 1761587769.7020953,
+            "user": "ringwood"
+        },
+        "16": {
+            "text": "more points",
+            "time": 1763400255.1859121,
+            "user": "ringwood",
+            "user_id": 3
+        },
+        "2": {
+            "text": "Cole is a cool guy\r\n",
+            "time": 1761583604.8150036,
+            "user": "tyler"
+        },
+        "3": {
+            "text": "",
+            "time": 1760719528.3265345,
+            "user": "cade"
+        },
+        "4": {
+            "text": "",
+            "time": 1760719529.3067074,
+            "user": "cade"
+        },
+        "5": {
+            "text": "",
+            "time": 1760719529.960297,
+            "user": "cade"
+        },
+        "6": {
+            "text": "",
+            "time": 1760719531.2558742,
+            "user": "cade"
+        },
+        "7": {
+            "text": "",
+            "time": 1760719532.350642,
+            "user": "cade"
+        },
+        "8": {
+            "text": "",
+            "time": 1760719533.335568,
+            "user": "cade"
+        },
+        "9": {
+            "text": "gaga",
+            "time": 1760981722.1744232,
+            "user": "boby"
+        }
+    },
+    "users": {
+        "1": {
+            "followers": [
+                "ringwood"
+            ],
+            "following": [],
+            "password": "UKWildcats1",
+            "username": "tylermullins14"
+        },
+        "2": {
+            "followers": [
+                "ringwood"
+            ],
+            "following": [],
+            "password": "tyler",
+            "username": "tyler"
+        },
+        "3": {
+            "followers": [],
+            "following": [
+                "tylermullins14",
+                "tyler"
+            ],
+            "password": "real1",
+            "username": "ringwood"
+        },
+        "4": {
+            "followers": [],
+            "following": [],
+            "password": "bot",
+            "username": "test_BOT"
+        },
+        "5": {
+            "followers": [],
+            "following": [],
+            "password": "tyler2",
+            "username": "tyler2"
+        }
+    }
+}
