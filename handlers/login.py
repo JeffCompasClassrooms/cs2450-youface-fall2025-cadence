@@ -20,7 +20,7 @@ def loginscreen():
             flask.flash('You are already logged in.', 'warning')
             return flask.redirect(flask.url_for('login.index'))
 
-    return flask.render_template('of_login', title=copy.title,
+    return flask.render_template('of_login.html', title=copy.title,
                                  subtitle=copy.subtitle)
 
 @blueprint.route('/login', methods=['POST'])
